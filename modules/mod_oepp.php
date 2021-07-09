@@ -111,8 +111,4 @@ function m_oepp_liens($struct) {
   }
 }
 
-// génération (le cas échéant) de contenus de fin d'article (catégories, portails…)
-function m_oepp_fin($struct) {
-  return false;
-}
 

@@ -134,7 +134,3 @@ function m_externe_liens($struct) {
   }
 }
 
-function m_externe_fin($struct) {
-  return false;
-}
-

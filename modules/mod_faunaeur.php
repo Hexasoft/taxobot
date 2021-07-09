@@ -119,8 +119,3 @@ function m_faunaeur_liens($struct) {
   }
 }
 
-// génération (le cas échéant) de contenus de fin d'article (catégories, portails…)
-function m_faunaeur_fin($struct) {
-  return false;
-}
-

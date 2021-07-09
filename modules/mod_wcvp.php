@@ -155,8 +155,4 @@ function m_wcvp_liens($struct) {
   }
 }
 
-// génération (le cas échéant) de contenus de fin d'article (catégories, portails…)
-function m_wcvp_fin($struct) {
-  return false;
-}
 

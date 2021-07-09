@@ -117,7 +117,3 @@ function m_cites_liens($struct) {
   }
 }
 
-function m_cites_fin($struct) {
-  return false;
-}
-

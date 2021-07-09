@@ -99,8 +99,3 @@ function m_fishbase_liens($struct) {
   }
 }
 
-// génération (le cas échéant) de contenus de fin d'article (catégories, portails…)
-function m_fishbase_fin($struct) {
-  return false;
-}
-

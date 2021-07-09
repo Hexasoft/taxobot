@@ -2,6 +2,7 @@
 
 /*
   Tente de trouver le (ou les) portails
+  Note : ne fait aucun rendu. Uniquement utilisé par rendu() et les fonctions associées
 */
 
 
@@ -61,25 +62,6 @@ function m_fin_ext($struct) {
 }
 
 function m_fin_liens($struct) {
-  return false;
-}
-
-function m_fin_fin($struct) {
-  $ret = "";
-  if (!empty($struct['liens']['fin']['portails'])) {
-    $ret = "{{Portail|" . implode("|", $struct['liens']['fin']['portails']) . "}}\n";
-  }
-  if (!empty($struct['liens']['fin']['categories'])) {
-    if (!empty($ret)) {
-      $ret .= "\n";
-    }
-    foreach($struct['liens']['fin']['categories'] as $c) {
-      $ret .= "[[Catégorie:" . $c . "]]\n";
-    }
-  }
-  if (!empty($ret)) {
-    return $ret;
-  }
   return false;
 }
 

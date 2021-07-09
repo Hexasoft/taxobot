@@ -341,7 +341,3 @@ function m_uicn_liens($struct) {
   }
 }
 
-function m_uicn_fin($struct) {
-  return false;
-}
-

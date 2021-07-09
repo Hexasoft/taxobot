@@ -87,8 +87,3 @@ function m_col_liens($struct) {
   }
 }
 
-// génération (le cas échéant) de contenus de fin d'article (catégories, portails…)
-function m_col_fin($struct) {
-  return false;
-}
-

@@ -325,17 +325,13 @@ function rendu_voir_aussi($struct) {
 // rendu de fin d'article (catégories, portails…)
 function rendu_fin($struct) {
   $ret = "\n== Notes et références ==\n{{références}}\n";
-  if (isset($struct['liens'])) {
-    foreach($struct['liens'] as $mod => $data) {
-      $f = "m_" . $mod . "_fin";
-      if (function_exists($f)) {
-        $tmp = $f($struct);
-      } else {
-        $tmp = false;
-      }
-      if ($tmp) {
-        $ret .= "\n" . $tmp . "\n";
-      }
+  if (!empty($struct['liens']['fin']['portails'])) {
+    $ret .= "\n{{Portail|" . implode("|", $struct['liens']['fin']['portails']) . "}}\n";
+  }
+  if (!empty($struct['liens']['fin']['categories'])) {
+    $ret .= "\n";
+    foreach($struct['liens']['fin']['categories'] as $c) {
+      $ret .= "[[Catégorie:" . $c . "]]\n";
     }
   }
   return $ret;

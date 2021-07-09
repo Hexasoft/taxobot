@@ -137,8 +137,4 @@ function m_irmng_liens($struct) {
   }
 }
 
-// génération (le cas échéant) de contenus de fin d'article (catégories, portails…)
-function m_irmng_fin($struct) {
-  return false;
-}
 

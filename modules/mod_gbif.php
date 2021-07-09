@@ -228,7 +228,8 @@ function gbif_taxon_info($id) {
 
 // déclaration du module
 function m_gbif_init() {
-  // permet classification, liens externes et accepte tous les domaines (+classif par défaut)
+  // gère la classification, les liens externes, accepte tous les domaines,
+  // priorité max, et classification par défaut
   return declare_module("gbif", true, true, true, 999, true);
 }
 
@@ -511,6 +512,3 @@ function m_gbif_liens($struct) {
   return false;
 }
 
-function m_gbif_fin($struct) {
-  return false;
-}

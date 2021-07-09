@@ -135,7 +135,3 @@ function m_reptiledb_liens($struct) {
   }
 }
 
-function m_reptiledb_fin($struct) {
-  return false;
-}
-

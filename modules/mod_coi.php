@@ -1,7 +1,7 @@
 <?php
 
 /*
-  Module de classification COI
+  Module de classification COI (à faire)
 */
 
 
@@ -23,10 +23,6 @@ function m_coi_ext($struct) {
 
 // retourne les liens HTTP directs liés à COI (si présents)
 function m_coi_liens($struct) {
-  return false;
-}
-
-function m_coi_fin($struct) {
   return false;
 }
 

@@ -68,8 +68,3 @@ function m_gisd_liens($struct) {
   }
 }
 
-// génération (le cas échéant) de contenus de fin d'article (catégories, portails…)
-function m_gisd_fin($struct) {
-  return false;
-}
-

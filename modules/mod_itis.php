@@ -6,7 +6,8 @@
 
 // déclaration du module
 function m_itis_init() {
-  return declare_module("itis", true, true, true);
+  // gère la classification, les liens externes, tous les domaines, priorité juste en dessous de GBIF
+  return declare_module("itis", true, true, true, 998);
 }
 
 $itis_regnes = [
@@ -414,10 +415,5 @@ function m_itis_liens($struct) {
   } else {
     return false;
   }
-}
-
-// génération (le cas échéant) de contenus de fin d'article (catégories, portails…)
-function m_itis_fin($struct) {
-  return false;
 }
 
