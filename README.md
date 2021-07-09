@@ -29,3 +29,20 @@ Enfin à partir de toutes ces méta-données il génère un squelette d'article 
 * références
 * catégories et portails
 
+# Options
+
+Taxobox a les options suivantes :
+* `-taxon "NOM TAXON"` : obligatoire. Le nom scientifique du taxon à chercher
+* `-classification NOM` : permet de forcer le choix d'une classification
+* `-domaine NOM` : indique le domaine du vivant pour le taxon. Permet de restreindre
+les modules qui seront appelés (y compris les sources de classifications utilisables)
+* `-suivre-synonymes *oui/non` : si le taxon est un synonyme, traiter le nom valide
+* `-inclure-invalides oui/*non` : inclure dans les liens externes et autres les taxons
+non valides (synonymes, etc.)
+* `-juste-ext oui/*non` : ne fournir que les liens externes (pas de classification).
+Note : sans classification, certaines informations peuvent être omises ou mal présentées
+* `-liens-inf-sp oui/*non` : mettre des wikiliens sur les taxons inférieurs à l'espèce
+* `-liens-synonymes *oui/non` : mettre des wikiliens sur les synonymes
+* `-seuil-colonnes NOMBRE` : seuil (nombre d'éléments) avant mise en multi-colonnes de
+l'affichage (-2=défaut (25) ; -1=toujours ; 0=jamais)
+
