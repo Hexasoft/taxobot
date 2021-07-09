@@ -111,6 +111,6 @@ retourne `false` elle doit au préalable avoir ajouté un message expliquant la 
 Vous pouvez regarder les modules de classification (GBIF et ITIS à l'heure actuelle) et tous les autres (liens
 externes uniquement) dans le répertoire `modules/`.
 
-Il y a aussi dans ce même répertoire deux pseudo-modules d'exemple (un de classification, un juste de liens
+Il y a aussi dans le répertoire `templates/` deux pseudo-modules d'exemple (un de classification, un juste de liens
 externes).
 
