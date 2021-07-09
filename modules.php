@@ -440,7 +440,7 @@ function meilleure_classification($domaine) {
   }
   // pas trouvé, on ne peut rien faire
   if (empty($tbl)) {
-    error("Aucune classification !");
+    logs("meilleure_classification: aucune classification !");
     return false; // ne devrait pas se produire
   }
   
