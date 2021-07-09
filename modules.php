@@ -186,6 +186,17 @@ function creer_domaines($def, $liste) {
   return $domaines;
 }
 
+// fonction de comparaison de modules (ordre décroissant de la priorité)
+function mod_trie($a, $b) {
+  if (!isset($a['niveau'])) {
+    return 1;
+  }
+  if (!isset($b['niveau'])) {
+    return -1;
+  }
+  return $b['niveau'] - $a['niveau'];
+}
+
 // déclare l'existence d'un module
 // $classif : true si est utilisable comme classification
 // $ext : true si utilisable pour générer des liens externes
@@ -195,7 +206,7 @@ function declare_module($nom, $classif, $ext, $domaines, $niveau=0, $default=fal
   global $m_modules, $m_default;
 
   if (isset($m_modules[$nom])) {
-    error("declare_module: le module '$nom' est déjà déclaré");
+    logs("declare_module: le module '$nom' est déjà déclaré");
     return false;
   }
   
@@ -224,6 +235,9 @@ function declare_module($nom, $classif, $ext, $domaines, $niveau=0, $default=fal
   
   $m_modules[$nom] = $blob;
   
+  // trier les modules présents selon leur priorité
+  uasort($m_modules, "mod_trie");
+
   return true;
 }
 
