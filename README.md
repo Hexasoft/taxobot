@@ -46,3 +46,10 @@ Note : sans classification, certaines informations peuvent être omises ou mal p
 * `-seuil-colonnes NOMBRE` : seuil (nombre d'éléments) avant mise en multi-colonnes de
 l'affichage (-2=défaut (25) ; -1=toujours ; 0=jamais)
 
+Ces options sont celles de la ligne de commande. En mode WEB ces options sont passées en
+`GET` : l'option a le même nom (sans le tiret) et sa valeur est celle passée. Exemple :
+`…&seuil-colonnes=30&…`
+
+Il existe également l'option `-liste` qui retourne la liste des modules et leurs capacités,
+et l'option `-help` qui affiche un message rappelant les diverses options.
+

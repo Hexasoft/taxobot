@@ -67,6 +67,16 @@ foreach($liste as $c => $type) {
 // est-ce un appel WEB ou ligne de commande ?
 $web = est_web();
 
+// usage ?
+if (get_config('help')) {
+  echo "Taxobot. Options :\n";
+  $lst = list_config();
+  foreach($lst as $nom => $type) {
+    echo "  -$nom ($type)\n";
+  }
+  die();
+}
+
 // si on demande la liste des modules, on traite (et on quitte)
 if (get_config('liste')) {
   $modules = cherche_modules();
