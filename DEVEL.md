@@ -9,9 +9,9 @@ pour le rendu.
 
 Ci-dessous la description des différents champs :
 * taxon : les champs décrivant le taxon
- * nom : le nom scientifique du taxon. Cette valeur est toujours définie à l'appel d'un module
- * rang : rang du taxon (rang selon wikipédia)
- * auteur : zone auteur associée
+  * nom : le nom scientifique du taxon. Cette valeur est toujours définie à l'appel d'un module
+  * rang : rang du taxon (rang selon wikipédia)
+  * auteur : zone auteur associée
 * liens : une table pour les liens externes. Cette table doit être indexée par le nom du module. La fonction
 `m_XXXX_ext()` sera appelée automatiquement pour générer les liens externes. Le contenu n'est pas contraint
 * redirection : pour le module appelé pour classification, si un autre taxon est traité (option pour suivre
@@ -21,23 +21,23 @@ modifier le contenu de 'taxon'
 * classification-taxobox : le nom du paramètre 'classification' du modèle Taxobox début
 * regne : la charte à utiliser dans les modèles Taxobox (animal, végétal, etc.)
 * basionyme : les informations sur le basionyme
- * nom
- * auteur
- * source : doit correspondre au modèle Bioref associé
- * rang : optionnel (si absent le rang du taxon est utilisé)
-* sous-taxons : liste des taxons de rang inférieur
- * liste : une table de taxons
   * nom
   * auteur
-  * rang
- * source : doit correspondre au modèle Bioref associé
+  * source : doit correspondre au modèle Bioref associé
+  * rang : optionnel (si absent le rang du taxon est utilisé)
+* sous-taxons : liste des taxons de rang inférieur
+  * liste : une table de taxons
+    * nom
+    * auteur
+    * rang
+  * source : doit correspondre au modèle Bioref associé
 * vernaculaire : une liste par source de noms vernaculaires. Chaque liste doit être indexée par le nom
 du modèle Bioref associé.
 * synonymes : une liste par source de synonymes. Chaque liste doit être indexée par le nom
 du modèle Bioref associé. Chaque élément de la liste contient :
- * nom
- * auteur
- * rang
+  * nom
+  * auteur
+  * rang
 
 # Ajouter un nouveau module
 
