@@ -21,6 +21,10 @@ function m_tropicos_infos(&$struct, $classif) {
   // présence de "secrets" dans le code… Quand n'importe qui qui examine les transactions
   // peut trouver le "secret" j'appelle ça de la "sécurité par l'obscurité", qui n'a
   // jamais marché…
+  // précision : c'est le site tropicos qui utilise cette "sécurité" de pacotille. Ce qui
+  // me force à l'intégrer ici pour pouvoir simuler une requête "comme via un navigateur".
+  // « Il n’existe que deux choses infinies, l’univers et la bêtise humaine…
+  //   mais pour l'univers, je n'ai pas de certitude absolue. » Albert.
   $str = str_replace("ZOG", "Bearer", $str);
   $header = [$str, "Referer: https://www.tropicos.org/name/Search"];
   $ret = get_data($url, $header);

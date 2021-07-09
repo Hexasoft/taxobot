@@ -198,6 +198,9 @@ function valide_parametre($val, $type) {
     error("valide_parametre: la valeur '$val' n'est pas de type '$type'");
     return null;
   }
+  if ($type == 'flag') {
+    return true;
+  }
 
   return $val; // on n'arrive jamais là, mais par précaution…
 }
@@ -215,8 +218,12 @@ function parametre($nom, $type) {
         break; // non trouvé
       }
       if ($argv[$i] == "-$nom") {
-        if (isset($argv[$i+1])) {
-          return valide_parametre(trim($argv[$i+1]), $type); // trouvé
+        if ($type == 'flag') {
+          return true; // flag : true si présent
+        } else {
+          if (isset($argv[$i+1])) {
+            return valide_parametre(trim($argv[$i+1]), $type); // trouvé
+          }
         }
       }
     }
