@@ -352,7 +352,7 @@ function m_gbif_infos(&$struct, $classif) {
   
   // si pas de "règne" trouvé : erreur
   if (!isset($struct['regne'])) {
-    $error = "Charte non trouvé via GBIF";
+    logs("GBIF: charte non trouvée");
     return false;
   }
   
