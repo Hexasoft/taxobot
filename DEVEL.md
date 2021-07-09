@@ -80,6 +80,19 @@ dessus (`m_XXXX_ext()`) mais elle retourne des liens au format HTML (utilisé da
 résultats, pour permettre un accès direct aux cibles des liens externes, sans devoir passer par une
 prévisualisation).
 
+## Spécial : fin
+Il existe un module spécial `fin` qui ne génère ni classification ni liens externes. Il renseigne
+`$struct['liens']['fin']` pour les catégories et les portails. Vous pouvez créer un module pour gérer des
+éléments de « fin », mais il faut également modifier `rendu.php` pour prendre en compte les nouveaux
+éléments de fin, ou les modifications des éléments existants.
+
+## Spécial : externe
+Il existe un module spécial `externe` qui ne génère que des URL et pas de liens externes. Celui-ci cherche
+le taxon sur les projets frères (wikidata, species, commons) afin de fournir des URL d'aide, pour que
+l'appelant puisse facilement aller consulter les autres ressources wikimedia. Vous pouvez tout à fait ajouter
+d'autres modules de ce type (ou étendre le module existant) si vous disposez de sources externes qui ne
+génèrent pas de liens reconnus sur fr.wp.
+
 ## Fonctions d'aide
 Il existe plusieurs fonctions permettant de faciliter le travail :
 
@@ -94,4 +107,10 @@ plus de détails
 aux modules d'informer sur les problèmes rencontrés, etc. En particulier lorsque la fonction `m_XXXX_infos()`
 retourne `false` elle doit au préalable avoir ajouté un message expliquant la raison de cet échec.
 
+## Exemples
+Vous pouvez regarder les modules de classification (GBIF et ITIS à l'heure actuelle) et tous les autres (liens
+externes uniquement) dans le répertoire `modules/`.
+
+Il y a aussi dans ce même répertoire deux pseudo-modules d'exemple (un de classification, un juste de liens
+externes).
 
