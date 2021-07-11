@@ -166,6 +166,7 @@ function itis_data_taxon($tsn, $auteur=false) {
 function m_itis_infos(&$struct, $classif) {
   $suivre_synonymes = get_config('suivre-synonymes');
   $taxon = $struct['taxon']['nom'];
+logs("ITIS: problèmes avec le site. Module désactivé pour le moment");
 return false;
   $url = "https://www.itis.gov/ITISWebService/services/ITISService/searchByScientificName?srchKey=" .
        urlencode($taxon);
