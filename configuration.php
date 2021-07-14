@@ -23,19 +23,19 @@ $configuration = [
 
 // liste des éléments configurables
 $liste_configuration = [
-  "classification" => 'string',
-  "taxon" => 'string',
-  "domaine" => 'string',
-  "seuil-colonnes" => 'int',
-  "liens-synonymes" => 'bool',
-  "liens-inf-sp" => 'bool',
-  "suivre-synonymes" => 'bool',
-  "juste-ext" => 'bool',
-  "inclure-invalides" => 'bool',
-  "debug" => 'bool',
-  "liste" => 'flag',
-  "help" => 'flag',
-  "off" => 'string',
+  "classification" => ['string', 'La classification à utiliser (vide pour laisser le programme choisir'],
+  "taxon" => ['string', 'Le nom scientifique du taxon (obligatoire)'],
+  "domaine" => ['string', 'Le domaine du vivant du taxon. Utilisé pour filtrer les sources utilisées'],
+  "seuil-colonnes" => ['int', 'Nombre-seuil d\'éléments dans une liste avant mise en colonnes'],
+  "liens-synonymes" => ['bool', 'Ajout ou non de wikiliens autour des synonymes'],
+  "liens-inf-sp" => ['bool', 'Ajout ou non de wikiliens pour les taxons inférieurs à l\'espèce'],
+  "suivre-synonymes" => ['bool', 'Si la classification indique que le taxon demandé est un synonyme, traiter la cible du synonyme'],
+  "juste-ext" => ['bool', 'Ne déterminer que les liens externes. Les données peuvent être incohérentes'],
+  "inclure-invalides" => ['bool', 'Inclure dans les liens externes les taxons invalides trouvés'],
+  "debug" => ['bool', 'Activer ou pas le mode debug'],
+  "liste" => ['flag', 'Afficher la liste des modules'],
+  "help" => ['flag', 'Afficher ce message d\'aide'],
+  "off" => ['string', 'Liste de modules à désactiver (noms séparés par des virgules)'],
 ];
 
 // retourne la configuration

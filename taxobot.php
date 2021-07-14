@@ -55,7 +55,8 @@ function sortie_resultat($article, $liens) {
 
 // on récupère les éléments de configuration
 $liste = list_config();
-foreach($liste as $c => $type) {
+foreach($liste as $c => $data) {
+  $type = $data[0];
   $ret = parametre($c, $type);
   if ($ret === null) {
     continue; // non indiqué, ou valeur fausse
@@ -71,8 +72,10 @@ $web = est_web();
 if (get_config('help')) {
   echo "Taxobot. Options :\n";
   $lst = list_config();
-  foreach($lst as $nom => $type) {
-    echo "  -$nom ($type)\n";
+  foreach($lst as $nom => $data) {
+    $type = $data[0];
+    $desc = $data[1];
+    echo "  -$nom ($type) : $desc\n";
   }
   die();
 }
