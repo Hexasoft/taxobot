@@ -8,9 +8,10 @@
 $m_default = false;
 
 // tableau des modules et de leurs fonctionnalités
-$m_modules = [
+$m_modules = [];
 
-];
+// tableau des modules désactivés
+$m_off = [];
 
 // références pour les domaines
 $domaines_true = [
@@ -197,17 +198,36 @@ function mod_trie($a, $b) {
   return $b['niveau'] - $a['niveau'];
 }
 
+// indique une liste de modules (séparés par une virgule) à désactiver
+function desactive_modules($liste) {
+  global $m_off;
+  
+  if (empty($liste)) {
+    return true;
+  }
+  $tbl = explode(",", $liste);
+  $m_off = $tbl;
+  logs("Désactivation de modules : $liste");
+  
+  return true;
+}
+
 // déclare l'existence d'un module
 // $classif : true si est utilisable comme classification
 // $ext : true si utilisable pour générer des liens externes
 // $domaines : liste de noms de domaines (ex. : animal ; oiseau…) applicables
 // Si la liste est vide tous les domaines sont applicables
 function declare_module($nom, $classif, $ext, $domaines, $niveau=0, $default=false) {
-  global $m_modules, $m_default;
+  global $m_modules, $m_default, $m_off;
 
   if (isset($m_modules[$nom])) {
     logs("declare_module: le module '$nom' est déjà déclaré");
     return false;
+  }
+  
+  // si le module est désactivé, on zappe son enregistrement
+  if (in_array($nom, $m_off)) {
+    return true; // on l'ignore silencieusement
   }
   
   // par défaut ?

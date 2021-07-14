@@ -280,6 +280,8 @@ function rendu_voir_aussi($struct) {
       }
     }
   }
+  
+  // TODO: différencier $ext de $ref (ou alors supprimer $ref et ses traitements)
 
   if (!empty($ext) or !empty($ref) or ! empty($autres)) {
     $resu .= "== Voir aussi ==\n";
@@ -297,7 +299,7 @@ function rendu_voir_aussi($struct) {
       } else {
         $resu .= "=== Référence biologique ===\n";
       }
-      sort($ext);
+      natsort($ext);
       foreach($ext as $e) {
         $resu .= "* $e\n";
       }
@@ -308,7 +310,7 @@ function rendu_voir_aussi($struct) {
       } else {
         $resu .= "=== Référence taxinomique ===\n";
       }
-      sort($ref);
+      natsort($ref);
       foreach($ref as $r) {
         $resu .= "* $r\n";
       }

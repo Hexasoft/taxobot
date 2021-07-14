@@ -15,6 +15,7 @@ $configuration = [
   "classification" => '',
   "taxon" => '',
   "domaine" => '*',
+  "off" => false,
   "debug" => false,
   "liste" => false,
   "help" => false,
@@ -34,6 +35,7 @@ $liste_configuration = [
   "debug" => 'bool',
   "liste" => 'flag',
   "help" => 'flag',
+  "off" => 'string',
 ];
 
 // retourne la configuration
