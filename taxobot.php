@@ -5,6 +5,29 @@
   point d'entrée de Taxobot
 */
 
+// message d'aide (-help)
+$h_description = <<<EOT
+Taxobot est un programme de génération de squelette d'articles sur des taxons.
+Il utilise un certain nombre de sources (modules) pour extraire des données sur le
+taxon, puis met ces données en forme pour proposer un squelette d'article qui
+reprend ces informations et les pré-formate en suivant les conventions des
+articles biologiques de wikipédia en français.
+
+Taxobot prend en entrée le nom du taxon. Si le module à utiliser pour la classification
+n'est pas spécifié il détermine lui-même la classification suivie (en filtrant
+éventuellement par le domaine s'il est précisé). La classification retourne au
+minimum : le nom+rang+auteur du taxon et sa classification supérieure. Elle peut aussi
+retourner : les taxons inférieurs, les synonymes, le basionyme.
+Une fois les données de classification extraites il parcours les modules qui
+correspondent au domaine du taxon pour obtenir diverses informations additionnelles
+(liens externes, noms vernaculaires…).
+Quelques modules spécifiques retournent également des informations plus spécifiques :
+catégorie, portail, ébauche, projets frères…
+Au final la fonction de rendu utilise toutes ces informations pour construire un
+article, en adaptant les différents textes et liens aux conventions biologiques.
+
+EOT;
+
 
 // les éléments nécessaires
 require_once "outils.php";
@@ -73,7 +96,8 @@ $web = est_web();
 
 // usage ?
 if (get_config('help')) {
-  echo "Taxobot. Options :\n";
+  echo $h_description;
+  echo "Options :\n";
   $lst = list_config();
   foreach($lst as $nom => $data) {
     $type = $data[0];
