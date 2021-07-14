@@ -37,7 +37,7 @@ $liste_configuration = [
   "liste" => ['flag', 'Afficher la liste des modules'],
   "help" => ['flag', 'Afficher ce message d\'aide'],
   "off" => ['string', 'Liste de modules à désactiver (noms séparés par des virgules)'],
-  "article" => 'flag', 'Ne générer que la sortie de l\'article et rien d\'autre'],
+  "article" => ['flag', 'Ne générer que la sortie de l\'article et rien d\'autre'],
 ];
 
 // retourne la configuration
