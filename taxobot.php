@@ -31,25 +31,28 @@ function sortie_erreur($msg) {
 // fonction d'affichage du résultat
 function sortie_resultat($article, $liens) {
   global $web;
+  $juste_article = get_config('article');
 
   if ($web) {
   
   } else {
     echo "$article";
-    echo "\n-----\n";
-    if (is_array($liens)) {
-      foreach($liens as $lien) {
-        if (is_array($lien)) {
-          echo implode("\n", $lien) . "\n";
-        } else {
-          echo "$lien\n";
+    if (!$juste_article) {
+      echo "\n-----\n";
+      if (is_array($liens)) {
+        foreach($liens as $lien) {
+          if (is_array($lien)) {
+            echo implode("\n", $lien) . "\n";
+          } else {
+            echo "$lien\n";
+          }
         }
+      } else {
+        echo "$liens\n";
       }
-    } else {
-      echo "$liens\n";
+      echo "\n-----\n";
+      echo get_logs() . "\n";
     }
-    echo "\n-----\n";
-    echo get_logs() . "\n";
   }
 }
 

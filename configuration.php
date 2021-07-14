@@ -19,11 +19,12 @@ $configuration = [
   "debug" => false,
   "liste" => false,
   "help" => false,
+  "article" => false,
 ];
 
 // liste des éléments configurables
 $liste_configuration = [
-  "classification" => ['string', 'La classification à utiliser (vide pour laisser le programme choisir'],
+  "classification" => ['string', 'La classification à utiliser (vide pour laisser le programme choisir)'],
   "taxon" => ['string', 'Le nom scientifique du taxon (obligatoire)'],
   "domaine" => ['string', 'Le domaine du vivant du taxon. Utilisé pour filtrer les sources utilisées'],
   "seuil-colonnes" => ['int', 'Nombre-seuil d\'éléments dans une liste avant mise en colonnes'],
@@ -36,6 +37,7 @@ $liste_configuration = [
   "liste" => ['flag', 'Afficher la liste des modules'],
   "help" => ['flag', 'Afficher ce message d\'aide'],
   "off" => ['string', 'Liste de modules à désactiver (noms séparés par des virgules)'],
+  "article" => 'flag', 'Ne générer que la sortie de l\'article et rien d\'autre'],
 ];
 
 // retourne la configuration
