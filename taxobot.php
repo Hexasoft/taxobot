@@ -97,6 +97,11 @@ if (get_config('liste')) {
   die(0);
 }
 
+// on applique les éventuels éléments de configuration autre
+$tmp = get_config('off');
+if (is_string($tmp) && !empty($tmp)) {
+  desactive_modules($tmp);
+}
 
 // on récupère les éléments clés
 $taxon = get_config("taxon");
