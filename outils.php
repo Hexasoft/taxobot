@@ -6,6 +6,14 @@
 
 /// fonctions dédiées aux interactions web (GET, POST, HEADER)
 
+// fichier temporaire pour les cookies
+$fichier_temp = "";
+
+function init_outils() {
+  global $fichier_temp;
+  $fichier_temp = tempnam(sys_get_temp_dir(), 'taxobot');
+}
+
 // purge les cookies
 function clean_data() {
   $pid = getmypid();
@@ -16,13 +24,13 @@ function clean_data() {
 
 // wrapper pour récupérer les données
 function get_data($url, $header=false) {
+  global $fichier_temp;
   $ch = curl_init();
-  $pid = getmypid();
   curl_setopt($ch, CURLOPT_URL, $url);
   curl_setopt($ch, CURLOPT_USERAGENT,
               "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0");
-  curl_setopt($ch, CURLOPT_COOKIEJAR, "/tmp/taxobot.$pid.cookies");
-  curl_setopt($ch, CURLOPT_COOKIEFILE, "/tmp/taxobot.$pid.cookies");
+  curl_setopt($ch, CURLOPT_COOKIEJAR, $fichier_temp);
+  curl_setopt($ch, CURLOPT_COOKIEFILE, $fichier_temp);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
   curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
   curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
@@ -42,13 +50,13 @@ function get_data($url, $header=false) {
 
 // wrapper pour récupérer les données (POST)
 function post_data($url, $post, $header=false) {
-  $pid = getmypid();
+  global $fichier_temp;
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
   curl_setopt($ch, CURLOPT_USERAGENT,
               "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0");
-  curl_setopt($ch, CURLOPT_COOKIEJAR, "/tmp/taxobot.$pid.cookies");
-  curl_setopt($ch, CURLOPT_COOKIEFILE, "/tmp/taxobot.$pid.cookies");
+  curl_setopt($ch, CURLOPT_COOKIEJAR, $fichier_temp);
+  curl_setopt($ch, CURLOPT_COOKIEFILE, $fichier_temp);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
   curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
   curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
@@ -70,13 +78,13 @@ function post_data($url, $post, $header=false) {
 
 // wrapper pour récupérer le header (POST)
 function post_data_header($url, $post, $header=false) {
-  $pid = getmypid();
+  global $fichier_temp;
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
   curl_setopt($ch, CURLOPT_USERAGENT,
               "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0");
-  curl_setopt($ch, CURLOPT_COOKIEJAR, "/tmp/taxobot.$pid.cookies");
-  curl_setopt($ch, CURLOPT_COOKIEFILE, "/tmp/taxobot.$pid.cookies");
+  curl_setopt($ch, CURLOPT_COOKIEJAR, $fichier_temp);
+  curl_setopt($ch, CURLOPT_COOKIEFILE, $fichier_temp);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
   curl_setopt($ch, CURLOPT_HEADER, 1);
   curl_setopt($ch, CURLOPT_NOBODY, 1);

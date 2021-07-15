@@ -38,6 +38,7 @@ require_once "rendu.php";
 
 $web = false;
 
+init_outils();
 
 // fonction d'affichage d'une erreur, adapté au mode courant
 function sortie_erreur($msg) {
