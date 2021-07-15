@@ -10,7 +10,6 @@ function m_cites_init() {
 }
 
 function m_cites_infos(&$struct, $classif) {
-  global $error;
   $taxon = $struct['taxon']['nom'];
   
   $url = "https://www.speciesplus.net/api/v1/auto_complete_taxon_concepts?taxonomy=cites&taxon_concept_query=" .
@@ -18,16 +17,16 @@ function m_cites_infos(&$struct, $classif) {
   $ret = get_data($url);
   // erreur CURL
   if ($ret === false) {
-    $error = "Erreur réseau";
+    logs("CITES: erreur réseau");
     return false;
   }
   $tmp = json_decode($ret);
   if ($tmp === null) {
-    $error = "Erreur de décodage des informations CITES (1)";
+    logs("CITES: erreur de décodage des informations (1)");
     return false;
   }
   if (!isset($tmp->auto_complete_taxon_concepts) or empty($tmp->auto_complete_taxon_concepts)) {
-    $error = "Taxon non trouvé chez CITES";
+    logs("CITES: taxon non trouvé");
     return false;
   }
   $id = false;
@@ -38,7 +37,7 @@ function m_cites_infos(&$struct, $classif) {
     }
   }
   if ($id === false) {
-    $error = "Taxon non trouvé chez CITES (possible synonyme)";
+    logs("CITES: taxon non trouvé (possible synonyme)");
     return false;
   }
   
@@ -47,16 +46,16 @@ function m_cites_infos(&$struct, $classif) {
   $ret = get_data($url);
   // erreur CURL
   if ($ret === false) {
-    $error = "Erreur réseau (2)";
+    logs("CITES: erreur réseau (2)");
     return false;
   }
   $tmp = json_decode($ret);
   if ($tmp === null) {
-    $error = "Erreur de décodage des informations CITES (2)";
+    logs("CITES: erreur de décodage des informations (2)");
     return false;
   }
   if (!isset($tmp->taxon_concept->cites_listings[0])) {
-    $error = "Taxon sans classement chez CITES ?";
+    logs("CITES: taxon sans classement ?");
     return false; // pas de classement ?!
   }
   

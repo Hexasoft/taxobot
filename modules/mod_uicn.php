@@ -15,18 +15,19 @@ $ch['curl'] = NULL;
 $ch['cookie'] = [];
 
 function start_curl() {
+  global $fichier_temp;
   global $ch;
   
   $ch['curl'] = curl_init();
-  curl_setopt($ch['curl'], CURLOPT_COOKIEJAR, '/tmp/cookie-get-uicn.dat');
-  curl_setopt($ch['curl'], CURLOPT_COOKIEFILE, '/tmp/cookie-get-uicn.dat');
+  curl_setopt($ch['curl'], CURLOPT_COOKIEJAR, $fichier_temp);
+  curl_setopt($ch['curl'], CURLOPT_COOKIEFILE, $fichier_temp);
   curl_setopt($ch['curl'], CURLOPT_MAXCONNECTS, 100);
 
 }
 
 function clean_curl() {
   global $ch;
-  unlink('cookie-get-uicn.dat');
+  //unlink('cookie-get-uicn.dat');
   $ch['cookie'] = [];
 }
 
@@ -157,11 +158,12 @@ function post_curl($url, $data) {
 
 // argl
 function curl_start2() {
+  global $fichier_temp;
   global $ch;
   curl_close($ch['curl']);
   $ch['curl'] = curl_init();
-  curl_setopt($ch['curl'], CURLOPT_COOKIEJAR, '/tmp/cookie-xxx.dat');
-  curl_setopt($ch['curl'], CURLOPT_COOKIEFILE, '/tmp/cookie-xxx.dat');
+  curl_setopt($ch['curl'], CURLOPT_COOKIEJAR, $fichier_temp);
+  curl_setopt($ch['curl'], CURLOPT_COOKIEFILE, $fichier_temp);
   curl_setopt($ch['curl'], CURLOPT_MAXCONNECTS, 100);
   curl_setopt($ch['curl'], CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0");
   curl_setopt($ch['curl'], CURLOPT_ENCODING , "");
