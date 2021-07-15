@@ -4,7 +4,6 @@
   Module de classification COI (à faire)
 */
 
-
 // déclaration du module
 function m_coi_init() {
   // permet classification, liens externes et accepte tous les domaines
@@ -15,55 +14,23 @@ function m_coi_init() {
 function m_coi_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
 
-  $url = "https://www.worldbirdnames.org/new/bow/";
-  $ret = get_data($url);
-  if ($ret === false) {
-    logs("COI: erreur réseau");
+  $data = file_get_contents("./data/coi.csv");
+  if ($data === false) {
+    logs("COI: échec de récupération du fichier local");
     return false;
   }
-  // on récupère l'URL cible
-  $tbl = explode("\n", $ret);
-  $url2 = false;
-  foreach($tbl as $ligne) {
-    if (strpos($ligne, "https://docs.google.com/") !== false) {
-      $url2 = preg_replace(',^.*src="https://docs.google.com/,', 'https://docs.google.com/', $ligne);
-      $url2 = preg_replace(',".*$,', '', $url2);
-      $url2 = str_replace('&amp;', '&', $url2);
-      break;
-    }
-  }
-  if (!$url2) {
-    logs("COI: lien suivant non trouvé");
-    return false;
-  }
-  $url2 = preg_replace(',/edit.*$,', '/export?format=csv', $url2);
-
-  $ret = get_data($url2);
-  if ($ret === false) {
-    logs("COI: échec de récupération au format CSV");
-    return false;
-  }
-  // saloperie de windows
-  $ret = str_replace("\r", "", $ret);
-  // saloperie de mal-formatage
-  $ret = preg_replace(",\n\",", '"', $ret);
-  // on parcours pour construire la classification jusqu'à l'espèce (et ssp)
-  $tbl = explode("\n", $ret);
+  $tbl = explode("\n", $data);
   $classe = "";
   $ordre = "";
   $famille = "";
   $genre = "";
   $espece = "";
   $ssp = "";
-  $first = true;
   $trouve = false;
-  $nbligne = 1;
   foreach($tbl as $ligne) {
-    if ($first) {
-      $first = false;
-      continue;
-    }
+    // extraction des infos de la ligne
     $out = str_getcsv($ligne);
+    $out = array_splice($out, 1);
     if (empty($out[3])) {
       continue;
     }
@@ -71,7 +38,7 @@ function m_coi_infos(&$struct, $classif) {
     $nb = str_word_count($out[3]);
     // on trie selon la configuration
     if ($test && ($nb == 1)) {
-      $classe = ucfirst(strtolower($out[3]));
+      $classe = ucfirst(strtolower(trim($out[3])));
       $ordre = "";
       $famille = "";
       $genre = "";
@@ -86,7 +53,7 @@ function m_coi_infos(&$struct, $classif) {
         continue;
       }
       // extraction nom
-      $ordre = ucfirst(strtolower($xpl[1]));
+      $ordre = ucfirst(strtolower(trim($xpl[1])));
       $famille = "";
       $genre = "";
       $espece = "";
@@ -95,21 +62,21 @@ function m_coi_infos(&$struct, $classif) {
       // famille ou espèce
       $xpl = explode(" ", $out[3]);
       if ($xpl[0] == 'Family') {
-        $famille = $xpl[1];
+        $famille = trim($xpl[1]);
         $genre = "";
         $espece = "";
         $ssp = "";
       }
       // espèce
-      $espece = $out[3];
+      $espece = trim($out[3]);
       $ssp = "";
     } else if (!$test && ($nb == 1)) {
-      $genre = $out[3];
+      $genre = trim($out[3]);
       $espece = "";
       $ssp = "";
     } else if (!$test && ($nb == 3)) {
       // sous-espèce
-      $ssp = $out[3];
+      $ssp = trim($out[3]);
     } else {
       logs("COI: ligne non reconnue (2) (ignorée)");
       continue;
@@ -118,7 +85,6 @@ function m_coi_infos(&$struct, $classif) {
     $courant = "";
     $type = "";
     $data = $out;
-    $tligne = $nbligne;
     if (!empty($ssp)) {
       $courant = $ssp;
       $type = "sous-espèce";
@@ -141,7 +107,6 @@ function m_coi_infos(&$struct, $classif) {
       logs("COI: type inconnu. Erreur");
       return false;
     }
-    $nbligne++;
     // est-ce qu'on a trouvé notre taxon ?
     if ($taxon == $courant) {
       $trouve = true;
@@ -166,7 +131,7 @@ function m_coi_infos(&$struct, $classif) {
     $blob['auteur'] = $auteur;
   }
   $blob['rang'] = $type;
-  $blob['ligne'] = $tligne;
+  $blob['ligne'] = $data[0];
   $struct['liens']['coi'] = $blob;
 
   if (!$classif) {
