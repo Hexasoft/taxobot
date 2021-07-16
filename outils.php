@@ -13,6 +13,12 @@ function init_outils() {
   global $fichier_temp;
   $fichier_temp = tempnam(sys_get_temp_dir(), 'taxobot');
 }
+function fini_outils() {
+  global $fichier_temp;
+  if (file_exists($fichier_temp)) {
+    unlink($fichier_temp);
+  }
+}
 
 // purge les cookies
 function clean_data() {

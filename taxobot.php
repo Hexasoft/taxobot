@@ -105,6 +105,7 @@ if (get_config('help')) {
     $desc = $data[1];
     echo "  -$nom ($type) : $desc\n";
   }
+  fini_outils();
   die();
 }
 
@@ -125,6 +126,7 @@ if (get_config('liste')) {
   $ret = affiche_modules();
   echo "Nom Classification Liens-externes Domaines\n";
   echo implode("\n", $ret) . "\n";
+  fini_outils();
   die(0);
 }
 
@@ -150,6 +152,7 @@ if ($web) {
 if (empty($taxon)) {
   logs("Taxon manquant");
   sortie_erreur("Taxon manquant.");
+  fini_outils();
   die(1);
 }
 
@@ -159,6 +162,7 @@ $modules = cherche_modules();
 if (($modules === false) or (empty($modules))) {
   logs("Aucun module trouvé");
   sortie_erreur("Aucun module trouvé.");
+  fini_outils();
   die(1);
 }
 // liste des noms associés
@@ -177,6 +181,7 @@ foreach($id_modules as $id) {
   if ($ret == false) {
     logs("Échec d'initialisation du module '$id'");
     sortie_erreur("Échec d'initialisation du module '$id'.");
+    fini_outils();
     die(1);
   }
 }
@@ -192,6 +197,7 @@ if (empty($classification)) {
   if ($classification === false) {
     logs("Meilleure_classification : non trouvé");
     sortie_erreur("Meilleure_classification : non trouvé.");
+    fini_outils();
     die(1);
   }
   logs("Classification choisie : $classification");
@@ -215,6 +221,7 @@ $ret = $class($struct, true);
 if (!$ret) {
   logs("Taxon non récupéré pour la classification");
   sortie_erreur("Taxon non récupéré pour la classification.");
+  fini_outils();
   die(1);
 } else {
   logs("Classification récupérée via le module '$classification'");
@@ -264,5 +271,6 @@ $resu = rendu($struct);
 sortie_resultat($resu, $aide);
 
 // terminaison : affichage des logs
+fini_outils();
 die();
 
