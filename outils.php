@@ -171,7 +171,7 @@ function debug($msg) {
   global $o_debug;
 
   if ($o_debug) {
-    echo "debug: $msg\n";
+    error_log("debug: $msg");
   }
 }
 
