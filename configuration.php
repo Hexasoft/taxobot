@@ -4,7 +4,7 @@
   Gestion de la configuration
 */
 
-// état de la configuration
+// état de la configuration (= valeur par défaut)
 $configuration = [
   "seuil-colonnes" => 25,
   "liens-synonymes" => true,
@@ -23,6 +23,8 @@ $configuration = [
 ];
 
 // liste des éléments configurables
+// nom-de-l'option => [ type, description ]
+// type = string / int / bool / flag
 $liste_configuration = [
   "classification" => ['string', 'La classification à utiliser (vide pour laisser le programme choisir)'],
   "taxon" => ['string', 'Le nom scientifique du taxon (obligatoire)'],
