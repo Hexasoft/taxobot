@@ -215,6 +215,7 @@ $struct['domaine'] = $domaine;
 dates_calcule();
 
 // on lance la classification
+debug("Lancement de la classification");
 $class = "m_" . $classification . "_infos";
 $ret = $class($struct, true);
 
@@ -229,6 +230,7 @@ if (!$ret) {
 
 // si le domaine est "*" on l'affine en fonction du résultat
 if ($domaine == "*") {
+  debug("Affinage du domaine");
   $domaine = $struct['regne'];
   // on regénère la liste des modules possibles à partir de ce domaine
   $possibles = modules_possibles($domaine);
@@ -242,6 +244,7 @@ foreach($possibles as $id) {
     continue;
   }
   $f = "m_" . $id . "_infos";
+  debug("Appel module $id (externe)");
   $ret = $f($struct, false); // en mode données (pas classification)
   if ($ret == false) {
     logs("Échec de récupération d'informations du module '$id' (non classification)");
@@ -254,6 +257,7 @@ foreach($possibles as $id) {
 $aide = [];
 foreach($possibles as $id) {
   $f = "m_" . $id . "_liens";
+  debug("Appel module $id (liens)");
   if (function_exists($f)) {
     $ret = $f($struct);
   } else {
@@ -270,7 +274,7 @@ $resu = rendu($struct);
 // on affiche, selon le mode
 sortie_resultat($resu, $aide);
 
-// terminaison : affichage des logs
+// terminaison
 fini_outils();
-die();
+die(0);
 

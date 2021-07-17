@@ -163,15 +163,15 @@ $o_debug = false;
 // active le mode debug
 function set_debug($mode=true) {
   global $o_debug;
-  
+
   $o_debug = $mode;
 }
 // affiche un message de debug
 function debug($msg) {
   global $o_debug;
-  
+
   if ($o_debug) {
-    error_log("debug: $msg");
+    echo "debug: $msg\n";
   }
 }
 
