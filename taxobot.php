@@ -38,13 +38,14 @@ require_once "rendu.php";
 
 $web = false;
 
+// certains outils nécessitent une initialisation
 init_outils();
 
 // fonction d'affichage d'une erreur, adapté au mode courant
 function sortie_erreur($msg) {
   global $web;
   if ($web) {
-    $msg .= "\n\nLogs :\n" . get_logs();
+    $msg .= "<br/><br/>Logs :<br/>" . get_logs();
     html_error($msg);
   } else {
     echo $msg;
@@ -53,12 +54,39 @@ function sortie_erreur($msg) {
 }
 
 // fonction d'affichage du résultat
-function sortie_resultat($article, $liens) {
+function sortie_resultat($article, $liens, $taxon) {
   global $web;
   $juste_article = get_config('article');
-
   if ($web) {
-  
+    html_head("Résultats pour $taxon");
+    echo "<table width='99%'>\n";
+    echo "<tr><td width='80%' style='vertical-align: top;'>\n";
+    echo "<i>Informations sur la requête… (TODO)</i>";
+    echo "</br>\n";
+    echo "<br/><hr><button id='copybutton' onclick='copyFunction()'>Copier le wikitexte</button><div id='wikitexte' width='99%'>\n";
+    echo $article;
+    echo "</div>";
+    echo "</td><td style='vertical-align: top;'><ul>";
+    foreach($liens as $lien) {
+      if (empty($lien)) {
+        continue;
+      }
+      if (is_array($lien)) {
+        foreach($lien as $l) {
+          echo "<li>$l</li>\n";
+        }
+      } else {
+        echo "<li>$lien</li>\n";
+      }
+    }
+    echo "</ul></td></tr>\n";
+    echo "</table>\n";
+    echo "<hr>";
+    echo "Infos et logs des traitements :<br/>\n";
+    echo "<pre>\n";
+    echo get_logs();
+    echo "</pre>\n";
+    html_end();
   } else {
     echo "$article";
     if (!$juste_article) {
@@ -272,7 +300,7 @@ foreach($possibles as $id) {
 $resu = rendu($struct);
 
 // on affiche, selon le mode
-sortie_resultat($resu, $aide);
+sortie_resultat($resu, $aide, $struct['taxon']['nom']);
 
 // terminaison
 fini_outils();

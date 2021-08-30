@@ -129,7 +129,7 @@ function m_msw_ext($struct) {
   $cdate = dates_recupere();
   if (isset($struct['liens']['msw']['id'])) {
     // → ne pas mettre d'italiques, le modèle s'en occupe
-    $cible = met_italiques($struct['liens']['msw']['nom'],
+    $cible = wp_met_italiques($struct['liens']['msw']['nom'],
                   $struct['taxon']['rang'], $struct['regne'], false);
     return "{{MSW | " . $struct['liens']['msw']['id'] . " | " . $cible . " | " . $struct['liens']['msw']['auteur'] .
              " | " . "consulté le=$cdate }}";

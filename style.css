@@ -1,0 +1,29 @@
+textarea {
+  position: absolute;
+  left: -100%;
+}
+
+div {
+  font-family: monospace;
+  white-space: pre-line;
+  background:#fff6ef;
+}
+
+.error {
+  color:#F31;
+}
+
+body {
+  color:#000;
+  background:#fff0e9;
+  font:400 85% Helvetica,Arial,Tahoma,Sans-Serif
+}
+
+a {
+  color:#3B619E;
+  text-decoration:none
+}
+a:active,a:focus,a:hover {
+  text-decoration:underline
+}
+
