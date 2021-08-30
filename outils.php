@@ -252,10 +252,11 @@ function parametre($nom, $type) {
 
 // indique si il s'agit d'un appel WEB ou ligne de commande
 function est_web() {
-  if (isset($_GET['taxon'])) { // il faudrait faire mieux, mais ce paramètre est requis
-    return true;
-  } else {
+  $tmp = php_sapi_name();
+  if ($tmp == 'cli') {
     return false;
+  } else {
+    return true;
   }
 }
 
