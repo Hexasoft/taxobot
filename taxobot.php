@@ -63,7 +63,7 @@ function sortie_resultat($article, $liens, $taxon) {
     echo "<tr><td width='80%' style='vertical-align: top;'>\n";
     echo "<i>Informations sur la requête… (TODO)</i>";
     echo "</br>\n";
-    echo "<br/><hr><button id='copybutton' onclick='copyFunction()'>Copier le wikitexte</button><div id='wikitexte' width='99%'>\n";
+    echo "<br/><hr><button id='copybutton' onclick='copyFunction()'>Copier le wikitexte</button><div id='wikitexte' width='99%'>";
     echo $article;
     echo "</div>";
     echo "</td><td style='vertical-align: top;'>Liens externes :<ul>";
