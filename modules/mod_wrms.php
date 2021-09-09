@@ -178,7 +178,6 @@ function wrms_extraire($page, $id) {
       }
     }
   }
-var_dump($out);
   return $out;
 }
 
@@ -210,6 +209,10 @@ function m_wrms_infos(&$struct, $classif) {
     }
   }
   if ($trouve === false) {
+    logs("WRMS: taxon non trouvé");
+    return false;
+  }
+  if (!is_numeric($trouve)) {
     logs("WRMS: taxon non trouvé");
     return false;
   }
