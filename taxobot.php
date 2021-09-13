@@ -61,7 +61,11 @@ function sortie_resultat($article, $liens, $taxon) {
     html_head("Résultats pour $taxon");
     echo "<table width='99%'>\n";
     echo "<tr><td width='80%' style='vertical-align: top;'>\n";
-    echo "<i>Informations sur la requête… (TODO)</i>";
+    echo "<i>Informations sur la requête : </i>";
+    $tmp = print_config();
+    foreach($tmp as $t) {
+      echo "$t ; ";
+    }
     echo "</br>\n";
     echo "<br/><hr><button id='copybutton' onclick='copyFunction()'>Copier le wikitexte</button><div id='wikitexte' width='99%'>";
     echo $article;

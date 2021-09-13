@@ -79,3 +79,24 @@ function list_config() {
   return $liste_configuration;
 }
 
+// retourne la configuration en cours sous forme affichable (table)
+function print_config() {
+  global $liste_configuration, $configuration;
+  
+  $result = [];
+  foreach($liste_configuration as $nom => $data) {
+    $type = $data[0];
+    if (($type == "flag") or ($type == 'bool')) {
+      if ($configuration[$nom]) {
+        $add = "oui";
+      } else {
+        $add = "non";
+      }
+    } else {
+      $add = "'" . $configuration[$nom] . "'";
+    }
+    $result[] = $nom . " : " . $add;
+  }
+  return $result;
+}
+
