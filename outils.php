@@ -132,7 +132,7 @@ function get_xml($t) {
 
 // entête HTML
 function html_head($titre) {
-  echo "<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01 Transitional//EN' 'http://www.w3.org/TR/html4/loose.dtd'>\n";
+  echo "<!DOCTYPE HTML>\n";
   echo "<html>\n<head>\n";
   echo "  <title>$titre</title>\n";
   echo "  <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>\n";
