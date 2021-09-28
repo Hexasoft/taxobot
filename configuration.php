@@ -4,6 +4,8 @@
   Gestion de la configuration
 */
 
+$version = "1.0.13";
+
 // état de la configuration (= valeur par défaut)
 $configuration = [
   "seuil-colonnes" => 25,

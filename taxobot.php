@@ -55,10 +55,10 @@ function sortie_erreur($msg) {
 
 // fonction d'affichage du résultat
 function sortie_resultat($article, $liens, $taxon) {
-  global $web;
+  global $web, $version;
   $juste_article = get_config('article');
   if ($web) {
-    html_head("Résultats pour $taxon");
+    html_head("Résultats pour $taxon − Taxobot v$version");
     echo "<table width='99%'>\n";
     echo "<tr><td width='80%' style='vertical-align: top;'>\n";
     echo "<i>Informations sur la requête : </i>";
@@ -113,6 +113,7 @@ function sortie_resultat($article, $liens, $taxon) {
       echo "\n-----\n";
       $tmp = print_config();
       echo "Configuration :\n";
+      echo "Taxobot v$version\n";
       foreach($tmp as $t) {
         echo "$t ; ";
       }

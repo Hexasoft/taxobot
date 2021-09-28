@@ -15,7 +15,7 @@ require_once "rendu.php";
 
 
 // on initialise la page
-html_head("Taxobot");
+html_head("Taxobot - v" . $version);
 
 // message de début
 echo <<<EOL
