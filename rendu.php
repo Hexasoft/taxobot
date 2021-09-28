@@ -152,7 +152,7 @@ function rendu_supp($struct) {
   $cdate = dates_recupere();
   $ret = "";
   if (true) {
-    $ret .= "== [[Systématique]] ==\n";
+    $ret .= "== Systématique ==\n";
     // reprise du nom complet
     $REF = $struct['classification'];
     $cible = wp_met_italiques($struct['taxon']['nom'], $struct['taxon']['rang'], $struct['regne']);
