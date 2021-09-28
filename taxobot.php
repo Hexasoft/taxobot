@@ -95,18 +95,28 @@ function sortie_resultat($article, $liens, $taxon) {
     echo "$article";
     if (!$juste_article) {
       echo "\n-----\n";
+      $tmp = "";
       if (is_array($liens)) {
         foreach($liens as $lien) {
           if (is_array($lien)) {
-            echo implode("\n", $lien) . "\n";
+            $tmp .= implode("\n", $lien) . "\n";
           } else {
-            echo "$lien\n";
+            $tmp .= "$lien\n";
           }
         }
       } else {
-        echo "$liens\n";
+        $tmp .= "$liens\n";
       }
+      $tmp = str_replace("\n\n", "\n", $tmp);
+      $tmp = str_replace("\n\n", "\n", $tmp);
+      echo $tmp;
       echo "\n-----\n";
+      $tmp = print_config();
+      echo "Configuration :\n";
+      foreach($tmp as $t) {
+        echo "$t ; ";
+      }
+      echo "\n";
       echo get_logs() . "\n";
     }
   }
@@ -246,34 +256,45 @@ $struct['domaine'] = $domaine;
 // on récupère la date (pour les liens)
 dates_calcule();
 
+// est-ce qu'on ne veut que les liens externes
+$justext = get_config('juste-ext');
+
 // on lance la classification
-debug("Lancement de la classification");
-$class = "m_" . $classification . "_infos";
-$ret = $class($struct, true);
+if (!$justext) { // si juste-ext → rien coté classification
+  debug("Lancement de la classification");
+  $class = "m_" . $classification . "_infos";
+  $ret = $class($struct, true);
 
-if (!$ret) {
-  logs("Taxon non récupéré pour la classification");
-  sortie_erreur("Taxon non récupéré pour la classification.");
-  fini_outils();
-  die(1);
+  if (!$ret) {
+    logs("Taxon non récupéré pour la classification");
+    sortie_erreur("Taxon non récupéré pour la classification.");
+    fini_outils();
+    die(1);
+  } else {
+    logs("Classification récupérée via le module '$classification'");
+  }
+
+  // si le domaine est "*" on l'affine en fonction du résultat
+  if ($domaine == "*") {
+    debug("Affinage du domaine");
+    $domaine = $struct['regne'];
+    // on regénère la liste des modules possibles à partir de ce domaine
+    $possibles = modules_possibles($domaine);
+    logs("Affinage domaine : '*' → '$domaine'");
+    logs("Modules possibles (màj) : " . implode(", ", $possibles));
+  }
 } else {
-  logs("Classification récupérée via le module '$classification'");
-}
-
-// si le domaine est "*" on l'affine en fonction du résultat
-if ($domaine == "*") {
-  debug("Affinage du domaine");
-  $domaine = $struct['regne'];
-  // on regénère la liste des modules possibles à partir de ce domaine
-  $possibles = modules_possibles($domaine);
-  logs("Affinage domaine : '*' → '$domaine'");
-  logs("Modules possibles (màj) : " . implode(", ", $possibles));
+  // juste-ext → on met quelques infos pour éviter les erreurs
+  $struct['taxon']['rang'] = 'espèce';
+  $struct['regne'] = 'animal';
 }
 
 // on lance tous les autres modules (sauf celui de la classification)
 foreach($possibles as $id) {
   if ($classification == $id) {
-    continue;
+    if (!$justext) { // on traite tout si juste-ext
+      continue;
+    }
   }
   $f = "m_" . $id . "_infos";
   debug("Appel module $id (externe)");
@@ -301,12 +322,17 @@ foreach($possibles as $id) {
 }
 
 // on génère la sortie
-$resu = rendu($struct);
+if ($justext) {
+  $resu = "";
+} else {
+  $resu = rendu($struct);
+}
 
 // on affiche, selon le mode
 sortie_resultat($resu, $aide, $struct['taxon']['nom']);
 
 // terminaison
 fini_outils();
+var_dump($struct);
 die(0);
 

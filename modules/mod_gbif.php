@@ -509,6 +509,11 @@ function m_gbif_ext($struct) {
 
 // retourne les liens HTTP directs liés à GBIF (si présents)
 function m_gbif_liens($struct) {
-  return false;
+  if (isset($struct['liens']['gbif']['id'])) {
+    return "<a href='https://www.gbif.org/species/" .
+           $struct['liens']['gbif']['id'] . "'>GBIF</a>";
+  } else {
+    return false;
+  }
 }
 

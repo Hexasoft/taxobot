@@ -491,7 +491,7 @@ function lien_pour_synonyme($regne) {
   if (isset($synonymes[$regne])) {
     return $synonymes[$regne];
   } else {
-    return 'Synonyme (zoologie)';
+    return 'Synonyme (taxinomie)';
   }
 }
 

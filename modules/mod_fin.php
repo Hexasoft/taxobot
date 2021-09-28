@@ -43,9 +43,11 @@ function m_fin_infos(&$struct, $classif) {
   
   // partie catégories
   $cats = [];
-  foreach($struct['rangs'] as $r) {
-    if ($r['rang'] == 'famille') {
-      $cats[] = $r['nom'];
+  if (isset($struct['rangs'])) {
+    foreach($struct['rangs'] as $r) {
+      if ($r['rang'] == 'famille') {
+        $cats[] = $r['nom'];
+      }
     }
   }
   $tmp = lien_pour_categorie($struct['regne']);
