@@ -333,6 +333,5 @@ sortie_resultat($resu, $aide, $struct['taxon']['nom']);
 
 // terminaison
 fini_outils();
-var_dump($struct);
 die(0);
 

@@ -285,6 +285,18 @@ function affiche_modules() {
   return $out;
 }
 
+// retourne la liste des modules faisant de la classification
+function classif_modules() {
+  global $m_modules;
+  $out = [];
+  foreach($m_modules as $nom => $cont) {
+    if ($cont['classification']) {
+      $out[] = $nom;
+    }
+  }
+  return $out;
+}
+
 // retourne la liste de tous les modules (dans le répertoire modules/)
 function cherche_modules() {
   $fichiers = scandir("./modules");
