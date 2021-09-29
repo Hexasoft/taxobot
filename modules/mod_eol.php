@@ -4,6 +4,70 @@
   Module pour EoL (non classification)
 */
 
+// conversion rang/wp
+$eol_wp = [
+  'clade' => 'clade',
+  'type' => 'type',
+  'group' => 'groupe',
+  'unspecified' => 'non-classé',
+  'subform' => 'sous-forme',
+  'form' => 'forme',
+  'variety' => 'variété',
+  'pathovar' => 'pathovar',
+  'cultivar' => 'cultivar',
+  'subspecies' => 'sous-espèce',
+  'hybrid' => 'hybride',
+  'species' => 'espèce',
+  'subserie' => 'sous-série',
+  'serie' => 'série',
+  'subsection' => 'sous-section',
+  'section' => 'section',
+  'subgenus' => 'sous-genre',
+  'genus' => 'genre',
+  'subtribe' => 'sous-tribu',
+  'tribe' => 'tribu',
+  'supertribe' => 'super-tribu',
+  'infratribe' => 'infra-tribu',
+  'subfamily' => 'sous-famille',
+  'family' => 'famille',
+  'null2' => 'épifamille',
+  'superfamily' => 'super-famille',
+  'microorder' => 'micro-ordre',
+  'infraorder' => 'infra-ordre',
+  'suborder' => 'sous-ordre',
+  'order' => 'ordre',
+  'superorder' => 'super-ordre',
+  'subcohort' => 'sous-cohorte',
+  'cohort' => 'cohorte',
+  'supercohort' => 'super-cohorte',
+  'null1' => 'subter-classe',
+  'infraclass' => 'infra-classe',
+  'subclass' => 'sous-classe',
+  'class' => 'classe',
+  'superclass' => 'super-classe',
+  'microphylum' => 'micro-embranchement',
+  'infraphylum' => 'infra-embranchement',
+  'subphylum' => 'sous-embranchement',
+  'phylum' => 'embranchement',
+  'superphylum' => 'super-embranchement',
+  'infradivision' => 'infra-division',
+  'subdivision' => 'sous-division',
+  'division' => 'division',
+  'superdivision' => 'super-division',
+  'infrakingdom' => 'infra-règne',
+  'null' => 'rameau',
+  'subkingdom' => 'sous-règne',
+  'kingdom' => 'règne',
+  'superkingdom' => 'super-règne',
+  'subdomain' => 'sous-domaine',
+  'domain' => 'domaine',
+  'superdomain' => 'super-domaine',
+  'empire' => 'empire',
+  'kingdom' => 'royaume',
+  'subkingdom' => 'sous-royaume',
+];
+
+
 // déclaration du module
 function m_eol_init() {
   return declare_module("eol", false, true, true);
@@ -12,6 +76,7 @@ function m_eol_init() {
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
 // gérer la classification également
 function m_eol_infos(&$struct, $classif) {
+  global $eol_wp;
   $taxon = $struct['taxon']['nom'];
 
   $url = "https://eol.org/fr/autocomplete/" . urlencode($taxon);
@@ -45,9 +110,54 @@ function m_eol_infos(&$struct, $classif) {
   $struct['liens']['eol']['id'] = $found->id;
   $struct['liens']['eol']['nom'] = $found->name;
   
+  // on tente de récupérer le rang et l'auteur
+  $url = "https://eol.org/fr/pages/" . $found->id;
+  $ret = get_data($url);
+  if ($ret === false) {
+    logs("EoL: echec de récupération de la page dédiée (ignoré)");
+  } else {
+    // on cherche l'auteur
+    $tbl = explode("\n", $ret);
+    $h1 = false;
+    foreach($tbl as $ligne) {
+      if (strpos($ligne, "<h2>") !== false) {
+        $h1 = $ligne;
+        break;
+      }
+      if (strpos($ligne, "<h1>") !== false) {
+        $h1 = $ligne;
+      }
+    }
+    if ($h1 !== false) {
+      $h1 = trim($h1);
+      $h1 = strip_tags($h1);
+      $tmp = trim(str_replace("$taxon ", "", $h1));
+      if (($tmp != "") and ($tmp != $h1)) {
+        // on enregistre l'auteur associé
+        $struct['liens']['eol']['auteur'] = $tmp;
+      }
+    }
+    // on cherche le rang
+    $l = false;
+    foreach($tbl as $ligne) {
+      if (strpos($ligne, "<p>") === 0) {
+        $l = $ligne;
+        break;
+      }
+    }
+    if ($l !== false) {
+      $tmp = preg_replace("/^.* est un[e]* /", "", $l);
+      $tmp = preg_replace("/ d[e'].*$/", "", $tmp);
+      $tmp = trim($tmp);
+      if ($tmp != "") {
+        $struct['liens']['eol']['rang'] = $tmp;
+      }
+    }
+  }
   if (!$classif) {
     return true;
   }
+  // on ne fait pas la classification
   return false;
 }
 
