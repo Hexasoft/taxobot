@@ -104,14 +104,10 @@ les divers contenus ou d'accéder à des informations complémentaires pour éto
 --------------
 
 Pour installer Taxobot sur sa machine il suffit de récupérer l'ensemble des fichiers.
-Le programme n'a été testé que sur Linux, avec une version 7.2 de PHP (il faut le module
-PHP 'curl').
-Le code doit certainement fonctionner avec les versions plus récentes de PHP (en tout cas
-de version majeure 7).
-Un éventuel portage sur Windows doit être possible, mais ce n'est pas ma spécialité.
-Les deux seuls éléments qui pourraient poser problème sous Windows sont :
-* le chemin vers certains fichiers temporaires (utilisés pour les cookies)
-* l'obtention du PID du programme, utilisé pour avoir un nom de fichier unique
+Le programme a été testé sur Linux (Ubuntu 18.04, 20.04, 21.04), avec des version 7.x de PHP.
+Il a été également testé sous Windows 10 (<insérer l'URL de la doc sur WP>).
+Pour PHP il faut également les modules suivant :
+  - php-curl ; php-json ; php-xml ; php-mbstring ; php-readline
 
 Le programme doit être appelé depuis son répertoire de base.
 
