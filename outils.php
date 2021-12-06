@@ -83,7 +83,7 @@ function post_data($url, $post, $header=false) {
 }
 
 // wrapper pour récupérer le header (POST)
-function post_data_header($url, $post, $header=false) {
+function post_data_header($url, $post, $header=false, $follow=true) {
   global $fichier_temp;
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
@@ -101,6 +101,11 @@ function post_data_header($url, $post, $header=false) {
   curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
   if ($header !== false) {
     curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+  }
+  if ($follow) {
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+  } else {
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
   }
   $data = curl_exec($ch);
   if (curl_errno($ch)) {

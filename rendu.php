@@ -235,6 +235,68 @@ function rendu_supp($struct) {
   }
 }
 
+// rendu de la zone "Distribution"
+function rendu_distribution($struct) {
+  $resu = "\n== Distribution ==\n";
+  if (!isset($struct['distribution'])) {
+    $resu .= "{{Section vide ou incomplète}}\n";
+    return $resu;
+  }
+  // conversion code-pays
+  $source = "";
+  $certain = [];
+  $uncertain = [];
+  foreach($struct['distribution'] as $ref => $liste) {
+    $source = $ref;
+    if (isset($liste['certain'])) {
+      foreach($liste['certain'] as $code) {
+        $tmp = data_pays_code($code);
+        $certain[] = $tmp;
+      }
+    }
+    if (isset($liste['uncertain'])) {
+      foreach($liste['uncertain'] as $code) {
+        $tmp = data_pays_code($code);
+        $uncertain[] = $tmp;
+      }
+    }
+  }
+  if (!empty($certain)) {
+    sort($certain);
+    $certain = array_unique($certain);
+  }
+  if (!empty($uncertain)) {
+    sort($uncertain);
+    $uncertain = array_unique($uncertain);
+  }
+  if (count($struct['distribution']) == 1) {
+    if (!empty($certain)) {
+      if (count($certain) > 1) {
+        $resu .= "Ce taxon se rencontre dans les pays suivants{{Bioref|$source|afficher=ref}} : ";
+      } else {
+        $resu .= "Ce taxon se rencontre dans le pays suivant{{Bioref|$source|afficher=ref}} : ";
+      }
+      $resu .= implode(", ", $certain);
+      $resu .= ".\n";
+    }
+    if (!empty($uncertain)) {
+      if (!empty($certain)) {
+        $resu .= "\n";
+      }
+      if (count($uncertain) > 1) {
+        $resu .= "La présence de ce taxon est incertaine dans les pays suivants{{Bioref|$source|afficher=ref}} : ";
+      } else {
+        $resu .= "La présence de ce taxon est incertaine dans le pays suivant{{Bioref|$source|afficher=ref}} : ";
+      }
+      $resu .= implode(", ", $uncertain);
+      $resu .= ".\n";
+    }
+  } else {
+    $resu .= "''Une distribution issue de plusieurs sources existe. Non implémenté pour le moment\n";
+  }
+  return $resu;
+}
+
 // rendu de la zone voir aussi
 function rendu_voir_aussi($struct) {
   global $gauto;
@@ -347,6 +409,8 @@ function rendu($struct) {
   $ret .= rendu_taxobox($struct);
   // intro
   $ret .= rendu_intro($struct);
+  // distribution
+  $ret .= rendu_distribution($struct);
   // taxons inférieurs
   $ret .= rendu_inf($struct);
   // informations additionnelles
