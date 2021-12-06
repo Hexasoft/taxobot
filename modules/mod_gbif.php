@@ -400,6 +400,9 @@ function m_gbif_infos(&$struct, $classif) {
           continue;
         }
         $x = gbif_taxon_info($key);
+        if ($x === false) {
+          continue;
+        }
         $tmp['nom'] = $x['nom'];
         $tmp['auteur'] = $x['auteur'];
         if (isset($x['rang'])) {

@@ -30,11 +30,12 @@ function m_irmng_infos(&$struct, $classif) {
 	 "Referer: http://www.marinespecies.org/aphia.php?p=search&adv=1",
   ];
   
-  $ret = post_data_header($url, $post, $header);
+  $ret = post_data_header($url, $post, $header, false);
   if ($ret === false) {
     logs("IRMNG: echec de récupération réseau (2)");
     return false;
   }
+
   $tbl =explode("\n", $ret);
   $ok = false;
   foreach($tbl as $ligne) {

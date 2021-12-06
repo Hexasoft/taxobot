@@ -291,6 +291,7 @@ function m_uicn_infos(&$struct, $classif) {
     $struct['liens']['uicn']['nom'] = $res->taxon->scientificName;
     $struct['liens']['uicn']['auteur'] = $res->taxon->authority;
   } else {
+    logs("UICN: impossible de trouver la catégorie");
     return false;
   }
   
@@ -308,6 +309,40 @@ function m_uicn_infos(&$struct, $classif) {
   }
   if (!empty($lst)) {
     $struct['vernaculaire']['UICN'] = $lst;
+  }
+  
+  // test : récupération des informations de répartition géographique
+  $lst = [];
+  $ulst = [];
+  if (isset($res->nativeLocations)) {
+    foreach($res->nativeLocations as $loc) {
+      if (isset($loc->presence) and ($loc->presence == "Presence Uncertain")) {
+        $certain = false;
+      } else {
+        $certain = true;
+      }
+      if (isset($loc->origin) and ($loc->origin == "Native")) {
+        foreach($loc->locations as $rloc) {
+          if (isset($rloc->code)) {
+            if ($certain) {
+              $lst[$rloc->code] = $rloc->code;
+            } else {
+              $ulst[$rloc->code] = $rloc->code;
+            }
+          }
+        }
+      }
+    }
+  }
+  if (!empty($lst) or !empty($ulst)) {
+    $bundle = [];
+    if (!empty($lst)) {
+      $bundle['certain'] = $lst;
+    }
+    if (!empty($ulst)) {
+      $bundle['uncertain'] = $ulst;
+    }
+    $struct['distribution']['UICN'] = $bundle;
   }
 
   // si pas plus loin, retour
