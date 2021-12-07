@@ -27,9 +27,9 @@ function rendu_intro($struct) {
   $tmp = "'''$tnom''' est $lien" . $nom . " ";
   if ($fam) {
     $tmp .= 'de la [[Famille (biologie)|famille]] des ';
-    $tmp .= $fam . ".";
+    $tmp .= $fam . ".\n";
   } else {
-    $tmp .= ".";
+    $tmp .= ".\n";
   }
   return $tmp;
 }
@@ -292,7 +292,7 @@ function rendu_distribution($struct) {
       $resu .= ".\n";
     }
   } else {
-    $resu .= "''Une distribution issue de plusieurs sources existe. Non implémenté pour le moment\n";
+    $resu .= "''Une distribution issue de plusieurs sources existe. Non implémenté pour le moment''\n";
   }
   return $resu;
 }
@@ -419,6 +419,10 @@ function rendu($struct) {
   $ret .= rendu_voir_aussi($struct);
   // partie finale
   $ret .= rendu_fin($struct);
+  
+  // nettoyage : suppression des doubles-sauts
+  $ret = str_replace("\n\n\n", "\n\n", $ret);
+  $ret = str_replace("\n\n\n", "\n\n", $ret);
   
   return $ret;
 }
