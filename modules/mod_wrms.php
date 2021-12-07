@@ -277,8 +277,11 @@ function m_wrms_ext($struct) {
     $data = $struct['liens']['wrms'];
     $cdate = dates_recupere();
     
+    $nom = $data['nom'];
+    /*  // WRMS (le modèle) met tout en italique
     $nom = wp_met_italiques($data['nom'],
         isset($data['rang'])?$data['rang']:$struct['taxon']['rang'], $struct['regne']);
+    */
     $id = $data['id'];
     if (isset($data['auteur'])) {
       $auteur = $data['auteur'];
