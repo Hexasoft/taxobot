@@ -190,13 +190,19 @@ function gbif_marqueur_rang($marker) {
 }
 
 // données dédiées à un taxon
-function gbif_taxon_info($id) {
+function gbif_taxon_info($id, $name="<ndef>", $deja=0) {
   $url = "https://api.gbif.org/v1/species/$id/name";
   $ret = get_data($url);
   // erreur CURL
+  
   if ($ret === false) {
-    logs("GBIF: erreur réseau");
-    return false;
+    if ($deja >= 3) {
+      logs("GBIF: erreur réseau (id=$id, name=$name)");
+      return false;
+    } else {
+      sleep(2);
+      return gbif_taxon_info($id, $name, $deja+1);
+    }
   }
   $cur = json_decode($ret);
   if ($cur === null) {
@@ -399,7 +405,7 @@ function m_gbif_infos(&$struct, $classif) {
         if (!isset($c->canonicalName)) {
           continue;
         }
-        $x = gbif_taxon_info($key);
+        $x = gbif_taxon_info($key, $c->canonicalName);
         if ($x === false) {
           continue;
         }
