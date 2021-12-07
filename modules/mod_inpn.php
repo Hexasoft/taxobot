@@ -13,9 +13,8 @@ function m_inpn_init() {
 // gérer la classification également
 function m_inpn_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-
   $url = "https://inpn.mnhn.fr/inpn-web-services/autocomplete/especes/recherche?texte=" .
-          str_replace(" ", "+", $taxon) . "&max_resultats=99";
+          str_replace(" ", "+", $taxon) . "&taxref_groupe1=&taxref_groupe2=&max_resultats=1";
   $ret = get_data($url);
   if ($ret === false) {
     logs("INPN: échec de récupération réseau");
@@ -35,7 +34,25 @@ function m_inpn_infos(&$struct, $classif) {
     logs("INPN: pas de réponse pour ce taxon");
     return false;
   }
-  
+  $max = $res->response->numFound;
+  // on refait la recherche avec le bon nombre de résultats
+  $url = "https://inpn.mnhn.fr/inpn-web-services/autocomplete/especes/recherche?texte=" .
+          str_replace(" ", "+", $taxon) . "&taxref_groupe1=&taxref_groupe2=&max_resultats=$max";
+  $ret = get_data($url);
+  if ($ret === false) {
+    logs("INPN: échec de récupération réseau (2)");
+    return false;
+  }
+  $res = json_decode($ret);
+  if ($res === null) {
+    logs("INPN: échec de décodage des données (2)");
+    return false;
+  }
+  if (!isset($res->response->docs)) {
+    echo "INPN: erreur pas response (2)\n";
+    return false;
+  }
+
   // parcours
   $ok = false;
   $blob = [];
