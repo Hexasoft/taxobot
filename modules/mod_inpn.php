@@ -9,6 +9,117 @@ function m_inpn_init() {
   return declare_module("inpn", false, true, true);
 }
 
+
+/*
+Changement :
+
+récupérer la liste des espèces correspondant à la recherche :
+https://odata-inpn.mnhn.fr/taxa/names?nameFragment=Fraxinus+excelsior&lteRank=SPECIES&embed=VALID_NAME&size=23
+
+voir ce que fait lteRank
+
+JSON :
+_embedded
+  taxonNames []
+    taxrefId (int)
+    binomialName (str)
+    scientificName (str : bName + auth)
+    rank (str = SPECIES / ?)
+    valid (bool)
+
+
+pour les noms en français : https://taxref.mnhn.fr/api/taxa/98921/vernacularNames
+
+JSON :
+_embedded
+  vernacularNames []
+    name (str, séparé par des virgules)
+    langageId (str, "fra")
+    locationName (str, "France, "Réunion"…)
+
+*/
+function m_inpn_infos_x(&$struct, $classif) {
+  $taxon = $struct['taxon']['nom'];
+  $url = "https://odata-inpn.mnhn.fr/taxa/names?nameFragment=" .
+         str_replace(" ", "+", $taxon) . "&lteRank=SPECIES&embed=VALID_NAME&size=1";
+  $ret = get_data($url);
+  if ($ret === false) {
+    logs("INPN: échec de récupération réseau");
+    return false;
+  }
+  $res = json_decode($ret);
+  if ($res === null) {
+    logs("INPN: échec de décodage des données");
+    return false;
+  }
+  if (!isset($res->page->totalElements) or ($res->page->totalElements == 0)) {
+    logs("INPN: pas de réponse pour cette recherche");
+    return false;
+  }
+  // requête complète
+  $url = "https://odata-inpn.mnhn.fr/taxa/names?nameFragment=" .
+         str_replace(" ", "+", $taxon) . "&lteRank=SPECIES&embed=VALID_NAME&size=" .
+         $res->page->totalElements;
+  $ret = get_data($url);
+  if ($ret === false) {
+    logs("INPN: échec de récupération réseau (2)");
+    return false;
+  }
+  $res = json_decode($ret);
+  if ($res === null) {
+    logs("INPN: échec de décodage des données (2)");
+    return false;
+  }
+
+  // parcours
+  $ok = false;
+  $blob = [];
+  foreach($res->_embedded->taxonNames as $r) {
+    if (!$r->valid) {
+      continue;
+    }
+    if ($r->binomialName != "$taxon") {
+      continue;
+    }
+    $blob['nom'] = $taxon;
+    $id = $blob['id'] = $r->taxrefId;
+    $compl = $r->scientificName;
+    $blob['auteur'] = str_replace($blob['id'] . " ", "", $compl);
+    $ok = true;
+    break;
+  }
+  if (!$ok) {
+    logs("INPN: taxon non trouvé");
+    return false;
+  }
+  
+  // recherche noms vernaculaires
+  $url = "https://taxref.mnhn.fr/api/taxa/$id/vernacularNames";
+  $ret = get_data($url);
+  if ($ret === false) {
+    goto suite;
+  }
+  $res = json_decode($ret);
+  if ($res === null) {
+    goto suite;
+  }
+  foreach($res->xx as $r) {
+  
+  }
+
+  // on l'ajoute
+  $struct['liens']['inpn'] = $blob;
+  
+suite:
+  // si pas plus loin, retour
+  if (!$classif) {
+    return true;
+  }
+  
+  // pas de classification
+  return false;
+}
+
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
 // gérer la classification également
 function m_inpn_infos(&$struct, $classif) {
@@ -71,6 +182,7 @@ function m_inpn_infos(&$struct, $classif) {
       break;
     }
   }
+  
   if (empty($blob)) {
     logs("INPN: taxon non trouvé");
     return false;

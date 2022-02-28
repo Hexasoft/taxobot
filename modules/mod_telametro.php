@@ -102,7 +102,7 @@ function m_telametro_ext($struct) {
       $texte .= " " . $struct['liens']['telametro']['auteur'];
     }
     $texte = trim($texte);
-    return "{{Tela-métro | $texte | consulté le=$cdate }}"; 
+    return "{{Tela-métro | " . $struct['liens']['telametro']['id'] . " | $texte | consulté le=$cdate }}"; 
   }
   return false;
 }
