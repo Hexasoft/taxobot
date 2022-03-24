@@ -71,7 +71,7 @@ function m_biolib_recupere($id) {
 function m_biolib_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
   $url = 'https://www.biolib.cz/en/formsearch/?action=execute&searcharea=1&string=' . str_replace(" ", "+", $taxon);
-  
+
   $ret = get_data_header($url, false, false);
   // erreur CURL
   if ($ret === false) {
