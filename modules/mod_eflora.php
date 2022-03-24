@@ -6,7 +6,7 @@
 
 // déclaration du module
 function m_eflora_init() {
-  return declare_module("eflora", false, true, true);
+  return declare_module("eflora", false, true, ['végétal']);
 }
 
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
