@@ -29,7 +29,7 @@ function clean_data() {
 }
 
 // wrapper pour récupérer les données
-function get_data($url, $header=false) {
+function get_data($url, $header=false, $follow=true) {
   global $fichier_temp;
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
@@ -41,7 +41,11 @@ function get_data($url, $header=false) {
   curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
   curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
   curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+  if ($follow) {
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+  } else {
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
+  }
   if ($header !== false) {
     curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
   }
@@ -53,6 +57,39 @@ function get_data($url, $header=false) {
   curl_close($ch);
   return $data;
 }
+
+// wrapper pour récupérer le header (GET)
+function get_data_header($url, $header=false, $follow=true) {
+  global $fichier_temp;
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_USERAGENT,
+              "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0");
+  curl_setopt($ch, CURLOPT_COOKIEJAR, $fichier_temp);
+  curl_setopt($ch, CURLOPT_COOKIEFILE, $fichier_temp);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($ch, CURLOPT_HEADER, 1);
+  //curl_setopt($ch, CURLOPT_NOBODY, 1);
+  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+  curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+  if ($header !== false) {
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+  }
+  if ($follow) {
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+  } else {
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
+  }
+  $data = curl_exec($ch);
+  if (curl_errno($ch)) {
+    curl_close($ch);
+    return FALSE;
+  }
+  curl_close($ch);
+  return $data;
+}
+
 
 // wrapper pour récupérer les données (POST)
 function post_data($url, $post, $header=false) {
