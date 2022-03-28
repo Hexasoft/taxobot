@@ -171,7 +171,7 @@ function m_biolib_ext($struct) {
     if (isset($data['auteur'])) {
       $cible .= " " . $data['auteur'];
     }
-    return "{{Biolib | taxon | " . $data['id'] . " | " . $cible . " | " . "consulté le=$cdate }}";
+    return "{{BioLib | taxon | " . $data['id'] . " | " . $cible . " | " . "consulté le=$cdate }}";
   } else {
     return false;
   }
