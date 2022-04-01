@@ -441,7 +441,7 @@ function m_mycobank_analyse_taxon($res, $full=true) {
 function m_mycobank_infos(&$struct, $classif) {
   $tous_non_valides = get_config('inclure-invalides');
   $taxon = $struct['taxon']['nom'];
-$classif = true;
+
   $url = "https://webservices.bio-aware.com/cbsdatabase/api/Search/SearchForSummaryGrid";
   $post = '{"TableKey":"14682616000000067","Fields":["-100","14682616000001548","14682616000001537","14682616000001538","14682616000001539"]' . 
           ',"iDisplayLength":50,"iDisplayStart":0,' .
