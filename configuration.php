@@ -66,7 +66,7 @@ function set_config($nom, $val) {
 // retourne une valeur de la configuration. Retourne null si l'élément de configuration n'existe pas
 function get_config($nom) {
   global $configuration;
-  
+
   if (!isset($configuration[$nom])) {
     error("get_config: '$nom' non reconnu comme élément de configuration");
     return null;

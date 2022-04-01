@@ -129,14 +129,45 @@ function rendu_inf($struct) {
     return "";
   }
   //$_rang = cherche_rang($struct['sous-taxons']['liste'][0]['rang'], $struct['sous-taxons']['source']);
-  $_rang = $struct['sous-taxons']['liste'][0]['rang'];
-  $rang = wp_nom_rang($_rang, false, false, true);
+  // on cherche la liste des rangs inférieurs
+  $_lst = [];
+  foreach($struct['sous-taxons']['liste'] as $el) {
+    $tmp = wp_nom_rang($el['rang'], false, false, true);
+    if ($tmp == "NOTFOUND") { continue; }
+    $_lst[$tmp] = $tmp; // pour être unique
+  }
+  $lst = [];
+  foreach($_lst as $l) {
+    $lst[] = $l;
+  }
+  $cnt = count($lst);
+  if ($cnt == 0) {
+    $rang = "[aucun rang remonté]";
+  } else if ($cnt == 1) {
+    $rang = $lst[0];
+  } else {
+    $rang = $lst[0];
+    for($i=1; $i<$cnt; $i++) {
+      if ($i < $cnt-1) {
+        $rang .= ", ";
+      } else {
+        $rang .= " et ";
+      }
+      $rang .= $lst[$i];
+    }
+  }
+  $_rang = $lst[0];
   $mdl = $struct['sous-taxons']['source'];
   
   $ret = "\n== Liste des taxons de rang inférieur ==\nListe des $rang selon {{Bioref|$mdl|$cdate}} :\n";
   $ret0 = "";
   foreach($struct['sous-taxons']['liste'] as $l) {
-    $cible = wp_met_italiques($l['nom'], $_rang, $struct['regne'], true);
+    if (isset($l['rang']) and !empty($l['rang'])) {
+      $x = $l['rang'];
+    } else {
+      $x = $_rang;
+    }
+    $cible = wp_met_italiques($l['nom'], $x, $struct['regne'], true);
     $ret0 .= "* $cible " . (isset($l['auteur'])?$l['auteur']:"") . "\n";
   }
   if (est_colonnes(count($struct['sous-taxons']['liste']))) {
