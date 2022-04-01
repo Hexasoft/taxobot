@@ -412,12 +412,23 @@ function modules_possibles($domaine) {
 // parcours récursivement les (sous)domaines pour voir le plus profond qui correspond
 function rec_prof_classification($def, $domaine, $prof) {
   $ret = 0;
+  // compte du nombre de sous-domaines actifs
+  $cnt = 0;
+  foreach($def as $id => $cont) {
+    if ($cont['accepte']) {
+      $cnt++;
+    }
+  }
   foreach($def as $id => $cont) {
     $ret2 = 0;
     // si correspondance exacte
     if ((($domaine == '*') or ($id == $domaine)) and ($cont['accepte'])) {
       $ret = $prof + 1;
+      // on retranche une fraction du nombre de sous-domaines, pour avantager les
+      // classifications les plus spécialisées
+      $ret += ($cnt/20.);
     } else {
+      //$ret2 = rec_prof_classification($cont['sous'], "*", $prof+1);
       $ret2 = rec_prof_classification($cont['sous'], "*", $prof+1);
     }
     // si on trouve "mieux" on change
@@ -446,18 +457,21 @@ function profondeur_domaine($def, $domaine, $prof) {
     }
     // on cherche dessous
     $ret = profondeur_domaine($cont['sous'], $domaine, $prof+1);
+    if ($ret == 0) {
+      continue; // pas trouvé ici
+    }
     if ($ret > $prof) {
       return $ret;
     }
   }
-  return $prof;
+  return 0;
 }
 
 // recherche la meilleure classification à appliquer au domaine sélectionné
 function meilleure_classification($domaine) {
   global $m_modules, $m_default;
   global $domaines_true;
-
+  
   // si le domaine est "*" on retourne celui par défaut
   if ($domaine == "*") {
     return $m_default;
@@ -483,7 +497,6 @@ function meilleure_classification($domaine) {
   
   // on cherche la profondeur du domaine
   $prof = profondeur_domaine($domaines_true, $domaine, 0);
-  
   // on cherche la (ou les) classification la plus précise qui gère ce domaine
   $tbl2 = [];
   foreach($tbl as $c) {
@@ -502,21 +515,21 @@ function meilleure_classification($domaine) {
   if (count($tbl2) == 1) {
     return array_keys($tbl2)[0];
   }
-  // s'il y en a plus on cherche ceux qui ont exactement la même profondeur
+  // s'il y en a plus on cherche la plus précise
+  asort($tbl2);
+  // on récupère le ou les plus petits
   $tbl3 = [];
-  foreach($tbl2 as $nom => $eprof) {
-    if ($eprof == $prof) {
+  $min = reset($tbl2);
+  foreach($tbl2 as $nom => $val) {
+    if ($val == $min) {
       $tbl3[] = $nom;
     }
-  }
-  // si aucun trouvé on retourne celui par défaut
-  if (empty($tbl3)) {
-    return $m_default;
   }
   // si un seul on le retourne
   if (count($tbl3) == 1) {
     return $tbl3[0];
   }
+
   // si plusieurs et que celle par défaut est présente on la retourne
   foreach($tbl3 as $c) {
     if ($c == $m_default) {
@@ -537,6 +550,6 @@ function meilleure_classification($domaine) {
   asort($p);
   $p = array_reverse($p);
   // on retourne le premier (celui qui est le plus "haut")
-  return $p[0];
+  return reset($p);
 }
 
