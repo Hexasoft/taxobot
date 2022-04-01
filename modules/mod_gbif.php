@@ -276,7 +276,7 @@ function m_gbif_infos(&$struct, $classif) {
     }
   }
   if ($cur === false) {
-    logs("Taxon trouvé chez GBIF en 'ACCEPTED'");
+    logs("GBIF: taxon non trouvé en 'ACCEPTED'");
     if (!$suivre_synonymes) {
       return false;
     }
@@ -317,7 +317,8 @@ function m_gbif_infos(&$struct, $classif) {
       // on change le nom scientifique utilisé
       $struct['taxon']['nom'] = $tmp['nom'];
       // on se ré-appelle sur le nouveau nom
-      return infos_gbif($struct, $classif);
+      logs("GBIF: suivi d'un synonyme");
+      return m_gbif_infos($struct, $classif);
     }
   }
 
