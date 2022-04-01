@@ -6,7 +6,7 @@
 
 // déclaration du module
 function m_mycobank_init() {
-  return declare_module("mycobank", true, true, ['champignon']);
+  return declare_module("mycobank", true, true, ['champignon'], 997);
 }
 
 function mycobank_bioref($rang=null) {
@@ -139,6 +139,10 @@ function m_mycobank_insert_valeur($val, $fk, $tk, $rc, $cat, $idx) {
       $m_mb_results['synonymes'] = [];
     }
     $m_mb_results['synonymes'][] = $val;
+    return;
+  }
+  if ($cat == "CurrentNameRecord") {
+    $m_mb_results['actuel'][] = $val;
     return;
   }
   
@@ -428,6 +432,10 @@ function m_mycobank_analyse_taxon($res, $full=true) {
     $out['synonymes'] = $m_mb_results['synonymes'];
   }
   
+  if (isset($m_mb_results['actuel'])) {
+    $out['actuel'] = $m_mb_results['actuel'];
+  }
+  
     // $struct['rangs']
     
     // mycobank_cherche_regne($nom_regne)
@@ -468,6 +476,7 @@ function m_mycobank_infos(&$struct, $classif) {
     logs("MycoBank: échec de décodage des données");
     return false;
   }
+  
   if (!isset($res->Data->RecordEntityList)) {
     logs("MycoBank: pas de réponse pour ce taxon");
     return false;
@@ -503,19 +512,12 @@ function m_mycobank_infos(&$struct, $classif) {
       if ($id === false) {
         continue;
       }
+      // seulement les noms légitimes
+      if ($type != "Legitimate") {
+        continue;
+      }
       $tmp['id'] = $id;
-      if (!empty($date)) {
-        $auteur .= " $date";
-      }
-      if (!empty($type) and ($type != "Legitimate")) {
-        if ($tous_non_valides) {
-          // on l'accepte comme synonyme
-          $tmp['synonyme'] = true;
-        } else {
-          // pas les "non légitimes"
-          continue;
-        }
-      }
+
       if (!empty($auteur)) {
         $tmp['auteur'] = $auteur;
       }
@@ -525,8 +527,53 @@ function m_mycobank_infos(&$struct, $classif) {
   
   if (empty($struct['liens']['mycobank'])) {
     unset($struct['liens']['mycobank']);
-    logs("MycoBank: taxons trouvés mais non concordants");
+    logs("MycoBank: taxons trouvés mais non concordants (non légitime ?)");
     return false;
+  }
+  
+  // on récupère l'enregistrement
+  $res = m_mycobank_get($struct['liens']['mycobank']['id']);
+  if ($res === false) {
+    logs("MycoBank: échec de récupération des détails du taxon trouvé");
+    return false;
+  }
+  // si le ObligateSynonymId contient quelque chose (!=0) c'est qu'on a un synonyme
+  if (isset($res->Data->RecordDetails->{"14682616000006675"}->ObligateSynonymId) and ($res->Data->RecordDetails->{"14682616000006675"}->ObligateSynonymId != 0)) {
+    // c'est un synonyme : si pas classif on l'indique
+    if (!$classif) {
+      // seulement si on les veut
+      if ($tous_non_valides) {
+        $struct['liens']['mycobank']['synonyme'] = true;
+      } else {
+        // si on ne les veut pas on le supprime
+        unset($struct['liens']['mycobank']);
+        logs("MycoBank: synonyme trouvé, mais configuré pour refuser les synonymes en liens externes");
+        return false; // dans ce contexte on n'a rien trouvé
+      }
+    } else {
+      // si on doit suivre les synonymes
+      if (get_config("suivre-synonymes")) {
+        // on se relance sur la cible du synonyme
+        $res = m_mycobank_get_rec($res->Data->RecordDetails->{"14682616000006675"}->ObligateSynonymId);
+        if ($res === false) {
+          logs("MycoBank : échec de récupération du synonyme, et suivi des synonymes demandé");
+          return false;
+        }
+        $bla = m_mycobank_analyse_taxon($res);
+        if (!isset($bla['taxon']['nom'])) {
+          logs("MycoBank: échec de récupération du nom du synonyme");
+          return false;
+        }
+        // on remplace le taxon
+        unset($struct['taxon']);
+        $struct['taxon'] = [];
+        $struct['taxon']['nom'] = $bla['taxon']['nom'];
+        // on se relance
+        logs("MycoBank: suivi d'un synonyme");
+        return m_mycobank_infos($struct, $classif);
+      }
+      // sinon on va traiter celui-ci
+    }
   }
   
   // si pas plus loin, retour : on a fait le job
