@@ -153,6 +153,13 @@ if (get_config('help')) {
   die();
 }
 
+if (get_config('version')) {
+  global $version;
+  echo "Taxobot version $version\n";
+  fini_outils();
+  die();
+}
+
 // si on demande la liste des modules, on traite (et on quitte)
 if (get_config('liste')) {
   $modules = cherche_modules();

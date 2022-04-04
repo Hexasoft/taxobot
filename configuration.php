@@ -21,6 +21,7 @@ $configuration = [
   "debug" => false,
   "liste" => false,
   "help" => false,
+  "version" => false,
   "article" => false,
 ];
 
@@ -40,6 +41,7 @@ $liste_configuration = [
   "debug" => ['flag', 'Activer ou pas le mode debug'],
   "liste" => ['flag', 'Afficher la liste des modules'],
   "help" => ['flag', 'Afficher ce message d\'aide'],
+  "version" => ['flag', 'Afficher la version de Taxobot'],
   "off" => ['string', 'Liste de modules à désactiver (noms séparés par des virgules)'],
   "article" => ['flag', 'Ne générer que la sortie de l\'article et rien d\'autre'],
 ];
