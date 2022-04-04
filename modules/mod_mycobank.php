@@ -423,11 +423,13 @@ function m_mycobank_analyse_taxon($res, $full=true) {
     }
   }
 
+  // on fait une requête "summary" séparée pour extraire les auteurs sous leur bonne forme
   if (isset($taxon['id'])) {
     $res = m_mycobank_get_id($taxon['id']);
   }
   $trouve = false;
   if ($res !== false) {
+    // si ok on cherche le bon taxon "Legitimate" pour récupérer l'info (+ date)
     if (isset($res->Data->RecordEntityList)) {
       foreach($res->Data->RecordEntityList as $el) {
         if (($el->Name == $taxon['nom']) and ($el->ListFields[3]->FieldValue->Value == "Legitimate")) {
@@ -442,10 +444,13 @@ function m_mycobank_analyse_taxon($res, $full=true) {
     }
   }
   if (!$trouve) {
+    // si pas trouvé on se rabat sur les trucs de merde…
     if (isset($m_mb_results['auteurs'][-1]['valeur'])) {
       $taxon['auteur'] = $m_mb_results['auteurs'][-1]['valeur'];
 //echo $taxon['nom'] . " → '" . $taxon['auteurs'] . "'\n";
     }
+    // en fait on passe plus ici : corriger, mais c'est pas supposé se produire, c'est 
+    // un "fallback" de sécurité
     if (isset($m_mb_results['citation']) and isset($taxon['nom'])) {
       // problème : le champ 'auteurs' n'utilise aucune abréviation pour les noms d'auteurs
       // de son coté le champ citation contient plein de trucs après taxon+auteurs
