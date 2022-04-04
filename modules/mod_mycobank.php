@@ -53,6 +53,7 @@ $m_mb_items = [
  "Classification" => [],
  "Summary" => [],
  "Name status" => [],
+ "Authors" => [],
 ];
 $m_mb_mapping = [
   "Taxon name" => [ "*" => "nom" ],
@@ -63,6 +64,7 @@ $m_mb_mapping = [
   "Classification" => [ "Value" => "classification", "ChildValue" => "sous-taxons" ],
   "Summary" => [ "*" => "citation" ],
   "Name status" => [ "*" => "statut" ],
+  "Authors" => [ "*" => "auteurs" ],
 ];
 $m_mb_results = [];
 
@@ -119,6 +121,7 @@ function m_mycobank_recurs($res) {
     "Name status" => [],
     "Synonymy" => [],
     "Basionym" => [],
+    "Authors" => [],
   ];
   if (!isset($res->Data->Template->Fields)) {
     return;
@@ -135,6 +138,13 @@ function m_mycobank_insert_valeur($val, $fk, $tk, $rc, $cat, $idx) {
     return;
   }
   if ($cat == "ObligateSynonymRecords") {
+    if (!isset($m_mb_results['synonymes'])) {
+      $m_mb_results['synonymes'] = [];
+    }
+    $m_mb_results['synonymes'][] = $val;
+    return;
+  }
+  if ($cat == "TaxonSynonymsRecords") {
     if (!isset($m_mb_results['synonymes'])) {
       $m_mb_results['synonymes'] = [];
     }
@@ -268,6 +278,7 @@ function m_mycobank_recurs2($res, $full=true) {
       "Name status" => [ "*" => "statut" ],
       "Synonymy" => [ "*" => "synonymes" ],
       "Basionym" => [ "*" => "basionyme" ],
+      "Authors" => [ "*" => "auteurs" ],
     ];
   } else {
     $m_mb_mapping = [
@@ -309,6 +320,7 @@ function m_mycobank_get($id) {
       logs("MycoBank: échec de récupération des infos détaillées sur le taxon");
       return false;
   }
+file_put_contents("./content.json", $ret);
   $res = json_decode($ret);
   if ($res === null) {
     logs("MycoBank: échec de d'analyse des infos détaillées sur le taxon (2)");
@@ -346,6 +358,41 @@ function m_mycobank_get_rec($id) {
   return $res;
 }
 
+// récupère une partie "courte" à partir d'un ID MycoBank
+function m_mycobank_get_id($id) {
+  $url = "https://webservices.bio-aware.com/cbsdatabase/api/Search/SearchForSummaryGrid";
+  $header = [
+    'Referer: https://www.mycobank.org/',
+    'WebsiteId: 85',
+    'Content-Type: application/json',
+    'Accept: application/json',
+    'Origin: https://www.mycobank.org',
+    'Sec-Fetch-Dest: empty',
+    'Sec-Fetch-Mode: cors',
+    'Sec-Fetch-Site: cross-site',
+    'TE: trailers'
+  ];
+  $post = '{"TableKey":"14682616000000067","Fields":' .
+          '["-100","14682616000001548","14682616000001537","14682616000001538","14682616000001539"]' . 
+          ',"iDisplayLength":50,"iDisplayStart":0,' .
+          '"ListOfConditionEntity":[{"Index":0,"FieldKey":"14682616000001548","NotOfCondition":true,' . 
+          '"OperatorOfCondition":"","OperatorOfConditionUserName":"",' .
+          '"OperatorOfField":"=","OperatorOfFieldUserName":"=","FieldName":"MycoBank #",' .
+          '"Value":"' . $id . '"}],"ComplexQuery":" Q0 ","SortColumn":"name",' .
+          '"SortDirection":"asc","LoadOwnerRecord":false}';
+  $ret = post_data($url, $post, $header);
+  if ($ret === false) {
+      logs("MycoBank: échec de récupération des infos auteurs sur le taxon");
+      return false;
+  }
+  $res = json_decode($ret);
+  if ($res === null) {
+    logs("MycoBank: échec de d'analyse des infos auteurs sur le taxon (2)");
+    return false;
+  }
+  return $res;
+}
+
 // analyse les données d'un taxon
 function m_mycobank_analyse_taxon($res, $full=true) {
   global $m_mb_results, $m_mb_rangs;
@@ -375,15 +422,45 @@ function m_mycobank_analyse_taxon($res, $full=true) {
       $taxon['rang'] = $x;
     }
   }
-  if (isset($m_mb_results['citation']) and isset($taxon['nom'])) {
-    $tmp = preg_replace("/^" . $taxon['nom'] . " /", "", $m_mb_results['citation'][-1]['valeur']);
-    $x = explode(",", $tmp);
-    $x = explode(":", $x[0]);
-    $xx = $x[0];
-    $xx = preg_replace("/[ ]*\[MB[^]]*\][ ]*/", "", $xx);
-    $taxon['auteur'] = $xx;
-    if (isset($m_mb_results['année']) and !empty($m_mb_results['année'][-1]['valeur'])) {
-      $taxon['auteur'] .= ", " . $m_mb_results['année'][-1]['valeur'];
+
+  if (isset($taxon['id'])) {
+    $res = m_mycobank_get_id($taxon['id']);
+  }
+  $trouve = false;
+  if ($res !== false) {
+    if (isset($res->Data->RecordEntityList)) {
+      foreach($res->Data->RecordEntityList as $el) {
+        if (($el->Name == $taxon['nom']) and ($el->ListFields[3]->FieldValue->Value == "Legitimate")) {
+          $taxon['auteur'] = $el->ListFields[1]->FieldValue->Value;
+          if (isset($m_mb_results['année']) and !empty($m_mb_results['année'][-1]['valeur'])) {
+            $taxon['auteur'] .= ", " . $m_mb_results['année'][-1]['valeur'];
+          }
+          $trouve = true;
+          break;
+        }
+      }
+    }
+  }
+  if (!$trouve) {
+    if (isset($m_mb_results['auteurs'][-1]['valeur'])) {
+      $taxon['auteur'] = $m_mb_results['auteurs'][-1]['valeur'];
+//echo $taxon['nom'] . " → '" . $taxon['auteurs'] . "'\n";
+    }
+    if (isset($m_mb_results['citation']) and isset($taxon['nom'])) {
+      // problème : le champ 'auteurs' n'utilise aucune abréviation pour les noms d'auteurs
+      // de son coté le champ citation contient plein de trucs après taxon+auteurs
+      // soit on accepte d'avoir des noms non abrégés, soit il faut faire un découpage "à la con"
+      // pour tenter d'extraire la partie intéressante, avec le risque de prendre trop ou pas
+      // assez de la zone concernée
+      $tmp = preg_replace("/^" . $taxon['nom'] . " /", "", $m_mb_results['citation'][-1]['valeur']);
+      $x = explode(",", $tmp);
+      $x = explode(":", $x[0]);
+      $xx = $x[0];
+      $xx = preg_replace("/[ ]*\[MB[^]]*\][ ]*/", "", $xx);
+      $taxon['auteur'] = $xx;
+      if (isset($m_mb_results['année']) and !empty($m_mb_results['année'][-1]['valeur'])) {
+        $taxon['auteur'] .= ", " . $m_mb_results['année'][-1]['valeur'];
+      }
     }
   }
   if (!empty($taxon)) {
@@ -459,7 +536,6 @@ function m_mycobank_infos(&$struct, $classif) {
           '"FieldName":"Taxon name","Value":"' .
           $taxon . '"}],"ComplexQuery":" Q0 ","SortColumn":"name",' .
           '"SortDirection":"asc","LoadOwnerRecord":false}';
-
   $header = [
     'Referer: https://www.mycobank.org/',
     'WebsiteId: 85',
@@ -537,7 +613,8 @@ function m_mycobank_infos(&$struct, $classif) {
     logs("MycoBank: échec de récupération des détails du taxon trouvé");
     return false;
   }
-  // si le ObligateSynonymId contient quelque chose (!=0) c'est qu'on a un synonyme
+
+  // si c'est un synonyme
   if (isset($res->Data->RecordDetails->{"14682616000006675"}->SelectedRecord->RecordId) and
       isset($res->Data->RecordDetails->{"14682616000006675"}->CurrentNameRecord->RecordId) and
       ($res->Data->RecordDetails->{"14682616000006675"}->SelectedRecord->RecordId !=
@@ -594,7 +671,7 @@ function m_mycobank_infos(&$struct, $classif) {
     return false; // en mode classification c'est fatal
   }
   $out = m_mycobank_analyse_taxon($res);
-  
+
   // il faut au moins la classification et le taxon
   if (!isset($out['taxon']) or !isset($out['rangs'])) {
     logs("MycoBank: données de classification manquantes");
