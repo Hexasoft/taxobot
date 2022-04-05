@@ -11,7 +11,7 @@ Taxobot est un programme de génération de squelette d'articles sur des taxons.
 Il utilise un certain nombre de sources (modules) pour extraire des données sur le
 taxon, puis met ces données en forme pour proposer un squelette d'article qui
 reprend ces informations et les pré-formate en suivant les conventions des
-articles biologiques de wikipédia en français.
+articles de biologie de wikipédia en français.
 
 Taxobot prend en entrée le nom du taxon. Si le module à utiliser pour la classification
 n'est pas spécifié il détermine lui-même la classification suivie (en filtrant
