@@ -108,7 +108,8 @@ aux modules d'informer sur les problèmes rencontrés, etc. En particulier lorsq
 retourne `false` elle doit au préalable avoir ajouté un message expliquant la raison de cet échec.
 
 ## Exemples
-Vous pouvez regarder les modules de classification (GBIF et ITIS à l'heure actuelle) et tous les autres (liens
+Vous pouvez regarder les modules de classification (GBIF, ITIS et MycoBank à l'heure actuelle − note :
+ITIS semble ne plus fonctionner, le site ne répondant pas toujours) et tous les autres (liens
 externes uniquement) dans le répertoire `modules/`.
 
 Il y a aussi dans le répertoire `templates/` deux pseudo-modules d'exemple (un de classification, un juste de liens
