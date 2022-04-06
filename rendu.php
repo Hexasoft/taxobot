@@ -328,6 +328,27 @@ function rendu_distribution($struct) {
   return $resu;
 }
 
+// rendu publication originale
+function rendu_originale($struct) {
+  if (!isset($struct['originale'])) {
+    return "";
+  }
+  
+  if (is_array($struct['originale']) and (count($struct['originale']) > 1)) {
+    $resu = "\n== Publications originales ==\n";
+  } else {
+    $resu = "\n== Publication originale ==\n";
+  }
+  if (is_array($struct['originale'])) {
+    foreach($struct['originale'] as $pub) {
+    $resu .= "* " . $pub . "\n";
+    }
+  } else {
+    $resu .= "* " . $struct['originale'] . "\n";
+  }
+  return $resu;
+}
+
 // rendu de la zone voir aussi
 function rendu_voir_aussi($struct) {
   global $gauto;
@@ -446,6 +467,8 @@ function rendu($struct) {
   $ret .= rendu_inf($struct);
   // informations additionnelles
   $ret .= rendu_supp($struct);
+  // publication originale
+  $ret .= rendu_originale($struct);
   // partie voir aussi
   $ret .= rendu_voir_aussi($struct);
   // partie finale
