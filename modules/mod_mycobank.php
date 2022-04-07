@@ -434,6 +434,7 @@ function m_mycobank_analyse_taxon($res, $full=true) {
       foreach($res->Data->RecordEntityList as $el) {
         if (($el->Name == $taxon['nom']) and ($el->ListFields[3]->FieldValue->Value == "Legitimate")) {
           $taxon['auteur'] = $el->ListFields[1]->FieldValue->Value;
+          $taxon['auteur-brut'] = $taxon['auteur'];
           if (isset($m_mb_results['année']) and !empty($m_mb_results['année'][-1]['valeur'])) {
             $taxon['auteur'] .= ", " . $m_mb_results['année'][-1]['valeur'];
           }
@@ -512,12 +513,33 @@ function m_mycobank_analyse_taxon($res, $full=true) {
   // synonymes
   if (isset($m_mb_results['synonymes'])) {
     $out['synonymes'] = $m_mb_results['synonymes'];
+    // si le basionyme est différent du taxon courant on l'ajoute dans les synonymes
+    if (isset($out['basionyme']['id']) and ($out['basionyme']['id'] != $out['taxon']['id'])) {
+      array_unshift($out['synonymes'], $out['basionyme']['id']);
+    }
   }
   
   if (isset($m_mb_results['actuel'])) {
     $out['actuel'] = $m_mb_results['actuel'];
   }
   
+  if (isset($m_mb_results['citation'])) {
+    $out['taxon']['citation'] = $m_mb_results['citation'][-1]['valeur'];
+  }
+  // extraction de la publication originale si possible
+  if (isset($out['taxon']['citation']) and isset($out['taxon']['auteur-brut'])) {
+    $tmp = str_replace($out['taxon']['nom'], "", $out['taxon']['citation']);
+    $tmp = str_replace($out['taxon']['auteur-brut'], "", $tmp);
+    $tmp = preg_replace("/\[MB#[^]]*\]/", "", $tmp);
+    $tmp = str_replace("  ", " ", $tmp);
+    $tmp = str_replace("  ", " ", $tmp);
+    $tmp = trim(str_replace("  ", " ", $tmp));
+    $tmp = trim(preg_replace("/^[,:][ ]*/", "", $tmp));
+    if (!empty($tmp)) {
+      $out['originale'] = $tmp;
+    }
+  }
+
     // $struct['rangs']
     
     // mycobank_cherche_regne($nom_regne)
@@ -708,6 +730,11 @@ function m_mycobank_infos(&$struct, $classif) {
   $struct['taxon'] = $out['taxon'];
   // on enregistre la classification dans le retour, en ordre inverse
   $struct['rangs'] = array_reverse($out['rangs']);
+
+  // publication originale
+  if (isset($out['originale'])) {
+    $struct['originale'] = $out['originale'];
+  }
 
   // taxons inférieurs
   if (isset($out['sous-taxons'])) {
