@@ -85,7 +85,7 @@ function wrms_rang($rang) {
   if (isset($wrms_rangs[$rang])) {
     return $wrms_rangs[$rang];
   } else {
-    return "NOTFOUND";
+    return "NOTFOUND-$rang";
   }
 }
 
@@ -288,10 +288,21 @@ function wrms_extraire($page, $id) {
           $i++;
           continue;
         }
+        $t = explode('"', $tmp);
+        if (!isset($t[3])) {
+          logs("WRMS: sous-taxon non identifié. Ignoré");
+          continue;
+        }
+        $t2 = explode("=", $t[3]);
+        if (!isset($t2[2])) {
+          logs("WRMS: sous-taxon non identifié (2). Ignoré");
+          continue;
+        }
+        $blob['id'] = $t2[2];
         $p1 = preg_replace(',<a .*$,', '', $tmp);
         $x = trim(strip_tags(trim($p1)));
         $blob['rang'] = wrms_rang($x);
-        $p2 = preg_replace(',</a>.*$,', '', $tmp);
+        $p2 = preg_replace(',^.*<a ,', '<a ', $tmp);
         $x = trim(strip_tags(trim($p2)));
         $blob['nom'] = $x;
         $out['sous-taxons'][] = $blob;
@@ -306,10 +317,15 @@ function wrms_extraire($page, $id) {
     }
   }
   // si le basionyme est identique on l'enlève
-  if ($out['basionyme'] == $id) {
+  if (isset($out['basionyme']) and ($out['basionyme'] == $id)) {
     unset($out['basionyme']);
   }
   return $out;
+}
+
+// remplace "et al." par {{et al.}}
+function wrms_etal($nom) {
+  return str_replace("et al.", "{{et al.}}", $nom);
 }
 
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
@@ -369,7 +385,7 @@ function m_wrms_infos(&$struct, $classif) {
     // erreur, mais on met quand même l'identifiant
     $blob['nom'] = $taxon;
     $blob['rang'] = $struct['taxon']['rang'];
-    $blob['auteur'] = $struct['taxon']['auteur'];
+    $blob['auteur'] = wrms_etal($struct['taxon']['auteur']);
     $struct['liens']['wrms'] = $blob;
     return false;
   }
@@ -380,7 +396,7 @@ function m_wrms_infos(&$struct, $classif) {
     // erreur, mais on met quand même l'identifiant
     $blob['nom'] = $taxon;
     $blob['rang'] = $struct['taxon']['rang'];
-    $blob['auteur'] = $struct['taxon']['auteur'];
+    $blob['auteur'] = wrms_etal($struct['taxon']['auteur']);
     $struct['liens']['wrms'] = $blob;
     return false;
   }
@@ -399,10 +415,10 @@ function m_wrms_infos(&$struct, $classif) {
     }
   }
   if (isset($res['auteur'])) {
-    $tmp['auteur'] = $res['auteur'];
+    $tmp['auteur'] = wrms_etal($res['auteur']);
   } else {
     if (isset($struct['taxon']['auteur'])) {
-      $tmp['auteur'] = $struct['taxon']['auteur'];
+      $tmp['auteur'] = wrms_etal($struct['taxon']['auteur']);
     }
   }
   if (isset($res['cible'])) {
@@ -410,7 +426,7 @@ function m_wrms_infos(&$struct, $classif) {
   }
   $tmp['id'] = $res['id'];
   $struct['liens']['wrms'] = $tmp;
-  
+
   // pas classification : terminé
   if (!$classif) {
     return true;
@@ -425,7 +441,7 @@ function m_wrms_infos(&$struct, $classif) {
   
   // partie taxon
   $struct['taxon']['nom'] = $res['nom'];
-  $struct['taxon']['auteur'] = $res['auteur'];
+  $struct['taxon']['auteur'] = wrms_etal($res['auteur']);
   $struct['taxon']['rang'] = $res['rang'];
   
   // classification : si synonyme on fait le suivi
@@ -480,7 +496,7 @@ function m_wrms_infos(&$struct, $classif) {
         logs("WRMS: échec de récupération d'information sur le basionyme (2). Ignoré");
       } else {
         $struct['basionyme']['nom'] = $tmp['nom'];
-        $struct['basionyme']['auteur'] = $tmp['auteur'];
+        $struct['basionyme']['auteur'] = wrms_etal($tmp['auteur']);
         $struct['basionyme']['source'] = wrms_bioref();
       }
     }
@@ -501,7 +517,7 @@ function m_wrms_infos(&$struct, $classif) {
         } else {
           $x = [];
           $x['nom'] = $tmp['nom'];
-          $x['auteur'] = $tmp['auteur'];
+          $x['auteur'] = wrms_etal($tmp['auteur']);
           $x['rang'] = $tmp['rang'];
           $lst[] = $x;
         }
@@ -514,19 +530,20 @@ function m_wrms_infos(&$struct, $classif) {
   // sous-taxons
   if (isset($res['sous-taxons'])) {
     $lst = [];
-    foreach($res['sous-taxons'] as $syn) {
-      $url = "https://www.marinespecies.org/aphia.php?p=taxdetails&id=" . $syn;
+    foreach($res['sous-taxons'] as $stt) {
+      $st = $stt['id'];
+      $url = "https://www.marinespecies.org/aphia.php?p=taxdetails&id=" . $st;
       $ret = get_data($url);
       if ($ret === false) {
         logs("WRMS: échec de récupération d'information sur un sous-taxon. Ignoré");
       } else {
-        $tmp = wrms_extraire($ret, $syn);
+        $tmp = wrms_extraire($ret, $st);
         if ($tmp === false) {
           logs("WRMS: échec de récupération d'information sur un sous-taxon (2). Ignoré");
         } else {
           $x = [];
           $x['nom'] = $tmp['nom'];
-          $x['auteur'] = $tmp['auteur'];
+          $x['auteur'] = wrms_etal($tmp['auteur']);
           $x['rang'] = $tmp['rang'];
           $lst[] = $x;
         }
