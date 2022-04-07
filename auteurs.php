@@ -107,10 +107,10 @@ function auteurs_traite($auteurs) {
   $auteurs = str_replace("@", " ", $auteurs);
 
   // on remplace la (ou les) date par un lien
-  $auteurs = preg_replace("/(1[0-9][0-9][0-9])/", '[[$1 en science|$1]]', $auteurs);
+  $auteurs = preg_replace("/([123][0-9][0-9][0-9])/", '[[$1 en science|$1]]', $auteurs);
 
   // si pas de date on ajoute {{date à préciser}}
-  if (preg_match("/(1[0-9][0-9][0-9])/", $t) != 1) {
+  if (preg_match("/([123][0-9][0-9][0-9])/", $t) != 1) {
     $auteurs .= " {{date à préciser}}";
   }
 
