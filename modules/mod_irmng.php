@@ -15,6 +15,7 @@ function m_irmng_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
 
   // accès pour extraire les cookies
+  get_clear();
   $url = "https://www.irmng.org/aphia.php?p=search";
   $ret = get_data($url);
   if ($ret === false) {
@@ -25,17 +26,24 @@ function m_irmng_infos(&$struct, $classif) {
   $post = "searchpar=0&tComp=is&action=search&rSkips=0&adv=0&tName=" .
           str_replace(" ", "+", $taxon);
   $header = [
-     "Host: www.marinespecies.org",
-     "Origin: http://www.marinespecies.org",
-	 "Referer: http://www.marinespecies.org/aphia.php?p=search&adv=1",
+     "Host: www.irmng.org",
+     "Origin: https://www.irmng.org",
+	 "Referer: https://www.irmng.org/aphia.php?p=search",
+	 'Content-Type: application/x-www-form-urlencoded',
+	 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+	 'Upgrade-Insecure-Requests: 1',
+	 'Sec-Fetch-Dest: document',
+	 'Sec-Fetch-Mode: navigate',
+	 'Sec-Fetch-Site: same-origin',
+	 'Sec-Fetch-User: ?1',
+	 'TE: trailers',
   ];
-  
+
   $ret = post_data_header($url, $post, $header, false);
   if ($ret === false) {
     logs("IRMNG: echec de récupération réseau (2)");
     return false;
   }
-
   $tbl =explode("\n", $ret);
   $ok = false;
   foreach($tbl as $ligne) {
@@ -108,7 +116,8 @@ function m_irmng_ext($struct) {
   $cdate = dates_recupere();
   if (isset($struct['liens']['irmng'])) {
     $data = $struct['liens']['irmng'];
-    $cible = met_italiques($data['nom'], $struct['taxon']['rang'], $struct['regne']);
+    $cible = wp_met_italiques($data['nom'],
+        isset($data['rang'])?$data['rang']:$struct['taxon']['rang'], $struct['regne']);
     if (isset($data['auteur'])) {
       $cible .= " " . $data['auteur'];
     }
@@ -131,7 +140,7 @@ function m_irmng_ext($struct) {
 // génération de liens vers les éléments (pour partie aide/debug de l'interface)
 function m_irmng_liens($struct) {
   if (isset($struct['liens']['irmng']['id'])) {
-    return "<a href='http://www.marinespecies.org/aphia.php?p=taxdetails&id=" . $struct['liens']['wrms']['id'] .
+    return "<a href='http://www.marinespecies.org/aphia.php?p=taxdetails&id=" . $struct['liens']['irmng']['id'] .
            "'>WoRMS</a>";
   } else {
     return false;

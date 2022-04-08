@@ -28,6 +28,12 @@ function clean_data() {
   }
 }
 
+// purge les cookies
+function get_clear() {
+  global $fichier_temp;
+  file_put_contents($fichier_temp, "");
+}
+
 // wrapper pour récupérer les données
 function get_data($url, $header=false, $follow=true) {
   global $fichier_temp;
