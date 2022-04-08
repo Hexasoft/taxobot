@@ -167,9 +167,11 @@ function m_itis_infos(&$struct, $classif) {
   $suivre_synonymes = get_config('suivre-synonymes');
   $taxon = $struct['taxon']['nom'];
 
+  get_data("https://www.itis.gov");
+
   $url = "https://www.itis.gov/ITISWebService/services/ITISService/searchByScientificName?srchKey=" .
        urlencode($taxon);
-  $ret = file_get_contents($url);
+  $ret = get_data($url);
   $_res = get_xml($ret);
   
   if ($_res === null) {
@@ -177,6 +179,7 @@ function m_itis_infos(&$struct, $classif) {
     return false;
   }
   $res = json_decode(json_encode($_res), true);
+
   if (!isset($res['return']['scientificNames'])) {
     logs("ITIS: taxon non trouvé");
     return false;
@@ -188,14 +191,14 @@ function m_itis_infos(&$struct, $classif) {
   }
   
   $ok = false;
-  foreach($res['return'] as $r) {
+  foreach($res['return']['scientificNames'] as $r) {
     if (isset($r['combinedName']) and $r['combinedName'] == $taxon) {
       $ok = true;
       break;
     }
   }
   if (!$ok) {
-    logs("ITIS: taxon non trouvé");
+    logs("ITIS: taxon non trouvé (2)");
     return false;
   }
 
