@@ -225,6 +225,7 @@ function rendu_supp($struct) {
       $ret .= "Ce taxon porte en français $pl : $txt.\n\n";
     }
     if (isset($struct['synonymes'])) {
+      $trier = get_config('trier-synonymes');
       $target = lien_pour_synonyme($struct['regne']);
       $cible = wp_met_italiques($struct['taxon']['nom'], $struct['taxon']['rang'], $struct['regne']);
       if (count($struct['synonymes']['liste']) > 1) {
@@ -234,7 +235,7 @@ function rendu_supp($struct) {
       }
       $ret .= "$pl" .
               "{{Bioref|" . $struct['synonymes']['source'] . "|$cdate|ref}} :\n";
-      $ret0 = "";
+      $retT = [];
       foreach($struct['synonymes']['liste'] as $s) {
         $wkl = get_config('liens-synonymes');
         $rr = (isset($s['rang'])?$s['rang']:$struct['taxon']['rang']);
@@ -249,8 +250,12 @@ function rendu_supp($struct) {
           $x = $struct['taxon']['rang'];
         }
         $cible = wp_met_italiques($s['nom'], $x, $struct['regne'], $wkl);
-        $ret0 .= "* $cible " . $s['auteur'] . "\n";
+        $retT[] = "* $cible " . $s['auteur'] . "\n";
       }
+      if ($trier) {
+        sort($retT);
+      }
+      $ret0 = implode($retT);
       if (est_colonnes(count($struct['synonymes']['liste']))) {
         $ret .= colonnes_contenu($ret0);
       } else {
