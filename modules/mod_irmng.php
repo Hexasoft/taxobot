@@ -23,7 +23,7 @@ function m_irmng_infos(&$struct, $classif) {
     return false;
   }
   $url = "https://www.irmng.org/aphia.php?p=taxlist";
-  $post = "searchpar=0&tComp=is&action=search&rSkips=0&adv=0&tName=" .
+  $post = "searchpar=0&tComp=is&action=search&rSkips=0&adv=0&vOnly=1&tName=" .
           str_replace(" ", "+", $taxon);
   $header = [
      "Host: www.irmng.org",
