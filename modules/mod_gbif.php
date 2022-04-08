@@ -462,30 +462,38 @@ nop:
 nop2:
 
   // synonymes
-  $url = "https://api.gbif.org/v1/species/" . $struct['liens']['gbif']['id'] . "/synonyms";
-  $ret = get_data($url);
-  // erreur CURL
-  if ($ret === false) {
-    goto nop3;
-  }
-  $cur = json_decode($ret);
-  if ($cur === null) {
-    goto nop3;
-  }
+  $offset = 0;
+  $encore = true;
   $tmp = [];
-  $fff = null;
-  foreach($cur->results as $c) {
-    $blob = gbif_taxon_info($c->key);
-    if ($blob === false) {
-      continue;
+  while($encore) {
+    $url = "https://api.gbif.org/v1/species/" . $struct['liens']['gbif']['id'] . "/synonyms?offset=$offset";
+    $ret = get_data($url);
+    // erreur CURL
+    if ($ret === false) {
+      break;
     }
-    $el = [];
-    $el['nom'] = $blob['nom'];
-    $el['auteur'] = $blob['auteur'];
-    if (isset($el['rang'])) {
-      $el['rang'] = $blob['rang'];
+    $cur = json_decode($ret);
+    if ($cur === null) {
+      break;
     }
-    $tmp[] = $el;
+    foreach($cur->results as $c) {
+      $blob = gbif_taxon_info($c->key);
+      if ($blob === false) {
+       continue;
+      } 
+      $el = [];
+      $el['nom'] = $blob['nom'];
+      $el['auteur'] = $blob['auteur'];
+      if (isset($el['rang'])) {
+        $el['rang'] = $blob['rang'];
+      }
+      $tmp[] = $el;
+    }
+    if ($cur->endOfRecords) {
+      $encore = false;
+    } else {
+      $offset += 20;
+    }
   }
   // Note : on ne boucle pas s'il y a plus de réponse (20, c'est déjà énorme)
   if (!empty($tmp)) {

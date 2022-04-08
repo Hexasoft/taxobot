@@ -50,8 +50,10 @@ function m_tpdb_infos(&$struct, $classif) {
     return false;
   }
   
-  // on enregistre l'identifiant (TODO: extraire le nom et l'auteur selon TPDB)
+  // on enregistre l'identifiant
   $struct['liens']['tpdb']['id'] = $id;
+  // utilisation du nom de la classification : le format de leur page est trop pourri pour
+  // tenter d'extraire le nom scientifique (et l'auteur) proprement. Tant pis.
   $struct['liens']['tpdb']['nom'] = $taxon;
 
   if (!$classif) {
