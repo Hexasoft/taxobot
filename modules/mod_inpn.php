@@ -104,11 +104,13 @@ function m_inpn_infos(&$struct, $classif) {
     goto suite;
   }
   $ver = [];
-  foreach($res->_embedded->vernacularNames as $r) {
-    if ($r->langageId == "fra") {
-      $tmp = explode(", ", $r->name);
-      foreach($tmp as $t) {
-        $ver[] = $t;
+  if (isset($res->_embedded->vernacularNames)) {
+    foreach($res->_embedded->vernacularNames as $r) {
+      if ($r->langageId == "fra") {
+        $tmp = explode(", ", $r->name);
+        foreach($tmp as $t) {
+          $ver[] = $t;
+        }
       }
     }
   }
