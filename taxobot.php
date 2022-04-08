@@ -39,6 +39,8 @@ require_once "data_pays.php";
 
 $web = false;
 
+$start_time = microtime(true);
+
 // certains outils nécessitent une initialisation
 init_outils();
 
@@ -272,7 +274,11 @@ $justext = get_config('juste-ext');
 if (!$justext) { // si juste-ext → rien coté classification
   debug("Lancement de la classification");
   $class = "m_" . $classification . "_infos";
+  $elaps1 = microtime(true);
   $ret = $class($struct, true);
+  $elaps2 = microtime(true);
+  
+  logs("Temps d'exécution du module (classification) $classification : " . number_format($elaps2-$elaps1, 2) . "s");
 
   if (!$ret) {
     logs("Taxon non récupéré pour la classification");
@@ -307,7 +313,10 @@ foreach($possibles as $id) {
   }
   $f = "m_" . $id . "_infos";
   debug("Appel module $id (externe)");
+  $elaps1 = microtime(true);
   $ret = $f($struct, false); // en mode données (pas classification)
+  $elaps2 = microtime(true);
+  logs("Temps d'exécution du module (externe) $id : " . number_format($elaps2-$elaps1, 2) . "s");
   if ($ret == false) {
     logs("Échec de récupération d'informations du module '$id' (non classification)");
   } else {
@@ -329,6 +338,11 @@ foreach($possibles as $id) {
     $aide[] = $ret;
   }
 }
+
+$end_time = microtime(true);
+
+// durée totale d'exécution (après ça ça se serait plus affiché)
+logs("Durée totale d'exécution : " . number_format($end_time-$start_time, 2) . "s");
 
 // on génère la sortie
 if ($justext) {
