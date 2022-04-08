@@ -582,7 +582,7 @@ function m_wrms_ext($struct) {
 // génération de liens vers les éléments (pour partie aide/debug de l'interface)
 function m_wrms_liens($struct) {
   if (isset($struct['liens']['wrms']['id'])) {
-    return "<a href='http://www.marinespecies.org/aphia.php?p=taxdetails&id=" .
+    return "<a href='https://www.marinespecies.org/aphia.php?p=taxdetails&id=" .
            $struct['liens']['wrms']['id'] . "'>WRMS</a>";
   } else {
     return false;
