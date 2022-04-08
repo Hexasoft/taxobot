@@ -67,7 +67,7 @@ function m_eflora_ext($struct) {
     $nom = $struct['liens']['eflora']['nom'];
     $out = [];
     foreach($struct['liens']['eflora']['id'] as $id) {
-      $out[] = "{{eFlora | " . $id[0] . " | " . $id[1] . " | $nom | consulté le=$cdate }}";
+      $out[] = "{{EFloras | " . $id[0] . " | " . $id[1] . " | $nom | consulté le=$cdate }}";
     }
     return $out;
   } else {
