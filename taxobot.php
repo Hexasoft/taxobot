@@ -258,6 +258,15 @@ if (empty($classification)) {
   logs("Classification sélectionnée : $classification");
 }
 
+// on vérifie que la classification existe (si elle vient des options)
+$tmp = classif_modules();
+if (!in_array($classification, $tmp)) {
+  logs("Le module '$classification' n'existe pas où ne gère pas la classification.");
+  sortie_erreur("Le module '$classification' n'existe pas où ne gère pas la classification.");
+  fini_outils();
+  die(1);
+}
+
 // on prépare les données
 $struct = [];
 $struct['taxon']['nom'] = $taxon;
