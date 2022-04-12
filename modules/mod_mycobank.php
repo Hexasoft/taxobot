@@ -54,6 +54,7 @@ $m_mb_items = [
  "Summary" => [],
  "Name status" => [],
  "Authors" => [],
+ "Literature" => [],
 ];
 $m_mb_mapping = [
   "Taxon name" => [ "*" => "nom" ],
@@ -65,6 +66,7 @@ $m_mb_mapping = [
   "Summary" => [ "*" => "citation" ],
   "Name status" => [ "*" => "statut" ],
   "Authors" => [ "*" => "auteurs" ],
+  "Literature" => [ "*" => "litterature" ],
 ];
 $m_mb_results = [];
 
@@ -122,6 +124,7 @@ function m_mycobank_recurs($res) {
     "Synonymy" => [],
     "Basionym" => [],
     "Authors" => [],
+    "Literature" => [],
   ];
   if (!isset($res->Data->Template->Fields)) {
     return;
@@ -279,6 +282,7 @@ function m_mycobank_recurs2($res, $full=true) {
       "Synonymy" => [ "*" => "synonymes" ],
       "Basionym" => [ "*" => "basionyme" ],
       "Authors" => [ "*" => "auteurs" ],
+      "Literature" => [ "*" => "litterature" ],
     ];
   } else {
     $m_mb_mapping = [
@@ -320,7 +324,6 @@ function m_mycobank_get($id) {
       logs("MycoBank: échec de récupération des infos détaillées sur le taxon");
       return false;
   }
-file_put_contents("./content.json", $ret);
   $res = json_decode($ret);
   if ($res === null) {
     logs("MycoBank: échec de d'analyse des infos détaillées sur le taxon (2)");
@@ -328,8 +331,6 @@ file_put_contents("./content.json", $ret);
   }
   return $res;
 }
-
-https://webservices.bio-aware.com/cbsdatabase/api/Details/GetTemplateByIdAndRecordDetails?p_TemplateId=11&p_RecordId=92345&p_DesignMode=1
 
 // récupère les données JSON sur un taxon (par son RecordId)
 function m_mycobank_get_rec($id) {
@@ -393,6 +394,101 @@ function m_mycobank_get_id($id) {
   return $res;
 }
 
+
+// récupère une valeur dans le JSON de la publication
+function m_mycobank_pub_field($index, $res) {
+  if (!isset($res->Data->RecordDetails->{$index})) {
+    return false;
+  }
+  if (!isset($res->Data->RecordDetails->{$index}->Value)) {
+    return false;
+  }
+  if (empty($res->Data->RecordDetails->{$index}->Value) or is_array($res->Data->RecordDetails->{$index}->Value)) {
+    return false;
+  }
+  if (($res->Data->RecordDetails->{$index}->Value == "NaN") or ($res->Data->RecordDetails->{$index}->Value == "?")) {
+    return false;
+  }
+  return $res->Data->RecordDetails->{$index}->Value;
+}
+
+
+function m_mycobank_get_pub($id) {
+  $url = "https://webservices.bio-aware.com/cbsdatabase/api/Details/GetTemplateByIdAndRecordDetails?p_TemplateId=19&p_RecordId=$id&p_DesignMode=1";
+  $header = [
+    'Referer: https://www.mycobank.org/',
+    'WebsiteId: 85',
+    'Content-Type: application/json',
+    'Accept: application/json',
+    'Origin: https://www.mycobank.org',
+    'Sec-Fetch-Dest: empty',
+    'Sec-Fetch-Mode: cors',
+    'Sec-Fetch-Site: cross-site',
+    'TE: trailers'
+  ];
+  $ret = get_data($url, $header);
+  if ($ret === false) {
+      logs("MycoBank: échec de récupération des infos publication sur le taxon");
+      return false;
+  }
+  $res = json_decode($ret);
+  if ($res === null) {
+    logs("MycoBank: échec de d'analyse des infos publication sur le taxon (2)");
+    return false;
+  }
+
+  // les champs
+  $xtitre = m_mycobank_pub_field(14682616000001451, $res);
+  $xauteurs = m_mycobank_pub_field(14682616000001437, $res);
+  $xyear = m_mycobank_pub_field(14682616000001439, $res);
+  $xvolume = m_mycobank_pub_field(14682616000001441, $res);
+  $xjournal = m_mycobank_pub_field(14682616000001455, $res);
+  $xfirst = m_mycobank_pub_field(14682616000001442, $res);
+  $xlast = m_mycobank_pub_field(14682616000001443, $res);
+  $xtype = m_mycobank_pub_field(14682616000001450, $res);
+  $xedition = m_mycobank_pub_field(14682616000001452, $res);
+  $xdoi = m_mycobank_pub_field(14682616000001440, $res);
+
+  if (!$xtype or empty($xtype)) {
+    logs("MycoBank: pas de type pour la publication originale");
+    return false;
+  }
+  if (($xtype != 'Book') and ($xtype != 'Article')) {
+    logs("MycoBank: type non reconnu pour la publication originale");
+    return false;
+  }
+  $out = "";
+  $out .= "|titre=$xtitre\n";
+  $out .= "|auteurs=$xauteurs\n";
+  $out .= "|année=$xyear\n";
+  if ($xvolume) {
+    $out .= "|volume=$xvolume\n";
+  }
+  if ($xdoi) {
+    $out .= "|doi=$xdoi\n";
+  }
+  $tmp = "";
+  if ($xfirst) {
+    $tmp = $xfirst;
+  }
+  if ($xlast and (!empty($tmp))) {
+    $tmp .= "-";
+  }
+  if ($xlast) {
+    $tmp .= $xlast;
+  }
+  $out .= "|passage=$tmp\n";
+  if ($xtype == 'Book') {
+    $out = "{{Ouvrage\n$out}}";
+  } else {
+    $out .= "|périodique=$xjournal\n";
+    $out = "{{Article\n$out}}";
+  }
+  
+  return $out;
+}
+
+
 // analyse les données d'un taxon
 function m_mycobank_analyse_taxon($res, $full=true) {
   global $m_mb_results, $m_mb_rangs;
@@ -401,7 +497,6 @@ function m_mycobank_analyse_taxon($res, $full=true) {
   // collecte des infos
   m_mycobank_recurs2($res, $full);
   $tmp = $m_mb_results;
-
   $out = [];
   // on regarde les infos sur le taxon lui-même
   $taxon = [];
@@ -421,6 +516,11 @@ function m_mycobank_analyse_taxon($res, $full=true) {
     } else {
       $taxon['rang'] = $x;
     }
+  }
+  
+  // si présence d'une publication
+  if (isset($m_mb_results['litterature'])) {
+    $out['litterature'] = $m_mb_results['litterature'][0]['id'];
   }
 
   // on fait une requête "summary" séparée pour extraire les auteurs sous leur bonne forme
@@ -448,7 +548,6 @@ function m_mycobank_analyse_taxon($res, $full=true) {
     // si pas trouvé on se rabat sur les trucs de merde…
     if (isset($m_mb_results['auteurs'][-1]['valeur'])) {
       $taxon['auteur'] = $m_mb_results['auteurs'][-1]['valeur'];
-//echo $taxon['nom'] . " → '" . $taxon['auteurs'] . "'\n";
     }
     // en fait on passe plus ici : corriger, mais c'est pas supposé se produire, c'est 
     // un "fallback" de sécurité
@@ -731,9 +830,20 @@ function m_mycobank_infos(&$struct, $classif) {
   // on enregistre la classification dans le retour, en ordre inverse
   $struct['rangs'] = array_reverse($out['rangs']);
 
-  // publication originale
-  if (isset($out['originale'])) {
-    $struct['originale'] = $out['originale'];
+  // si 'litterature' on tente de récupérer la version détaillée de la publication originale
+  $trouve = false;
+  if (isset($out['litterature'])) {
+    $res = m_mycobank_get_pub($out['litterature']);
+    if ($res) {
+      $struct['originale'] = $res;
+      $trouve = true;
+    }
+  }
+  if (!$trouve) {
+    // sinon on utilise 'publication originale' extraite du résumé
+    if (isset($out['originale'])) {
+      $struct['originale'] = $out['originale'];
+    }
   }
 
   // taxons inférieurs
