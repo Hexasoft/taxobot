@@ -9,13 +9,26 @@ function m_col_init() {
   return declare_module("col", false, true, true);
 }
 
+/*
+curl 'https://api.checklistbank.org/dataset/9812/nameusage/suggest?fuzzy=false&limit=25&q=Brookesia%20tedi' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0' -H 'Accept: application/json, text/plain,' -H 'Accept-Language: fr-FR,fr;q=0.8,en-US;q=0.5,en;q=0.3' -H 'Accept-Encoding: gzip, deflate, br' -H 'Origin: https://www.catalogueoflife.org' -H 'Connection: keep-alive' -H 'Referer: https://www.catalogueoflife.org/' -H 'Sec-Fetch-Dest: empty' -H 'Sec-Fetch-Mode: cors' -H 'Sec-Fetch-Site: cross-site'
+
+
+*/
+/*
+curl 'https://api.checklistbank.org/dataset/9812/nameusage/search?facet=rank&facet=issue&facet=status&facet=nomStatus&facet=nameType&facet=field&facet=authorship&facet=extinct&facet=environment&limit=50&offset=0&q=Brookesia%20tedi&sortBy=taxonomic&status=_NOT_NULL&type=EXACT' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0' -H 'Accept: application/json, text/plain' -H 'Accept-Language: fr-FR,fr;q=0.8,en-US;q=0.5,en;q=0.3' -H 'Accept-Encoding: gzip, deflate, br' -H 'Origin: https://www.catalogueoflife.org' -H 'Connection: keep-alive' -H 'Referer: https://www.catalogueoflife.org/' -H 'Sec-Fetch-Dest: empty' -H 'Sec-Fetch-Mode: cors' -H 'Sec-Fetch-Site: cross-site'
+
+
+*/
+
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
 // gérer la classification également
 function m_col_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
 
-  $url = "https://api.catalogueoflife.org/dataset/2296/nameusage/search?facet=rank&facet=issue&facet=status&facet=nomStatus&facet=nameType&facet=field&limit=50&offset=0&q=" .
-          urlencode($taxon) . "&sortBy=taxonomic&status=_NOT_NULL&type=EXACT";
+  $ret = get_data("https://www.catalogueoflife.org");
+  $url = "https://api.checklistbank.org/dataset/9812/nameusage/search?" .
+         "facet=rank&facet=issue&facet=status&facet=nomStatus&facet=nameType&facet=field&limit=50&offset=0&q=" .
+          str_replace(" ", "%20", $taxon) . "&sortBy=taxonomic&status=_NOT_NULL&type=EXACT";
   $ret = get_data($url);
   if ($ret === false) {
     logs("CoL: echec de récupération réseau");
@@ -26,7 +39,7 @@ function m_col_infos(&$struct, $classif) {
     logs("CoL: Echec de décodage des données");
     return false;
   }
-  
+
   if (!isset($res->result[0])) {
     logs("CoL: taxon non trouvé");
     return false;
