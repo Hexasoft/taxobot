@@ -70,7 +70,9 @@ function m_taxonomicon_infos(&$struct, $classif) {
       if (!empty($a)) {
         $struct['liens']['taxonomicon']['auteur'] = $a;
       }
-      // il faudrait le rang, mais ça nécessite une conversion pas forcément utile
+      // il faudrait le rang, mais ça nécessite une conversion pas forcément utile (et lourde à coder)
+      // taxobot utilise le rang issu de la classification si non spécifié, ce qui n'a que peu de raison
+      // de ne pas être ok (et même sans ça ça ne sert que pour les italiques donc sans impact quasi-systématiquement)
       break;
     }
   }
