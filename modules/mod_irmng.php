@@ -140,8 +140,8 @@ function m_irmng_ext($struct) {
 // génération de liens vers les éléments (pour partie aide/debug de l'interface)
 function m_irmng_liens($struct) {
   if (isset($struct['liens']['irmng']['id'])) {
-    return "<a href='http://www.marinespecies.org/aphia.php?p=taxdetails&id=" . $struct['liens']['irmng']['id'] .
-           "'>WoRMS</a>";
+    return "<a href='https://www.irmng.org/aphia.php?p=taxdetails&id=" . $struct['liens']['irmng']['id'] .
+           "'>IRMNG</a>";
   } else {
     return false;
   }
