@@ -235,6 +235,7 @@ function wrms_extraire($page, $id) {
       // on récupère le nom du taxon
       $out['nom'] = $tmp['nom'];
     }
+    
     // description originale
     if (strpos($ligne, 'id="OriginalDescription') !== false) {
       $i = $idx + 2;
@@ -341,7 +342,8 @@ function m_wrms_infos(&$struct, $classif) {
   // on cherche le taxon
   $url = "https://www.marinespecies.org/aphia.php?p=taxlist";
   $post = "searchpar=0&tComp=is&tName=" . str_replace(" ", "+", $taxon) .
-	      "&action=search&rSkips=0&adv=0";
+	      "&action=search&rSkips=0&adv=1&vOnly=0&marine=&fresh=&terrestrial=&fossil=4" .
+	      "&brackish=&unacceptreason=&image=&basionym=&nType=";
   $header = [ 'Referer: https://www.marinespecies.org/aphia.php?p=search',
               'Sec-Fetch-Dest: document',
               'Sec-Fetch-Mode: navigate',
