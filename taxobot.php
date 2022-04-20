@@ -322,6 +322,8 @@ foreach($possibles as $id) {
   }
   $f = "m_" . $id . "_infos";
   debug("Appel module $id (externe)");
+  // on nettoie les précédents cookies (éventuels)
+  get_clear();
   $elaps1 = microtime(true);
   $ret = $f($struct, false); // en mode données (pas classification)
   $elaps2 = microtime(true);
