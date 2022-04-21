@@ -82,7 +82,8 @@ function alg_rang($rang) {
 
 // déclaration du module
 function m_algaebase_init() {
-  return declare_module("algaebase", true, true, true);
+  return declare_module("algaebase", true, true,
+        ['champignon','algue','végétal','algue','archaea','bactérie','protiste'], 990);
 }
 
 
