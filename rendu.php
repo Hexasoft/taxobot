@@ -271,6 +271,20 @@ function rendu_supp($struct) {
   }
 }
 
+// rendu de la zone "Description"
+function rendu_description($struct) {
+  $resu = "\n== Description ==\n";
+  if (!isset($struct['description'])) {
+    $resu .= "{{Section vide ou incomplète}}\n";
+    return $resu;
+  }
+  foreach($struct['description'] as $ref => $liste) {
+    $resu .= implode(". ", $liste);
+    $resu .= "{{Bioref|$ref|afficher=ref}}.";
+  }
+  return $resu . "\n";
+}
+
 // rendu de la zone "Distribution"
 function rendu_distribution($struct) {
   $resu = "\n== Distribution ==\n";
@@ -466,6 +480,8 @@ function rendu($struct) {
   $ret .= rendu_taxobox($struct);
   // intro
   $ret .= rendu_intro($struct);
+  // description
+  $ret .= rendu_description($struct);
   // distribution
   $ret .= rendu_distribution($struct);
   // taxons inférieurs
