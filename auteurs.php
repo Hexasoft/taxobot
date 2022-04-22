@@ -46,6 +46,8 @@ $auteurs_espace = [
    'Tilesius von Tilenau', 'Valmont de Bomare', 'Van Beneden', 'Van Cleave', 'Van Denburgh',
    'Van Der Linden', 'Van Duzee', 'Van Eecke', 'Van Hasselt', 'Van Niel', 'Van Roosmalen',
    'Van Straelen', 'von Helversen', 'von Martens', 'Vo Quy', 'Weber-van Bosse',
+   // spécial : pour gérer "et al."
+   'et al.',
 ];
 
 // retourne une nouvelle version de la chaîne d'auteurs passée en paramètre
@@ -72,6 +74,15 @@ function auteurs_traite($auteurs) {
       $out[] = $t;
       continue;
     }
+    // termes à traiter spécialement
+    if ($t == 'et@al.') {
+      $out[] = '{{et@al.}}';
+      continue;
+    }
+    if ($t == 'et@al.,') {
+      $out[] = '{{et@al.}},';
+      continue;
+    }
     // si c'est une date on n'y touche pas
     if (preg_match("/([123][0-9][0-9][0-9])/", $t) == 1) {
       $out[] = $t;
@@ -92,7 +103,6 @@ function auteurs_traite($auteurs) {
       $post .= $x;
       $cur = mb_substr($cur, 0, mb_strlen($cur)-1);
     }
-    
     // on ajoute le modèle auteur
     $cur = "{{auteur|[[" . $cur . "]]}}";
     

@@ -169,7 +169,7 @@ function m_biolib_ext($struct) {
     $data = $struct['liens']['biolib'];
     $cible = wp_met_italiques($data['nom'], $struct['taxon']['rang'], $struct['regne']);
     if (isset($data['auteur'])) {
-      $cible .= " " . $data['auteur'];
+      $cible .= " " . str_replace("et al.", "{{et al.}}", $data['auteur']);
     }
     return "{{BioLib | taxon | " . $data['id'] . " | " . $cible . " | " . "consulté le=$cdate }}";
   } else {

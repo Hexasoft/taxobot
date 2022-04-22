@@ -167,8 +167,13 @@ function rendu_inf($struct) {
     } else {
       $x = $_rang;
     }
+    if (isset($l['auteur'])) {
+      $auteur = " " . preg_replace("/([^{])et al[.]/", '$1{{et al.}}', $l['auteur']);
+    } else {
+      $auteur = "";
+    }
     $cible = wp_met_italiques($l['nom'], $x, $struct['regne'], true);
-    $ret0 .= "* $cible " . (isset($l['auteur'])?$l['auteur']:"") . "\n";
+    $ret0 .= "* $cible" . $auteur . "\n";
   }
   if (est_colonnes(count($struct['sous-taxons']['liste']))) {
     $ret .= colonnes_contenu($ret0);
@@ -194,7 +199,8 @@ function rendu_supp($struct) {
       $ret .= "Le [[nom scientifique]] de ce taxon est " . $cible;
     }
     if (isset($struct['taxon']['auteur']) and !empty($struct['taxon']['auteur'])) {
-      $ret .= " " . $struct['taxon']['auteur'];
+      $auteur = " " . preg_replace("/([^{])et al[.]/", '$1{{et al.}}', $struct['taxon']['auteur']);
+      $ret .= $auteur;
     }
     $ret .= "{{Bioref|$REF|$cdate|ref}}.\n\n";
     
@@ -202,14 +208,19 @@ function rendu_supp($struct) {
       $basio = lien_pour_basionyme($struct['regne']);
       $cible = wp_met_italiques($struct['basionyme']['nom'], $struct['taxon']['rang'], $struct['regne']);
       $x = explode(" ", $struct['basionyme']['nom']);
+      if (isset($struct['basionyme']['auteur'])) {
+        $auteur = " " . preg_replace("/([^{])et al[.]/", '$1{{et al.}}', $struct['basionyme']['auteur']);
+      } else {
+        $auteur = "";
+      }
       if (count($x) == 2) {
         $ret .= "L'espèce a été initialement classée dans le genre ''[[" . $x[0] . "]]'' sous le " .
-                $basio . " " .  $cible . " " . $struct['basionyme']['auteur'] .
+                $basio . " " .  $cible . $auteur .
                 "{{Bioref|" . $struct['basionyme']['source'] .
                 "|$cdate|ref}}.\n\n";
       } else {
         $ret .= "Le $basio de ce taxon est : " . $cible .
-                " " . $struct['basionyme']['auteur'] . "{{Bioref|" . $struct['basionyme']['source'] .
+                $auteur . "{{Bioref|" . $struct['basionyme']['source'] .
               "|$cdate|ref}}\n\n";
       }
     }
@@ -250,7 +261,12 @@ function rendu_supp($struct) {
           $x = $struct['taxon']['rang'];
         }
         $cible = wp_met_italiques($s['nom'], $x, $struct['regne'], $wkl);
-        $retT[] = "* $cible " . $s['auteur'] . "\n";
+        if (isset($l['auteur'])) {
+          $auteur = " " . preg_replace("/([^{])et al[.]/", '$1{{et al.}}', $l['auteur']);
+        } else {
+          $auteur = "";
+        }
+        $retT[] = "* $cible" . $auteur . "\n";
       }
       if ($trier) {
         sort($retT);
