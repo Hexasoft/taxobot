@@ -197,10 +197,16 @@ function rendu_supp($struct) {
     $REF = $struct['classification'];
     $cible = wp_met_italiques($struct['taxon']['nom'], $struct['taxon']['rang'], $struct['regne']);
     $z = lien_pour_auteur($struct['regne']);
-    if (isset($struct['taxon']['auteur']) and !empty($struct['taxon']['auteur'])) {
-      $ret .= "Le [[nom scientifique]] complet (avec [[$z|auteur]]) de ce taxon est " . $cible;
+    $bota = [ "végétal", "champignon", "algue", "bactérie", "archaea" ];
+    if (in_array($struct['regne'], $bota)) {
+      $mot = "[[nom valide]]";
     } else {
-      $ret .= "Le [[nom scientifique]] de ce taxon est " . $cible;
+      $mot = "[[nom correct]]";
+    }
+    if (isset($struct['taxon']['auteur']) and !empty($struct['taxon']['auteur'])) {
+      $ret .= "Le $mot complet (avec [[$z|auteur]]) de ce taxon est " . $cible;
+    } else {
+      $ret .= "Le $mot de ce taxon est " . $cible;
     }
     if (isset($struct['taxon']['auteur']) and !empty($struct['taxon']['auteur'])) {
       $auteur = " " . preg_replace("/([^{])et al[.]/", '$1{{et al.}}', $struct['taxon']['auteur']);
