@@ -24,7 +24,11 @@ function rendu_intro($struct) {
   $lien = wp_un_rang($struct['taxon']['rang']);
   $nom = wp_nom_rang($struct['taxon']['rang'], true, false, false);
   $tnom = wp_met_italiques($struct['taxon']['nom'], $struct['taxon']['rang'], $struct['regne']);
-  $tmp = "'''$tnom''' est $lien" . $nom . " ";
+  if (wp_inf_rang($struct['taxon']['rang'])) {
+    $tmp = "'''$tnom''' est $lien" . $nom . " ";
+  } else {
+    $tmp = "Les '''$tnom''' forment $lien" . $nom . " ";
+  }
   if ($fam) {
     $tmp .= 'de la [[Famille (biologie)|famille]] des ';
     $tmp .= $fam . ".\n";
