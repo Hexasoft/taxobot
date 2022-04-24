@@ -283,6 +283,16 @@ function wp_inf_rang($rang) {
   }
   return $rangs[$rang]['inf'];
 }
+
+// supprime le rang indiqué de la liste des rangs
+function wp_supprime_rang(&$struct, $rang) {
+  foreach($struct['rangs'] as $idx => $r) {
+    if ($r['rang'] == $rang) {
+      unset($struct['rangs'][$idx]);
+    }
+  }
+}
+
 // retourne TRUE si le rang de ce "règne" doit être en italique
 function wp_est_italique($rang, $regne) {
   global $italiques;
