@@ -247,7 +247,9 @@ function m_algaebase_infos_espece(&$struct, $classif) {
     $tbl[] = "Cette espèce est terrestre";
   }
   if (isset($found->{"nameOrigin"}) and $found->{"nameOrigin"}) {
-    $tbl[] = "Étymologie : ''" . preg_replace("/[.][ ]*$/", "", $found->{"nameOrigin"}) . "''";
+    $struct['etymologie'] = [ "source" => "AlgaeBASE",
+                              "texte" => "''" . preg_replace("/[.][ ]*$/", "", $found->{"nameOrigin"}) . "''",
+                            ];
   }
   if (!empty($tbl)) {
     $struct['description']['AlgaeBASE'] = $tbl;

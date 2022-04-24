@@ -363,6 +363,16 @@ function rendu_distribution($struct) {
   return $resu;
 }
 
+// rendu "tymologie
+function rendu_etymologie($struct) {
+  if (!isset($struct['etymologie'])) {
+    return "";
+  }
+  $resu = "\n== Étymologie ==\n";
+  $resu .= $struct['etymologie']['texte'] . "{{Bioref|" . $struct['etymologie']['source'] . "|afficher=ref}}.\n";
+  return $resu;
+}
+
 // rendu publication originale
 function rendu_originale($struct) {
   if (!isset($struct['originale'])) {
@@ -504,6 +514,8 @@ function rendu($struct) {
   $ret .= rendu_inf($struct);
   // informations additionnelles
   $ret .= rendu_supp($struct);
+  // étymologie
+  $ret .= rendu_etymologie($struct);
   // publication originale
   $ret .= rendu_originale($struct);
   // partie voir aussi
