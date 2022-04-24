@@ -320,6 +320,9 @@ function m_algaebase_infos_espece(&$struct, $classif) {
   
   // la charte
   $struct['regne'] = alg_charte($phylum, $kingdom);
+  if ($struct['regne'] != 'algue') {
+    $struct['regne-cache'] = true;
+  }
   
   return true;
 }
@@ -445,6 +448,9 @@ function m_algaebase_infos(&$struct, $classif) {
   $struct['rangs'] = array_reverse($tbl);
   // les éléments de gestion de classification
   $struct['regne'] = alg_charte($phylum, $kingdom);
+  if ($struct['regne'] != 'algue') {
+    $struct['regne-cache'] = true;
+  }
   $struct['classification'] = 'AlgaeBASE';
   $struct['classification-taxobox'] = 'AlgaeBASE';
   // le taxon lui-même

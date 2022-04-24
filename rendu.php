@@ -71,8 +71,14 @@ function rendu_taxobox($struct) {
   $regne = $struct['regne'];
   $afftaxon = wp_met_italiques($taxon, $rang, $regne);
 
+  if (isset($struct['regne-cache']) and $struct['regne-cache']) {
+    $sup = "| règne=cacher ";
+  } else {
+    $sup = "";
+  }
+
   // affichage
-  $resu .= "{{Taxobox début | $regne | $afftaxon | $image | $legende | classification=$classif }}\n";
+  $resu .= "{{Taxobox début | $regne | $afftaxon | $image | $legende | classification=$classif $sup}}\n";
   
   // données de classification
   $tbl = [];
