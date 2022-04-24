@@ -66,8 +66,8 @@ $alg_rangs = [
   'domain' => 'domaine',
   'superdomain' => 'super-domaine',
   'empire' => 'empire',
-  'kingdom' => 'royaume',
-  'subkingdom' => 'sous-royaume',
+  'kingdom' => 'règne',
+  'subkingdom' => 'sous-règne',
   'unknown' => 'non-classé',
 ];
 
