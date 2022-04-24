@@ -49,6 +49,11 @@ function rendu_taxobox($struct) {
     $resu .= "{{ébauche}}\n";
   }
   
+  // si charte = algue on supprime l'empire
+  if ($struct['regne'] == 'algue') {
+    wp_supprime_rang($struct, 'empire');
+  }
+
   // données taxobox début
   $taxon = $struct['taxon']['nom'];
   $rang = $struct['taxon']['rang'];
@@ -459,7 +464,7 @@ function rendu_voir_aussi($struct) {
   // TODO: différencier $ext de $ref (ou alors supprimer $ref et ses traitements)
 
   if (!empty($ext) or !empty($ref) or ! empty($autres)) {
-    $resu .= "== Voir aussi ==\n";
+    $resu .= "== Liens externes ==\n";
     if (!empty($autres)) {
       sort($autres);
       $resu .= "{{Autres projets\n";
@@ -470,9 +475,9 @@ function rendu_voir_aussi($struct) {
     }
     if (!empty($ext)) {
       if (count($ext) > 1) {
-        $resu .= "=== Références biologiques ===\n";
+        //$resu .= "=== Références biologiques ===\n";
       } else {
-        $resu .= "=== Référence biologique ===\n";
+        //$resu .= "=== Référence biologique ===\n";
       }
       natsort($ext);
       foreach($ext as $e) {
@@ -481,9 +486,9 @@ function rendu_voir_aussi($struct) {
     }
     if (!empty($ref)) {
       if (count($ref) > 1) {
-        $resu .= "=== Références taxinomiques ===\n";
+        //$resu .= "=== Références taxinomiques ===\n";
       } else {
-        $resu .= "=== Référence taxinomique ===\n";
+        //$resu .= "=== Référence taxinomique ===\n";
       }
       natsort($ref);
       foreach($ref as $r) {
