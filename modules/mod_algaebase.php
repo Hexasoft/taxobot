@@ -450,7 +450,7 @@ function m_algaebase_infos(&$struct, $classif) {
   $struct['regne'] = alg_charte($phylum, $kingdom);
   if ($struct['regne'] != 'algue') {
     $struct['regne-cache'] = true;
-  }
+  } // la suppression de l'empire se fait au niveau du rendu
   $struct['classification'] = 'AlgaeBASE';
   $struct['classification-taxobox'] = 'AlgaeBASE';
   // le taxon lui-même
