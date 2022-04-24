@@ -121,10 +121,10 @@ function alg_extrait_classif($liste, &$der, &$phylum, &$kingdom) {
       continue; // on n'utilise pas
     }
     if (($cl->{"dwc:taxonRank"} == 'Kingdom') or ($cl->{"dwc:taxonRank"} == 'kingdom')) {
-      $kingdom = alg_rang($cl->{"dwc:taxonRank"});
+      $kingdom = $cl->{"dwc:scientificName"};
     }
     if (($cl->{"dwc:taxonRank"} == 'Phylum') or ($cl->{"dwc:taxonRank"} == 'phylum')) {
-      $phylum = alg_rang($cl->{"dwc:taxonRank"});
+      $phylum = $cl->{"dwc:scientificName"};
     }
     $tmp = [];
     $tmp['rang'] = alg_rang($cl->{"dwc:taxonRank"});
@@ -147,13 +147,13 @@ function alg_extrait_classif($liste, &$der, &$phylum, &$kingdom) {
 
 // charte
 function alg_charte($phylum, $kingdom) {
-  if ($kingdom == 'Eubacteria') {
+  if (($kingdom == 'Eubacteria') or ($kingdom == 'eubacteria')) {
     return "bactérie";
   }
-  if ($phylum == 'Tracheophyta') {
+  if (($phylum == 'Tracheophyta') or ($phylum == 'tracheophyta')) {
     return "végétal";
   }
-  if ($kingdom == 'Protozoa') {
+  if (($kingdom == 'Protozoa') or ($kingdom == 'protozoa')) {
     return "protiste";
   }
   // pour le reste
