@@ -508,6 +508,7 @@ function m_algaebase_ext($struct) {
     if (isset($data['auteur'])) {
       $nom .= " " . str_replace("et al.", "{{et al.}}", $data['auteur']);
     }
+    $sup = "":
     if (($data['rang'] == 'espèce') or ($data['rang'] == 'sous-espèce') or
         ($data['rang'] == 'forme') or ($data['rang'] == 'variété') or
         ($data['rang'] == 'pathovar') or ($data['rang'] == 'cultivar')) {
@@ -516,8 +517,9 @@ function m_algaebase_ext($struct) {
       $type = ' genre';
     } else {
       $type = "";
+      $sup = " " . $data['rang'] . " |";
     }
-    return "{{AlgaeBASE$type | $id | $nom | consulté le=$cdate}}";
+    return "{{AlgaeBASE$type | $id | $nom |$sup consulté le=$cdate}}";
   } else {
     return false;
   }
