@@ -209,7 +209,7 @@ function rendu_supp($struct) {
     $cible = wp_met_italiques($struct['taxon']['nom'], $struct['taxon']['rang'], $struct['regne']);
     $z = lien_pour_auteur($struct['regne']);
     $bota = [ "végétal", "champignon", "algue", "bactérie", "archaea" ];
-    if (in_array($struct['regne'], $bota)) {
+    if (!in_array($struct['regne'], $bota)) {
       $mot = "[[nom valide]]";
     } else {
       $mot = "[[nom correct]]";
