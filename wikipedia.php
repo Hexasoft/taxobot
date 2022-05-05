@@ -88,7 +88,7 @@ $rangs = [
  'sous-ordre' => [ 'id' => 'sous-ordre', 'lien' => '[[Sous-ordre]]', 'lienm' => '[[sous-ordre]]',
    'nom' => 'Sous-ordre', 'nomm' => 'sous-ordre', 'nomp' => 'Sous-ordres', 'nommp' => 'sous-ordres',
    'un' => 'un ', 'le' => 'le ', 'inf' => false ],
- 'ordre' => [ 'id' => 'ordre', 'lien' => '[[Ordre (biologie)|Ordre]]', 'lienm' => '[[Ordre (biologie)|Ordre]]',
+ 'ordre' => [ 'id' => 'ordre', 'lien' => '[[Ordre (biologie)|Ordre]]', 'lienm' => '[[Ordre (biologie)|ordre]]',
    'nom' => 'Ordre', 'nomm' => 'ordre', 'nomp' => 'Ordres', 'nommp' => 'ordres', 'un' => 'un ',
    'le' => 'l\'', 'inf' => false ],
  'super-ordre' => [ 'id' => 'super-ordre', 'lien' => '[[Super-ordre (biologie)|Super-ordre]]',
