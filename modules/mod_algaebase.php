@@ -203,6 +203,10 @@ function m_algaebase_infos_espece(&$struct, $classif) {
       logs("AlgaeBase: échec d'analyse de la recherche");
       break;
     }
+    if (!isset($res->result) or !isset(_pagination->_total_number_of_results)) {
+      logs("AlgaeBase: taxon non trouvé (pas de résultat)");
+      break;
+    }
     // on parcours les résultats pour voir si on a le bon
     foreach($res->result as $r) {
       $nom = $r->{"dwc:scientificName"};
@@ -391,6 +395,7 @@ function m_algaebase_infos(&$struct, $classif) {
     if ($t->page != 'taxonomy') {
       continue; // seulement les sup. au genre (sinon on traitera plus loin)
     }
+    
     $tmp = [];
     $tmp['id'] = $t->id;
     $tmp['rang'] = $t->taxonRank;
@@ -422,8 +427,21 @@ function m_algaebase_infos(&$struct, $classif) {
   }
   
   if (count($tbl) > 1) {
-    logs("AlgaeBase: situation non gérée, merci de prévenir Hexasoft en indiquant le nom du taxon");
-    return false;
+    $tbl2 = [];
+    foreach($tbl as $idx => $cont) {
+      if (strpos($cont['ns'], "$taxon ") !== false) {
+        $tbl2[] = $cont;
+      }
+    }
+    $tbl = $tbl2;
+    if (count($tbl) > 1) {
+      logs("AlgaeBase: situation non gérée, merci de prévenir Hexasoft en indiquant le nom du taxon");
+      return false;
+    }
+    if (empty($tbl)) {
+      logs("AlgaeBase: taxon non trouvé (après multiples résultats)");
+      return false;
+    }
   }
 
   // on récupère les rangs supérieurs et les sous-taxons
