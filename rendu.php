@@ -317,7 +317,7 @@ function rendu_description($struct) {
   }
   foreach($struct['description'] as $ref => $liste) {
     $resu .= implode(". ", $liste);
-    $resu .= "{{Bioref|$ref|afficher=ref}}.";
+    $resu .= "{{Bioref|$ref|ref}}.";
   }
   return $resu . "\n";
 }
@@ -359,9 +359,9 @@ function rendu_distribution($struct) {
   if (count($struct['distribution']) == 1) {
     if (!empty($certain)) {
       if (count($certain) > 1) {
-        $resu .= "Ce taxon se rencontre dans les pays suivants{{Bioref|$source|afficher=ref}} : ";
+        $resu .= "Ce taxon se rencontre dans les pays suivants{{Bioref|$source|ref}} : ";
       } else {
-        $resu .= "Ce taxon se rencontre dans le pays suivant{{Bioref|$source|afficher=ref}} : ";
+        $resu .= "Ce taxon se rencontre dans le pays suivant{{Bioref|$source|ref}} : ";
       }
       $resu .= implode(", ", $certain);
       $resu .= ".\n";
@@ -371,9 +371,9 @@ function rendu_distribution($struct) {
         $resu .= "\n";
       }
       if (count($uncertain) > 1) {
-        $resu .= "La présence de ce taxon est incertaine dans les pays suivants{{Bioref|$source|afficher=ref}} : ";
+        $resu .= "La présence de ce taxon est incertaine dans les pays suivants{{Bioref|$source|ref}} : ";
       } else {
-        $resu .= "La présence de ce taxon est incertaine dans le pays suivant{{Bioref|$source|afficher=ref}} : ";
+        $resu .= "La présence de ce taxon est incertaine dans le pays suivant{{Bioref|$source|ref}} : ";
       }
       $resu .= implode(", ", $uncertain);
       $resu .= ".\n";
@@ -390,7 +390,7 @@ function rendu_etymologie($struct) {
     return "";
   }
   $resu = "\n== Étymologie ==\n";
-  $resu .= $struct['etymologie']['texte'] . "{{Bioref|" . $struct['etymologie']['source'] . "|afficher=ref}}.\n";
+  $resu .= $struct['etymologie']['texte'] . "{{Bioref|" . $struct['etymologie']['source'] . "|ref}}.\n";
   return $resu;
 }
 

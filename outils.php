@@ -433,7 +433,7 @@ function conditionne_noms($struct, &$cnt) {
     $tmp = $nom;
     $tbl = [];
     foreach($refs as $r) {
-      $tbl[] = "{{Bioref|$r|afficher=ref|$cdate}}";
+      $tbl[] = "{{Bioref|$r|$cdate|ref}}";
     }
     $tmp .= implode("{{,}}", $tbl);
     $out[] = $tmp;
