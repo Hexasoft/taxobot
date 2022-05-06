@@ -384,6 +384,10 @@ function m_algaebase_infos(&$struct, $classif) {
     logs("AlgaeBase: échec d'interprétation de la recherche");
     return false;
   }
+  if (is_string($res) and ($res == "Nothing Found")) {
+    logs("AlgaeBase: taxon non trouvé");
+    return false;
+  }
   
   // on parcours pour retenir ceux qui collent
   $tbl = [];
