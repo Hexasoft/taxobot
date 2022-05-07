@@ -331,17 +331,6 @@ function m_algaebase_infos_espece(&$struct, $classif) {
   return true;
 }
 
-/*
-curl 'https://api2.algaebase.org/v1.3/taxonomy/7007' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0' -H 'Accept: application/json, text/javascript; q=0.01' -H 'Accept-Language: fr-FR,fr;q=0.8,en-US;q=0.5,en;q=0.3' -H 'Accept-Encoding: gzip, deflate, br' -H 'abapikey: HZw6jFIcUsPgrA0XAe6twUEFRKt6TWY2' -H 'Origin: https://www.algaebase.org' -H 'Connection: keep-alive' -H 'Referer: https://www.algaebase.org/' -H 'Sec-Fetch-Dest: empty' -H 'Sec-Fetch-Mode: cors' -H 'Sec-Fetch-Site: same-site' -H 'TE: trailers'
-
-retourne higherTaxa et lowerTaxa
-
-Idée : faire une recherche générique → obtenir heigher+lower + rang.
-Si espèce → récupérer infos espèce (code existant).
-
-curl 'https://api2.algaebase.org/v1.3/species/list?dwcscientificname=Zosteraceae' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0' -H 'Accept: application/json, text/javascript; q=0.01' -H 'Accept-Language: fr-FR,fr;q=0.8,en-US;q=0.5,en;q=0.3' -H 'Accept-Encoding: gzip, deflate, br' -H 'abapikey: rv7K46QPyKxJx2ma6XxwPpC5FLPZTBhR' -H 'Origin: https://www.algaebase.org' -H 'Connection: keep-alive' -H 'Referer: https://www.algaebase.org/' -H 'Sec-Fetch-Dest: empty' -H 'Sec-Fetch-Mode: cors' -H 'Sec-Fetch-Site: same-site' -H 'TE: trailers'
-*/
-
 
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
 // gérer la classification également
