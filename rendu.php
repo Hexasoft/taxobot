@@ -282,8 +282,8 @@ function rendu_supp($struct) {
           $x = $struct['taxon']['rang'];
         }
         $cible = wp_met_italiques($s['nom'], $x, $struct['regne'], $wkl);
-        if (isset($l['auteur'])) {
-          $auteur = " " . preg_replace("/([^{])et al[.]/", '$1{{et al.}}', $l['auteur']);
+        if (isset($s['auteur'])) {
+          $auteur = " " . preg_replace("/([^{])et al[.]/", '$1{{et al.}}', $s['auteur']);
         } else {
           $auteur = "";
         }
