@@ -203,7 +203,7 @@ function m_algaebase_infos_espece(&$struct, $classif) {
       logs("AlgaeBase: échec d'analyse de la recherche");
       break;
     }
-    if (!isset($res->result) or !isset(_pagination->_total_number_of_results)) {
+    if (!isset($res->result) or !isset($res->_pagination->_total_number_of_results)) {
       logs("AlgaeBase: taxon non trouvé (pas de résultat)");
       break;
     }
