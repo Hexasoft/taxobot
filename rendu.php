@@ -174,7 +174,9 @@ function rendu_inf($struct) {
   $_rang = $lst[0];
   $mdl = $struct['sous-taxons']['source'];
   
-  $ret = "\n== Liste des taxons de rang inférieur ==\nListe des $rang selon {{Bioref|$mdl|$cdate}} :\n";
+  //$ret = "\n== Liste des taxons de rang inférieur ==\nListe des $rang selon {{Bioref|$mdl|$cdate}} :\n";
+  $ret = "\n== Liste des $rang ==\nSelon {{Bioref|$mdl|$cdate}} :\n";
+
   $ret0 = "";
   foreach($struct['sous-taxons']['liste'] as $l) {
     if (isset($l['rang']) and !empty($l['rang'])) {
