@@ -50,11 +50,8 @@ function m_ifpni_infos_genre($struct) {
       if (strpos($tbl[$idx+5], '<span class="text-info"><span class="text-info">') !== false) {
         $auteur = $tbl[$idx+5];
         $auteur = preg_replace('/^.*<span class="text-info"><span class="text-info">/', "", $auteur);
-echo ">>$auteur<<\n";
         $auteur = preg_replace(',</span>.*$,', "", $auteur);
-echo ">>$auteur<<\n";
         $auteur = trim($auteur);
-echo ">>$auteur<<\n";
       }
       break;
     }
