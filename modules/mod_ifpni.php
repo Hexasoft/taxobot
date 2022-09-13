@@ -9,13 +9,9 @@ function m_ifpni_init() {
   return declare_module("ifpni", false, true, true); // adapter la liste des cibles
 }
 
-// spécifique genres
-function m_ifpni_infos_genre($struct) {
-  $taxon = $struct['taxon']['nom'];
-  
-  $url='http://www.ifpni.org/genus.htm?formIndex=def&name=' . $taxon .
-       '&isExtended=1&author=&originalSpelling=&yearFrom=&yearTo=&submitForm=Search&submitForm=Search';
-  
+
+// commun
+function m_ifpni_infos_generique($url) {
   $ret = get_data($url);
   if ($ret === false) {
     logs("IFPNI: problème réseau");
@@ -60,12 +56,69 @@ function m_ifpni_infos_genre($struct) {
     return false;
   }
   $el['nom'] = $taxon;
-  $el['rang'] = 'genre';
   $el['id'] = $id;
   if (isset($auteur) and ($auteur !== false)) {
     $el['auteur'] = $auteur;
   }
 
+  return $el;
+}
+
+// spécifique espece
+function m_ifpni_infos_espece($struct) {
+  $taxon = $struct['taxon']['nom'];
+  $taxon = str_replace(" ", "+", $taxon);
+  
+  $url = 'http://www.ifpni.org/species.htm?formIndex=def&name=' . $taxon .
+         '&isExtended=&author=&originalSpelling=&yearFrom=&yearTo=&paleoID=&submitForm=Search';
+
+  $el = m_ifpni_infos_generique($url);
+  if ($el !== false) {
+    $el['rang'] = $struct['taxon']['rang'];
+  }
+  return $el;
+}
+
+// spécifique en dessous de l'espece
+function m_ifpni_infos_subespece($struct) {
+  $taxon = $struct['taxon']['nom'];
+  $taxon = str_replace(" ", "+", $taxon);
+  
+  $url = 'http://www.ifpni.org/infraspecies.htm?formIndex=def&name=' . $taxon .
+         '&isExtended=&author=&originalSpelling=&yearFrom=&yearTo=&paleoID=&submitForm=Search';
+  
+  $el = m_ifpni_infos_generique($url);
+  if ($el !== false) {
+    $el['rang'] = $struct['taxon']['rang'];
+  }
+  return $el;
+}
+
+// spécifique au dessus du genre
+function m_ifpni_infos_supgenre($struct) {
+  $taxon = $struct['taxon']['nom'];
+  
+  $url = 'http://www.ifpni.org/supragenus.htm?formIndex=def&name=' . $taxon . 
+         '&isExtended=&author=&originalSpelling=&yearFrom=&yearTo=&submitForm=Search';
+
+  $el = m_ifpni_infos_generique($url);
+  if ($el !== false) {
+    $el['rang'] = $struct['taxon']['rang'];
+  }
+  return $el;
+}
+
+// spécifique genres
+function m_ifpni_infos_genre($struct) {
+  $taxon = $struct['taxon']['nom'];
+  
+  $url='http://www.ifpni.org/genus.htm?formIndex=def&name=' . $taxon .
+       '&isExtended=1&author=&originalSpelling=&yearFrom=&yearTo=&submitForm=Search&submitForm=Search';
+
+  $el = m_ifpni_infos_generique($url);
+  if ($el !== false) {
+    $el['rang'] = 'genre';
+  }
   return $el;
 }
 
@@ -81,6 +134,27 @@ function m_ifpni_infos(&$struct, $classif) {
       $struct['liens']['ifpni'] = $ret;
       goto suite;
     }
+  } else if ($rang == "espèce") {
+    $ret = m_ifpni_infos_espece($struct);
+    if ($ret !== false) {
+      $struct['liens']['ifpni'] = $ret;
+      goto suite;
+    }
+  } else if (est_inf_espece($rang)) {  // "espece" déjà traité, strict. inf. espèce
+    $ret = m_ifpni_infos_subespece($struct);
+    if ($ret !== false) {
+      $struct['liens']['ifpni'] = $ret;
+      goto suite;
+    }
+  } else if (!wp_inf_rang($rang)) {  // "genre" déjà traité, strict. sup. genre
+    $ret = m_ifpni_infos_supgenre($struct);
+    if ($ret !== false) {
+      $struct['liens']['ifpni'] = $ret;
+      goto suite;
+    }
+  } else {
+    logs("IFPNI: rang non géré");
+    return false;
   }
   
   // autres rangs
