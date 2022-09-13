@@ -4,7 +4,7 @@
   Gestion de la configuration
 */
 
-$version = "1.0.19";
+$version = "1.0.20";
 
 // état de la configuration (= valeur par défaut)
 $configuration = [
