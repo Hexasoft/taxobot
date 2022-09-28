@@ -363,10 +363,32 @@ function m_wrms_infos(&$struct, $classif) {
   }
   $tbl = explode("\n", $ret);
   $trouve = false;
+  $url = false;
   foreach($tbl as $l) {
     if (strpos($l, "aphia.php?p=taxdetails&id=") !== false) {
       $trouve = trim(preg_replace('/^.*id=/', '', $l));
       $url = trim(preg_replace('/location: /', '', $l));
+      if ($url != trim($l)) {
+        // résultat unique, avec redirection
+        break;
+      }
+      // résultat non unique : il faut trouver celui qui correspond au nom
+      $trouve = preg_replace('/".*$/', '', $trouve);
+      if (!is_numeric($trouve)) {
+        $trouve = false;
+        $url = false;
+        continue;
+      }
+      $nom = preg_replace('/^.*><a href[=]"aphia.php[?][p]=taxdetails[&]id=/', '', $l);
+      $nom = preg_replace('/^[0-9]*"[>]/', '', $nom);
+      $nom = preg_replace(",^[<]i[^>]*[>][<]/i[>],", '', $nom);
+      $nom = preg_replace(",^[<]i[>],", '', $nom);
+      $nom = preg_replace("/[<].*$/", '', $nom);
+      if ($nom != $taxon) {
+        $trouve = false;
+        $url = false;
+        continue;
+      }
       break;
     }
   }
@@ -374,10 +396,7 @@ function m_wrms_infos(&$struct, $classif) {
     logs("WRMS: taxon non trouvé");
     return false;
   }
-  if (!is_numeric($trouve)) {
-    logs("WRMS: taxon non trouvé (2)");
-    return false;
-  }
+
   // on note l'identifiant
   $blob = [];
   $blob['id'] = $trouve;
