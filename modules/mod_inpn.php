@@ -41,7 +41,7 @@ _embedded
 function m_inpn_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
   $url = "https://odata-inpn.mnhn.fr/taxa/names?nameFragment=" .
-         str_replace(" ", "+", $taxon) . "&lteRank=SPECIES&embed=VALID_NAME&size=1";
+         str_replace(" ", "+", $taxon) . "&lteRank=&embed=VALID_NAME&size=1";
   $ret = get_data($url);
   if ($ret === false) {
     logs("INPN: échec de récupération réseau");
