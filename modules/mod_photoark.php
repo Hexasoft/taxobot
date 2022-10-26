@@ -13,6 +13,7 @@ function m_photoark_init() {
 // gérer la classification également
 function m_photoark_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
+  return false; // le site a changé
 
   $t = strtolower($taxon);
   $t = str_replace(" ", "-", $t);
