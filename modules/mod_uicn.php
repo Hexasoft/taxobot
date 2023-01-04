@@ -189,9 +189,87 @@ function curl_get2($url, $cook=null, $header=true) {
   return $data;
 }
 
+// recherche pour un taxon supérieur
+function m_uicn_infos_sup(&$struct, $classif) {
+  $taxon = $struct['taxon']['nom'];
+
+  init_outils();
+  // pour obtenir un token de session
+  $ret = get_data("https://www.iucnredlist.org/");
+  
+  // le CSRF
+  $tmp = explode("\n", $ret);
+  $code = false;
+  foreach($tmp as $l) {
+    $x = strpos($l, 'csrf-token');
+    if ($x !== false) {
+      $code = preg_replace('/^.*csrf-token" content="([^"]*).*$/', '${1}', $l);
+      break;
+    }
+  }
+  if ($code === false) {
+    logs("UICN: impossible de trouver le CSRF pour UICN");
+    return false;
+  }
+  
+  // on effectue une recherche
+  $header = [
+    'Accept: */*',
+    'content-type: application/json',
+    'X-CSRF-Token: ' . $code,
+    'Referer: https://www.iucnredlist.org/',
+    'DNT: 1',
+  ];
+  // table des rangs à tester
+  $rangs = [
+    'kingdomName' => '{"aggs":{"list":{"terms":{"field":"kingdomId","size":100000,"min_doc_count":1},"aggs":{"nested":{"top_hits":{"size":1,"_source":{"includes":["*Id","*Name"]}}}}}},"query":{"bool":{"must":[{"multi_match":{"query":"' . $taxon . '","type":"phrase_prefix","fields":["kingdomName"],"lenient":true,"max_expansions":100}}],"filter":[{"term":{"isSpecies":true}}]}}}',
+    'phylumName' => '{"aggs":{"list":{"terms":{"field":"phylumId","size":100000,"min_doc_count":1},"aggs":{"nested":{"top_hits":{"size":1,"_source":{"includes":["*Id","*Name"]}}}}}},"query":{"bool":{"must":[{"multi_match":{"query":"' . $taxon . '","type":"phrase_prefix","fields":["phylumName"],"lenient":true,"max_expansions":100}}],"filter":[{"term":{"isSpecies":true}}]}}}',
+    'className' => '{"aggs":{"list":{"terms":{"field":"classId","size":100000,"min_doc_count":1},"aggs":{"nested":{"top_hits":{"size":1,"_source":{"includes":["*Id","*Name"]}}}}}},"query":{"bool":{"must":[{"multi_match":{"query":"' . $taxon . '","type":"phrase_prefix","fields":["className"],"lenient":true,"max_expansions":100}}],"filter":[{"term":{"isSpecies":true}}]}}}',
+    'orderName' => '{"aggs":{"list":{"terms":{"field":"orderId","size":100000,"min_doc_count":1},"aggs":{"nested":{"top_hits":{"size":1,"_source":{"includes":["*Id","*Name"]}}}}}},"query":{"bool":{"must":[{"multi_match":{"query":"' . $taxon . '","type":"phrase_prefix","fields":["orderName"],"lenient":true,"max_expansions":100}}],"filter":[{"term":{"isSpecies":true}}]}}}',
+    'familyName' => '{"aggs":{"list":{"terms":{"field":"familyId","size":100000,"min_doc_count":1},"aggs":{"nested":{"top_hits":{"size":1,"_source":{"includes":["*Id","*Name"]}}}}}},"query":{"bool":{"must":[{"multi_match":{"query":"' . $taxon . '","type":"phrase_prefix","fields":["familyName"],"lenient":true,"max_expansions":100}}],"filter":[{"term":{"isSpecies":true}}]}}}',
+    'genusName' => '{"aggs":{"list":{"terms":{"field":"genusId","size":100000,"min_doc_count":1},"aggs":{"nested":{"top_hits":{"size":1,"_source":{"includes":["*Id","*Name"]}}}}}},"query":{"bool":{"must":[{"multi_match":{"query":"' . $taxon . '","type":"phrase_prefix","fields":["genusName"],"lenient":true,"max_expansions":100}}],"filter":[{"term":{"isSpecies":true}}]}}}'
+    ];
+
+  foreach($rangs as $rang => $post) {
+    $ret = post_data('https://www.iucnredlist.org/dosearch/assessments/_search?size=0&_source_excludes=ranges%2C%20legends&track_total_hits=true', $post, $header);
+    $res = json_decode($ret);
+    if ($res === null) {
+      continue;
+    }
+    if (!isset($res->aggregations->list->buckets[0]->key)) {
+      continue;
+    }
+    $id = $res->aggregations->list->buckets[0]->key;
+    if (!isset($res->aggregations->list->buckets[0]->nested->hits->hits[0]->_source->{$rang})) {
+      continue;
+    }
+    $nom = $res->aggregations->list->buckets[0]->nested->hits->hits[0]->_source->{$rang};
+    if (strcasecmp($taxon, $nom) != 0) {
+      continue;
+    }
+    $struct['liens']['uicn']['liste-id'] = $id;
+    $struct['liens']['uicn']['liste-nom'] = $taxon;
+    
+    if (!$classif) {
+      return true;
+    }
+    return false; // on ne fait pas la classification
+  }
+  
+  return false;
+}
+
 
 function m_uicn_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
+
+  // on compte le nombre de mots : si = 1 alors c'est pas une espèce
+  $tmp = explode(" ", $taxon);
+  if (count($tmp) == 1) {
+    return m_uicn_infos_sup($struct, $classif);
+  }
+
+  /// TODO: ré-écrire le code avec les 'outils' et non les fonctions locales
 
   start_curl();
   // pour obtenir un token de session
@@ -364,6 +442,10 @@ function m_uicn_ext($struct) {
       $cible .= " " . $data['auteur'];
     }
     return "{{UICN | " . $data['lien'] . " | " . $cible . " | consulté le=$cdate }}";
+  } else if (isset($struct['liens']['uicn']['liste-id'])) {
+    $data = $struct['liens']['uicn'];
+    $cible = wp_met_italiques($data['liste-nom'], $struct['taxon']['rang'], $struct['regne']);
+    return "{{UICN taxons | " . $data['liste-id'] . " | " . $data['liste-nom'] . " | consulté le=$cdate }}";
   } else {
     return false;
   }
@@ -372,7 +454,11 @@ function m_uicn_ext($struct) {
 function m_uicn_liens($struct) {
   if (isset($struct['liens']['uicn']['lien'])) {
     return "<a href='https://apiv3.iucnredlist.org/api/v3/taxonredirect/" .
-           $struct['liens']['uicn']['lien'] . "'>UICN</a>";
+           $struct['liens']['uicn']['lien'] . "</a>";
+  } else if (isset($struct['liens']['uicn']['liste-id'])) {
+    $data = $struct['liens']['uicn'];
+    return "<a href='https://www.iucnredlist.org/search?taxonomies=" . $data['liste-id'] .
+           "&searchType=species'>UICN taxons</a>";
   } else {
     return false;
   }
