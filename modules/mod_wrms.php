@@ -161,12 +161,14 @@ function wrms_extraire($page, $id) {
     // vernaculaires
     if (strpos($ligne, 'aphia_ct_vernacular_') !== false) {
       if (strpos($ligne, '>French<') !== false) {
-        $x = trim(strip_tags($tbl[$idx+1]));
-        if (!empty($x)) {
-          if (!isset($out['vernaculaire'])) {
-            $out['vernaculaire'] = [];
+        if (isset($tbl[$idx+1])) {
+          $x = trim(strip_tags($tbl[$idx+1]));
+          if (!empty($x)) {
+            if (!isset($out['vernaculaire'])) {
+              $out['vernaculaire'] = [];
+            }
+            $out['vernaculaire'][] = $x;
           }
-          $out['vernaculaire'][] = $x;
         }
       }
     }
@@ -294,11 +296,18 @@ function wrms_extraire($page, $id) {
         $t = explode('"', $tmp);
         if (!isset($t[3])) {
           logs("WRMS: sous-taxon non identifié. Ignoré");
+          $i++;
           continue;
         }
         $t2 = explode("=", $t[3]);
         if (!isset($t2[2])) {
           logs("WRMS: sous-taxon non identifié (2). Ignoré");
+          $i++;
+          continue;
+        }
+        // cas d'un taxon synonymisé
+        if (strpos($tmp, " accepted as ") !== false) {
+          $i++;
           continue;
         }
         $blob['id'] = $t2[2];
