@@ -208,7 +208,7 @@ function m_uicn_infos_sup(&$struct, $classif) {
     }
   }
   if ($code === false) {
-    logs("UICN: impossible de trouver le CSRF pour UICN");
+    logs("UICN: impossible de trouver le CSRF");
     return false;
   }
   
@@ -239,13 +239,23 @@ function m_uicn_infos_sup(&$struct, $classif) {
     if (!isset($res->aggregations->list->buckets[0]->key)) {
       continue;
     }
-    $id = $res->aggregations->list->buckets[0]->key;
-    if (!isset($res->aggregations->list->buckets[0]->nested->hits->hits[0]->_source->{$rang})) {
-      continue;
-    }
-    $nom = $res->aggregations->list->buckets[0]->nested->hits->hits[0]->_source->{$rang};
-    if (strcasecmp($taxon, $nom) != 0) {
-      continue;
+    $found = false;
+    foreach($res->aggregations->list->buckets as $buck) {
+      $id = $buck->key;
+      if (!isset($buck->nested->hits->hits[0]->_source->{$rang})) {
+        continue;
+      }
+      $nom = $buck->nested->hits->hits[0]->_source->{$rang};
+      if (isset($buck->nested->hits->hits[0]->_source->kingdomName)) {
+        $king = $buck->nested->hits->hits[0]->_source->kingdomName;
+      } else {
+        $king = "animalia";
+      }
+      if (strcasecmp($taxon, $nom) != 0) {
+        continue;
+      } else {
+        $found = true;
+      }
     }
     $struct['liens']['uicn']['liste-id'] = $id;
     $struct['liens']['uicn']['liste-nom'] = $taxon;
