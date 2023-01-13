@@ -234,7 +234,7 @@ function est_inf_espece($rang) {
   return false;
 }
 
-// retourne l'ébauche la plus adaptée
+// retourne l'ébauche la plus adaptée (ne supporte qu'une seule ébauche, pas de tableau en sortie)
 function wp_ebauche($struct) {
   global $ebauches;
   
@@ -489,9 +489,11 @@ function lien_pour_categorie($struct) {
     foreach($struct['rangs'] as $rang) {
       if ($rang['nom'] == 'Cnidaria') {
         if ($struct['taxon']['rang'] == 'espèce') {
-          return 'Espèce de cnidaire';
+          return 'Espèce de cnidaires (nom scientifique)';
         } else if ($struct['taxon']['rang'] == 'genre') {
-          return 'Genre de cnidaire';
+          return 'Genre de cnidaires (nom scientifique)';
+        } else if ($struct['taxon']['rang'] == 'famille') {
+          return 'Famille de cnidaires (nom scientifique)';
         }
       }
     }
