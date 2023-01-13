@@ -515,7 +515,7 @@ function lien_pour_portail($portail, $struct) {
     foreach($struct['rangs'] as $rang) {
       if ($rang['nom'] == 'Cnidaria') {
         // remplace le portail par défaut
-        return [ 'Biologie marine' ];
+        return [ 'Biologie marine', 'Cnidaires' ];
       }
     }
   }
