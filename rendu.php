@@ -98,7 +98,7 @@ function rendu_taxobox($struct) {
   $resu .= "\n";
   
   // le taxon lui-même
-  $auteur = auteurs_traite(isset($struct['taxon']['auteur'])?$struct['taxon']['auteur']:"");
+  $auteur = auteurs_traite($struct, isset($struct['taxon']['auteur'])?$struct['taxon']['auteur']:"");
   $resu .= "{{Taxobox taxon | $regne | $rang | $taxon | $auteur }}\n";
   
   // UICN
