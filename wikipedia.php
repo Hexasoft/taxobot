@@ -238,6 +238,16 @@ function est_inf_espece($rang) {
 function wp_ebauche($struct) {
   global $ebauches;
   
+  /// traitement des cas particuliers
+  // cnidaires
+  if (isset($struct['rangs'])) {
+    foreach($struct['rangs'] as $rang) {
+      if ($rang['nom'] == 'Cnidaria') {
+        return "cnidaire";
+      }
+    }
+  }
+  
   // on fait simple : sur le règne
   if (isset($ebauches[$struct['regne']])) {
     return $ebauches[$struct['regne']];
@@ -469,13 +479,43 @@ $categories = [
   'eucaryote' => 'Eucaryote (nom scientifique)',
   'procaryote' => '',
 ];
-function lien_pour_categorie($regne) {
+function lien_pour_categorie($struct) {
   global $categories;
+  $regne = $struct['regne'];
   
+  /// traitements particuliers des catégories
+  // cas des Cnidaires
+  if (isset($struct['rangs'])) {
+    foreach($struct['rangs'] as $rang) {
+      if ($rang['nom'] == 'Cnidaria') {
+        if ($struct['taxon']['rang'] == 'espèce') {
+          return 'Espèce de cnidaire';
+        } else if ($struct['taxon']['rang'] == 'genre') {
+          return 'Genre de cnidaire';
+        }
+      }
+    }
+  }
+
+  // cas par défaut (pas de traitement particulier)
   if (isset($categories[$regne])) {
     return $categories[$regne];
   } else {
     return false;
+  }
+}
+
+// retourne FALSE (si rien de particulier) ou un *tableau* de portails à insérer
+// $portail contient le portail par défaut déjà trouvé (qui peut être ignoré ou ré-inséré)
+function lien_pour_portail($portail, $struct) {
+  // cas des cnidaires
+  if (isset($struct['rangs'])) {
+    foreach($struct['rangs'] as $rang) {
+      if ($rang['nom'] == 'Cnidaria') {
+        // remplace le portail par défaut
+        return [ 'Biologie marine' ];
+      }
+    }
   }
 }
 

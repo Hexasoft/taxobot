@@ -38,10 +38,15 @@ function m_fin_infos(&$struct, $classif) {
   } elseif ($struct['regne'] == 'champignon') {
     $portail = "mycologie";
   }
-
-  $struct['liens']['fin']['portails'] = [ $portail ];
   
-  // partie catégories
+  $tmp = lien_pour_portail($portail, $struct);
+  if ($tmp) {
+    $struct['liens']['fin']['portails'] = $tmp;
+  } else {
+    $struct['liens']['fin']['portails'] = [ $portail ];
+  }
+  
+  // partie catégories (catégorie de famille, ici c'est tout)
   $cats = [];
   if (isset($struct['rangs'])) {
     foreach($struct['rangs'] as $r) {
@@ -50,7 +55,7 @@ function m_fin_infos(&$struct, $classif) {
       }
     }
   }
-  $tmp = lien_pour_categorie($struct['regne']);
+  $tmp = lien_pour_categorie($struct);
   if ($tmp) {
     $cats[] = $tmp;
   }
