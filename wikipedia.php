@@ -519,6 +519,7 @@ function lien_pour_portail($portail, $struct) {
       }
     }
   }
+  return false;
 }
 
 // article "synonymes" selon le règne
