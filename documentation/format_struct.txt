@@ -1,0 +1,358 @@
+Taxobot manipule à divers endroits une variable $struct qui contient toutes les informations passées
+aux diverses fonctions et collectées par les divers modules.
+
+Voici une description de cette structure (un tableau), sachant que divers modules peuvent stocker des
+informations sous des formats qui leurs sont propres « à l'intérieur » de leur zone dédiée.
+
+
+* Éléments initiaux :
+Dès le démarrage un certain nombre d'éléments sont fixés dans $struct :
+$struct['taxon']['nom'] : le nom (scientifique) du taxon, issu de l'option '-taxon'
+À noter que le module de classification peut changer le nom du taxon si par exemple c'est un
+synonyme et que l'option de suivi des synonymes est active (ce qui est le cas par défaut)
+
+$struct['classification'] : la classification choisie (par défaut ou par option)
+
+$struct['domaine'] : le domaine (par défaut (=tous) ou par option)
+
+
+* Premier module (classification) :
+Le premier module appelé est celui qui doit traiter la classification. Il reçoit les informations
+indiquées dans "Éléments initiaux".
+
+Il a *obligation* de fournir les éléments suivants (sinon il doit répondre par un échec) :
+$struct['taxon']['nom'] : s'il a changé suite au suivi des synonymes
+$struct['taxon']['rang'] : le rang du taxon
+$struct['taxon']['auteur'] : l'auteur(s)+date du taxon
+
+$struct['classification'] : le nom de la classification
+$struct['classification-taxobox'] : le nom du champ 'classification' de Taxobox début
+
+$struct['regne'] : le règne (domaine), champ de Taxobox début
+
+$struct['redirection']['nom'] : si on a suivi un synonyme, le nom d'origine doit être là-dedans
+
+$struct['rangs'] : une table contenant les rangs supérieurs (pour la taxobox).
+Chaque élément doit contenir :
+[]['nom'] : le nom scientifique du taxon supérieur
+[]['rang'] : le rang du taxon supérieur
+Cette table doit être triée dans l'ordre croissant des rangs.
+
+
+* tous les modules :
+Tous les modules (y compris celui de la classification) peuvent ajouter les éléments suivants :
+
+$struct['liens']['NOM-TECHNIQUE-DU-MODULE'][] : table contenant des informations pour des liens
+externes. Structure interne libre pour chaque module. Taxobot appelera les fonctions m_MODULE_ext()
+et m_MODULE_liens() pour récupérer les liens externes si l'entrée existe.
+
+$struct['basionyme'] : informations sur le basionyme. Doit contenir
+ ['nom'] + ['auteur'] + ['source'] (le dernier est le nom technique du module qui a donné l'info
+(pour sourçage Bioref).
+
+$struct['sous-taxons']['liste'] : liste des taxons de rang inférieur. Chaque élément doit contenir
+ ['nom'] + ['rang'] + ['auteur'].
+Il faut ajouter $struct['sous-taxons']['source'], le nom Bioref pour sourçage.
+
+$struct['vernaculaire'][NOM-TECHNIQUE-DU-MODULE][] : liste de noms vernaculaires selon la source.
+
+$struct['etymologie']['texte'] : étymologie du nom du taxon.
+Il faut ajouter $struct['etymologie']['source'], le nom Bioref pour sourçage.
+
+$struct['originale'] : texte ou tableau de texte. Publication originale (ou liste de publications
+originales, si besoin (ssp. par ex.)).
+
+$struct['synonymes']['liste'][] : liste de synonymes du taxon. Chaque élément doit contenir
+ ['nom'] + ['rang'] + ['auteur'].
+Il faut ajouter $struct['synonymes']['source'], le nom technique du module pour sourçage Bioref.
+
+<à compléter : répartition, …>
+<donner un exemple bien complet>
+
+Exemple, sur 'Uroplatus fimbriatus' avec la classification par défaut (GBIF) :
+(commentaires insérés dans le dump)
+array(11) {
+/// zone taxon : nom scientifique, rang, auteur
+  ["taxon"]=>
+  array(3) {
+    ["nom"]=>
+    string(20) "Uroplatus fimbriatus"
+    ["auteur"]=>
+    string(17) "(Schneider, 1797)"
+    ["rang"]=>
+    string(7) "espèce"
+  }
+/// nom de la classification qui a répondu
+  ["classification"]=>
+  string(4) "GBIF"
+/// domaine d'origine
+  ["domaine"]=>
+  string(1) "*"
+/// tableau des liens externes. Une entrée par module, avec le nom technique du module associé
+/// format libre pour chaque module, même s'il est recommandé de conserver une nomenclature
+/// logique (id, auteur, nom, rang…)
+/// à noter les "modules" spéciaux "fin" et "externe" :
+/// "externe" gère les liens hors WP (wikidata, commons, species)
+/// "fin" gère les portails, catégories
+  ["liens"]=>
+  array(14) {
+    ["gbif"]=>
+    array(4) {
+      ["id"]=>
+      int(2445758)
+      ["auteur"]=>
+      string(17) "(Schneider, 1797)"
+      ["nom"]=>
+      string(20) "Uroplatus fimbriatus"
+      ["rang"]=>
+      string(7) "espèce"
+    }
+    ["adw"]=>
+    array(2) {
+      ["nom"]=>
+      string(20) "Uroplatus fimbriatus"
+      ["id"]=>
+      string(20) "Uroplatus_fimbriatus"
+    }
+    ["biolib"]=>
+    array(3) {
+      ["auteur"]=>
+      string(17) "(Schneider, 1797)"
+      ["id"]=>
+      string(6) "132315"
+      ["nom"]=>
+      string(20) "Uroplatus fimbriatus"
+    }
+    ["cites"]=>
+    array(5) {
+      ["nom"]=>
+      string(20) "Uroplatus fimbriatus"
+      ["auteur"]=>
+      string(17) "(Schneider, 1792)"
+      ["annexe"]=>
+      string(2) "II"
+      ["date"]=>
+      string(10) "12/01/2005"
+      ["lien"]=>
+      int(6081)
+    }
+    ["col"]=>
+    array(3) {
+      ["id"]=>
+      string(5) "7DXCV"
+      ["nom"]=>
+      string(20) "Uroplatus fimbriatus"
+      ["auteur"]=>
+      string(17) "(Schneider, 1797)"
+    }
+    ["eol"]=>
+    array(4) {
+      ["id"]=>
+      string(7) "1053509"
+      ["nom"]=>
+      string(20) "Uroplatus fimbriatus"
+      ["auteur"]=>
+      string(16) "(Schneider 1797)"
+      ["rang"]=>
+      string(7) "espèce"
+    }
+    ["externe"]=>
+    array(4) {
+      ["wikidata"]=>
+      array(1) {
+        ["id"]=>
+        string(7) "Q610404"
+      }
+      ["ccommons"]=>
+      array(1) {
+        ["page"]=>
+        string(20) "Uroplatus fimbriatus"
+      }
+      ["commons"]=>
+      array(1) {
+        ["page"]=>
+        string(20) "Uroplatus fimbriatus"
+      }
+      ["species"]=>
+      array(1) {
+        ["page"]=>
+        string(20) "Uroplatus fimbriatus"
+      }
+    }
+    ["fin"]=>
+    array(2) {
+      ["portails"]=>
+      array(1) {
+        [0]=>
+        string(8) "zoologie"
+      }
+      ["categories"]=>
+      array(2) {
+        [0]=>
+        string(10) "Gekkonidae"
+        [1]=>
+        string(25) "Animal (nom scientifique)"
+      }
+    }
+    ["irmng"]=>
+    array(3) {
+      ["id"]=>
+      string(8) "10364048"
+      ["nom"]=>
+      string(20) "Uroplatus fimbriatus"
+      ["auteur"]=>
+      string(15) "Schneider, 1797"
+    }
+    ["ncbi"]=>
+    array(3) {
+      ["nom"]=>
+      string(20) "Uroplatus fimbriatus"
+      ["id"]=>
+      string(6) "402375"
+      ["rang"]=>
+      string(7) "espèce"
+    }
+    ["reptiledb"]=>
+    array(4) {
+      ["type"]=>
+      string(7) "espèce"
+      ["nom1"]=>
+      string(9) "Uroplatus"
+      ["nom2"]=>
+      string(10) "fimbriatus"
+      ["auteur"]=>
+      string(17) "(SCHNEIDER, 1797)"
+    }
+    ["taxonomicon"]=>
+    array(3) {
+      ["nom"]=>
+      string(20) "Uroplatus fimbriatus"
+      ["id"]=>
+      string(5) "48962"
+      ["auteur"]=>
+      string(17) "(Schneider, 1797)"
+    }
+    ["tpdb"]=>
+    array(2) {
+      ["id"]=>
+      string(6) "408757"
+      ["nom"]=>
+      string(20) "Uroplatus fimbriatus"
+    }
+    ["uicn"]=>
+    array(5) {
+      ["risque"]=>
+      string(2) "LC"
+      ["commentaire"]=>
+      string(3) "3.1"
+      ["lien"]=>
+      string(6) "172939"
+      ["nom"]=>
+      string(20) "Uroplatus fimbriatus"
+      ["auteur"]=>
+      string(17) "(Schneider, 1797)"
+    }
+  }
+/// le champ classification de la taxobox (début)
+  ["classification-taxobox"]=>
+  string(4) "GBIF"
+/// le champ règne de la taxobox (début)
+  ["regne"]=>
+  string(6) "animal"
+/// la liste des rangs supérieurs (pour la taxobox), classés par ordre croissant
+  ["rangs"]=>
+  array(4) {
+    [0]=>
+    array(2) {
+      ["nom"]=>
+      string(9) "Uroplatus"
+      ["rang"]=>
+      string(5) "genre"
+    }
+    [1]=>
+    array(2) {
+      ["nom"]=>
+      string(10) "Gekkonidae"
+      ["rang"]=>
+      string(7) "famille"
+    }
+    [2]=>
+    array(2) {
+      ["nom"]=>
+      string(8) "Squamata"
+      ["rang"]=>
+      string(6) "classe"
+    }
+    [3]=>
+    array(2) {
+      ["nom"]=>
+      string(8) "Chordata"
+      ["rang"]=>
+      string(13) "embranchement"
+    }
+  }
+// le basionyme (donné par le module de classification). Source = nom Bioref
+  ["basionyme"]=>
+  array(3) {
+    ["nom"]=>
+    string(18) "Stellio fimbriatus"
+    ["auteur"]=>
+    string(15) "Schneider, 1797"
+    ["source"]=>
+    string(4) "GBIF"
+  }
+// les synonymes (donnés par le module de classification). Source = nom Bioref
+  ["synonymes"]=>
+  array(2) {
+    ["liste"]=>
+    array(3) {
+      [0]=>
+      array(2) {
+        ["nom"]=>
+        string(18) "Chiroperus sarrube"
+        ["auteur"]=>
+        string(8) "Wiegmann"
+      }
+      [1]=>
+      array(2) {
+        ["nom"]=>
+        string(20) "Rhacoessa hypoxantha"
+        ["auteur"]=>
+        string(12) "Wagler, 1833"
+      }
+      [2]=>
+      array(2) {
+        ["nom"]=>
+        string(18) "Stellio fimbriatus"
+        ["auteur"]=>
+        string(15) "Schneider, 1797"
+      }
+    }
+    ["source"]=>
+    string(4) "GBIF"
+  }
+/// liste des noms vernaculaires avec comme index le nom Bioref de la source associée
+  ["vernaculaire"]=>
+  array(1) {
+    ["CITES"]=>
+    array(1) {
+      [0]=>
+      string(28) "Geckos à queue plate commun"
+    }
+  }
+/// liste des pays de répartition avec comme index le nom Bioref de la source associée
+/// peut contenir pour chaque "certain" et "uncertain" (oui, franglais), selon le cas
+/// il s'agit de codes de pays.
+  ["distribution"]=>
+  array(1) {
+    ["UICN"]=>
+    array(1) {
+      ["certain"]=>
+      array(1) {
+        ["MG"]=>
+        string(2) "MG"
+      }
+    }
+  }
+}
+

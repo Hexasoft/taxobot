@@ -50,14 +50,60 @@ $auteurs_espace = [
    'et al.',
 ];
 
+
+// fonction de préparation (éventuelle) de données pour les auteurs (chargement de fichier, etc.), pour
+// éviter de le faire à chaque auteur. N'est appelée qu'une seule fois. Reçoit $struct pour éventuellement
+// initialiser/compléter spécifiquement les données
+// 'contraintes' est soit NULL (aucune contrainte) soit une table de 'rang'=>'nom-rang'
+$aut_data = [
+  [ 'noms' => [ 'L.' ],
+    'cible' => 'Carl von Linné',
+    'depart' => 1720, 'fin' => 1778,
+    'contraintes' => null, ],
+  [ 'noms' => [ 'Linné' ],
+    'cible' => 'Carl von Linné',
+    'depart' => 1720, 'fin' => 1778,
+    'contraintes' => null, ],
+  [ 'noms' => [ 'Linnæus' ],
+    'cible' => 'Carl von Linné',
+    'depart' => 1720, 'fin' => 1778,
+    'contraintes' => null, ],
+  [ 'noms' => [ 'Linnaeus' ],
+    'cible' => 'Carl von Linné',
+    'depart' => 1720, 'fin' => 1778,
+    'contraintes' => null, ],
+];
+function auteurs_resoudre_init($struct) {
+  return;
+}
+
+// reçoit un nom d'auteur (depuis la zone auteurs) + éventuellement une date ainsi que la structure terminée
+// et retourne FALSE si rien trouvé ou une forme wikifiée (wikilien, {{lien}}, etc.)
+function auteurs_resoudre($cur, $date, $struct) {
+  global $aut_data;
+
+  foreach($aut_data as $aut) {
+    foreach($aut['noms'] as $n) {
+      if ($n == $cur) {
+      
+      }
+    }
+  }
+
+  return false;
+}
+
 // retourne une nouvelle version de la chaîne d'auteurs passée en paramètre
-function auteurs_traite($auteurs) {
+function auteurs_traite($struct, $auteurs) {
   global $auteurs_ignore, $auteurs_espace;
 
   // cas particulier : vide
   if (trim($auteurs) == "") {
     return ""; // ne pas tenter de mettre des {{auteur}} et ne pas ajouter la date à préciser
   }
+
+  // initialisation de la fonction de résolution des auteurs
+  auteurs_resoudre_init($struct);
 
   // on tente de remplacer chaque auteur de la liste par une version "protégée"
   foreach($auteurs_espace as $a) {
@@ -68,6 +114,17 @@ function auteurs_traite($auteurs) {
   // on explode par espaces
   $tmp = explode(" ", $auteurs);
   $out = [];
+  
+  // premier passage pour trouver une date éventuellement
+  $date = false;
+  foreach($tmp as $t) {
+    if (preg_match("/([123][0-9][0-9][0-9])/", $t) == 1) {
+      $date = $t;
+      break; // trouvé, on ne prend que la première
+    }
+  }
+
+  // parcours de chaque élément
   foreach($tmp as $t) {
     // termes à ignorer
     if (in_array($t, $auteurs_ignore)) {
@@ -88,6 +145,7 @@ function auteurs_traite($auteurs) {
       $out[] = $t;
       continue;
     }
+    // extraction
     $cur = $t;
     $pre = "";
     $post = "";
@@ -103,6 +161,17 @@ function auteurs_traite($auteurs) {
       $post .= $x;
       $cur = mb_substr($cur, 0, mb_strlen($cur)-1);
     }
+    
+    // on appelle la fonction de traitement spécifique, qui peut décider de remplacer
+    // un auteur par sa cible si connue
+    $valid = auteurs_resoudre($cur, $date, $struct);
+    if ($valid) {
+      // trouvé, on l'insert (la fonction doit retourner une forme complète, wikilien par ex.)
+      $out[] = "$pre$valid$post";
+      continue;
+    }
+    
+    
     // on ajoute le modèle auteur
     $cur = "{{auteur|[[" . $cur . "]]}}";
     

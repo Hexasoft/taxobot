@@ -1,0 +1,3 @@
+Il est possible de fournir des contraintes sur divers paramètres du taxon courant afin de préciser
+le type d'ébauche / la liste des catégories ajoutées / la liste des portails ajoutés.
+
