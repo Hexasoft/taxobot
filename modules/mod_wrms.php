@@ -370,9 +370,11 @@ function m_wrms_infos(&$struct, $classif) {
     logs("WRMS: échec de la recherche");
     return false;
   }
+  
   $tbl = explode("\n", $ret);
   $trouve = false;
   $url = false;
+  // on cherche une redirection unique
   foreach($tbl as $l) {
     if (strpos($l, "aphia.php?p=taxdetails&id=") !== false) {
       $trouve = trim(preg_replace('/^.*id=/', '', $l));
@@ -380,29 +382,101 @@ function m_wrms_infos(&$struct, $classif) {
       if ($url != trim($l)) {
         // résultat unique, avec redirection
         break;
-      }
-      // résultat non unique : il faut trouver celui qui correspond au nom
-      $trouve = preg_replace('/".*$/', '', $trouve);
-      if (!is_numeric($trouve)) {
+      } else {
         $trouve = false;
         $url = false;
-        continue;
       }
-      $nom = preg_replace('/^.*><a href[=]"aphia.php[?][p]=taxdetails[&]id=/', '', $l);
-      $nom = preg_replace('/^[0-9]*"[>]/', '', $nom);
-      $nom = preg_replace(",^[<]i[^>]*[>][<]/i[>],", '', $nom);
-      $nom = preg_replace(",^[<]i[>],", '', $nom);
-      $nom = preg_replace("/[<].*$/", '', $nom);
-      if ($nom != $taxon) {
-        $trouve = false;
-        $url = false;
-        continue;
-      }
-      break;
     }
   }
   if ($trouve === false) {
-    logs("WRMS: taxon non trouvé");
+    // on cherche une réponse sans redirection ou autre unaccepted
+    foreach($tbl as $l) {
+      if (strpos($l, "aphia.php?p=taxdetails&id=") !== false) {
+        $trouve = trim(preg_replace('/^.*id=/', '', $l));
+        $trouve = preg_replace('/".*$/', '', $trouve);
+        if (!is_numeric($trouve)) {
+          $trouve = false;
+          continue;
+        }
+        $nom = preg_replace('/^.*><a href[=]"aphia.php[?][p]=taxdetails[&]id=/', '', $l);
+        $nom = preg_replace('/^[0-9]*"[>]/', '', $nom);
+        $nom = preg_replace(",^[<]i[^>]*[>][<]/i[>],", '', $nom);
+        $nom = preg_replace(",^[<]i[>],", '', $nom);
+        $nom = preg_replace("/[<].*$/", '', $nom);
+        if ($nom != $taxon) {
+          $trouve = false;
+          continue;
+        }
+        // c'est le bon nom, est-ce qu'il y a une indication ?
+        $suite = preg_replace('/^.*><a href[=]"aphia.php[?][p]=taxdetails[&]id=[^>]*>/', '', $l);
+        $suite = preg_replace(",^[<]i[^>]*[>][<]/i[>],", '', $suite);
+        if (strpos($suite, "uncertain") !== false) {
+          $trouve = false; // incertain, on le laisse à ce niveau
+          continue;
+        }
+        if (strpos($suite, "unassessed") !== false) {
+          $trouve = false; // idem
+          continue;
+        }
+        if (strpos($suite, "accepted as") !== false) {
+          $trouve = false; // synonyme, on le laisse à ce niveau
+          continue;
+        }
+        // trouvé
+        break;
+      }
+    }
+  }
+  $naccept = false;
+  if ($trouve === false) {
+    // on cherche une réponse avec synonyme
+    foreach($tbl as $l) {
+      if (strpos($l, "aphia.php?p=taxdetails&id=") !== false) {
+        $trouve = trim(preg_replace('/^.*id=/', '', $l));
+        $trouve = preg_replace('/".*$/', '', $trouve);
+        if (!is_numeric($trouve)) {
+          $trouve = false;
+          continue;
+        }
+        $nom = preg_replace('/^.*><a href[=]"aphia.php[?][p]=taxdetails[&]id=/', '', $l);
+        $nom = preg_replace('/^[0-9]*"[>]/', '', $nom);
+        $nom = preg_replace(",^[<]i[^>]*[>][<]/i[>],", '', $nom);
+        $nom = preg_replace(",^[<]i[>],", '', $nom);
+        $nom = preg_replace("/[<].*$/", '', $nom);
+        if ($nom != $taxon) {
+          $trouve = false;
+          continue;
+        }
+        // c'est le bon nom, est-ce qu'il y a une indication ?
+        $suite = preg_replace('/^.*><a href[=]"aphia.php[?][p]=taxdetails[&]id=[^>]*>/', '', $l);
+        $suite = preg_replace(",^[<]i[^>]*[>][<]/i[>],", '', $suite);
+        if (strpos($suite, "uncertain") !== false) {
+          $trouve = false; // incertain, on le laisse à ce niveau
+          $naccept = true;
+          continue;
+        }
+        if (strpos($suite, "unassessed") !== false) {
+          $naccept = true;
+          $trouve = false; // idem
+          continue;
+        }
+        if (strpos($suite, "accepted as") !== false) {
+          // trouvé
+          break;
+        }
+        // trouvé
+        break;
+      }
+    }
+  }
+
+  // non trouvé
+  if ($trouve === false) {
+    if ($naccept) {
+      logs("WRMS: taxon trouvé mais non accepté");
+    } else {
+      logs("WRMS: taxon non trouvé");
+    }
     return false;
   }
 
