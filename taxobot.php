@@ -355,8 +355,6 @@ $end_time = microtime(true);
 // durée totale d'exécution (après ça ça se serait plus affiché)
 logs("Durée totale d'exécution : " . number_format($end_time-$start_time, 2) . "s");
 
-var_dump($struct);
-die(0);
 // on génère la sortie
 if ($justext) {
   $resu = "";
