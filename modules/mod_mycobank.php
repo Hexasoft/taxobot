@@ -134,7 +134,7 @@ function m_mycobank_recurs($res) {
 
 function m_mycobank_insert_valeur($val, $fk, $tk, $rc, $cat, $idx) {
   global $m_mb_results, $m_mb_mapping, $m_mb_items;
-
+  
   // entrées "spéciales"
   if ($cat == "BasionymRecord") {
     $m_mb_results['basionyme'] = $val;
@@ -192,6 +192,14 @@ function m_mycobank_insert_valeur($val, $fk, $tk, $rc, $cat, $idx) {
   // on insert
   if (!isset($m_mb_results[$where])) {
     $m_mb_results[$where] = [];
+  }
+  // pour le nom, on n'insert que si le nom est plus court (oui, c'est laid…)
+  if ($where == "nom") {
+    if (isset($m_mb_results[$where][$idx]['valeur'])) {
+      if (strlen($m_mb_results[$where][$idx]['valeur']) < strlen($val)) {
+        $val = $m_mb_results[$where][$idx]['valeur'];
+      }
+    }
   }
   $tmp = [];
   $tmp['valeur'] = $val;
@@ -498,6 +506,7 @@ function m_mycobank_analyse_taxon($res, $full=true) {
   m_mycobank_recurs2($res, $full);
   $tmp = $m_mb_results;
   $out = [];
+  
   // on regarde les infos sur le taxon lui-même
   $taxon = [];
   if (isset($m_mb_results['nom'])) {
@@ -548,6 +557,9 @@ function m_mycobank_analyse_taxon($res, $full=true) {
     // si pas trouvé on se rabat sur les trucs de merde…
     if (isset($m_mb_results['auteurs'][-1]['valeur'])) {
       $taxon['auteur'] = $m_mb_results['auteurs'][-1]['valeur'];
+      if (isset($m_mb_results['année']) and !empty($m_mb_results['année'][-1]['valeur'])) {
+        $taxon['auteur'] .= ", " . $m_mb_results['année'][-1]['valeur'];
+      }
     }
     // en fait on passe plus ici : corriger, mais c'est pas supposé se produire, c'est 
     // un "fallback" de sécurité
@@ -739,7 +751,7 @@ function m_mycobank_infos(&$struct, $classif) {
     logs("MycoBank: échec de récupération des détails du taxon trouvé");
     return false;
   }
-
+  
   // si c'est un synonyme
   if (isset($res->Data->RecordDetails->{"14682616000006675"}->SelectedRecord->RecordId) and
       isset($res->Data->RecordDetails->{"14682616000006675"}->CurrentNameRecord->RecordId) and
