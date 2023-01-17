@@ -1,0 +1,6 @@
+# fichier de sélection fine des portails. Si rien ne correspond les portails par défaut sont utilisées
+# doit retourner FALSE (rien) ou un tableau de portails (même si un seul portail)
+
+# Cnidaires
+if (/rangs.embranchement/ == 'Cnidaria') { return ['Biologie marine','Cnidaires']; } else { return FALSE; }
+

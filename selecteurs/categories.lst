@@ -1,0 +1,8 @@
+# fichier de sélection fine des catégories. Si rien ne correspond les ébauches par défaut sont utilisées
+# doit retourner FALSE (rien) ou un tableau de catégories (même si une seule catégorie)
+
+# Cnidaires
+if ((/rangs.embranchement/ == 'Cnidaria') and (/rang/ == 'espèce')) { return ['Espèce de cnidaires (nom scientifique)']; } else { return FALSE; }
+if ((/rangs.embranchement/ == 'Cnidaria') and (/rang/ == 'genre')) { return ['Genre de cnidaires (nom scientifique)']; } else { return FALSE; }
+if ((/rangs.embranchement/ == 'Cnidaria') and (/rang/ == 'famille')) { return ['Famille de cnidaires (nom scientifique)']; } else { return FALSE; }
+

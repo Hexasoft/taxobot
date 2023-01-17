@@ -1,0 +1,6 @@
+# fichier de sélection fine des ébauches. Si rien ne correspond les ébauches par défaut sont utilisées
+# doit retourner FALSE (rien) ou un tableau de textes (même s'il y a une seule catégorie)
+
+# Cnidaires
+if (/rangs.embranchement/ == 'Cnidaria') { return ['cnidaire']; } else { return FALSE; }
+
