@@ -33,6 +33,7 @@ EOT;
 require_once "outils.php";
 require_once "configuration.php";
 require_once "modules.php";
+require_once "selecteurs.php";
 require_once "wikipedia.php";
 require_once "rendu.php";
 require_once "data_pays.php";

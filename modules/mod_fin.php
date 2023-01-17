@@ -40,7 +40,7 @@ function m_fin_infos(&$struct, $classif) {
   }
   
   $tmp = lien_pour_portail($portail, $struct);
-  if ($tmp) {
+  if (!empty($tmp) and is_array($tmp)) {
     $struct['liens']['fin']['portails'] = $tmp;
   } else {
     $struct['liens']['fin']['portails'] = [ $portail ];
@@ -56,8 +56,10 @@ function m_fin_infos(&$struct, $classif) {
     }
   }
   $tmp = lien_pour_categorie($struct);
-  if ($tmp) {
-    $cats[] = $tmp;
+  if (!empty($tmp) and is_array($tmp)) {
+    foreach($tmp as $c) {
+      $cats[] = $c;
+    }
   }
   $struct['liens']['fin']['categories'] = $cats;
   return true;

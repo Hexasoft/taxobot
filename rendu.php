@@ -43,8 +43,8 @@ function rendu_intro($struct) {
 function rendu_taxobox($struct) {
   $resu = "";
   $tmp = wp_ebauche($struct);
-  if ($tmp != "") {
-    $resu .= "{{ébauche|" . $tmp . "}}\n";
+  if (!empty($tmp) and is_array($tmp)) {
+    $resu .= "{{ébauche|" . implode("|", $tmp) . "}}\n";
   } else {
     $resu .= "{{ébauche}}\n";
   }

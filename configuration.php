@@ -19,6 +19,7 @@ $configuration = [
   "taxon" => '',
   "domaine" => '*',
   "off" => false,
+  "selecteurs" => false,
   "debug" => false,
   "liste" => false,
   "help" => false,
@@ -45,6 +46,7 @@ $liste_configuration = [
   "help" => ['flag', 'Afficher ce message d\'aide'],
   "version" => ['flag', 'Afficher la version de Taxobot'],
   "off" => ['string', 'Liste de modules à désactiver (noms séparés par des virgules)'],
+  "selecteurs" => [ 'flag', 'Autorise l\'utilisation des fichiers de définition des ébauches/catégories/auteurs/…'],
   "article" => ['flag', 'Ne générer que la sortie de l\'article et rien d\'autre'],
 ];
 
