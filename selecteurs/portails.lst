@@ -10,3 +10,6 @@
 # Cnidaires
 if (/rangs.embranchement/ == 'Cnidaria') { return ['Biologie marine','Cnidaires']; } else { return FALSE; }
 
+# Geckos
+if (/rangs.infra-ordre/ == 'Gekkota') { return ['Herpétologie']; } else { return FALSE; }
+

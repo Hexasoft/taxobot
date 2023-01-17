@@ -10,3 +10,6 @@
 # Cnidaires
 if (/rangs.embranchement/ == 'Cnidaria') { return ['cnidaire']; } else { return FALSE; }
 
+# Geckos
+if (/rangs.infra-ordre/ == 'Gekkota') { return ['gecko']; } else { return FALSE; }
+
