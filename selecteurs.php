@@ -46,6 +46,9 @@ function sel_remplace($struct, $txt) {
 
 // charge et évalue un fichier de sélections à partir de la structure courante
 function sel_evalue($fichier, $struct) {
+  if (!file_exists($fichier)) {
+    return false;
+  }
   $ev = file_get_contents($fichier);
   if ($ev === false) {
     logs("Selecteurs: impossible de lire le fichier '$fichier'");

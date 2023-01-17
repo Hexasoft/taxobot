@@ -1,3 +1,37 @@
 Il est possible de fournir des contraintes sur divers paramètres du taxon courant afin de préciser
 le type d'ébauche / la liste des catégories ajoutées / la liste des portails ajoutés.
 
+
+<en cours, non définitif>
+
+
+Il y a un fichier par type d'information (ébauches, portails, catégories).
+Le nommage est : selecteurs/ebauches.lst ; selecteurs/portails.lst ; selecteurs/categories.lst
+Si un fichier de même nom terminé par ".local" est présent il est utilisé en premier. S'il ne répond
+rien le fichier standard est utilisé (et si ce dernier ne répond rien les réponses par défaut sont
+utilisées).
+Ne pas modifier les fichiers standards (risque de conflit avec le GitHub).
+
+
+Chaque fichier peut contenir des lignes vides et des commentaires (ligne commençant par un "#"). Ces
+lignes sont ignorées.
+
+Chaque ligne active est un test en PHP avec une valeur de retour.
+Chaque ligne au sein d'un même fichier est testée dans l'ordre de lecture, et si une ligne répond
+les lignes suivantes ne sont pas évaluées (donc toujours mettre les éléments les plus précis au
+début. Par exemple une éventuelle ébauche "geckos" doit être avant une éventuelle ébauche "herpétologie").
+
+Chaque test *doit* retourner FALSE si il est négatif.
+
+Chaque test *doit* être sur une seule ligne.
+
+Le test peut faire référence aux valeurs suivantes :
+/regne/ : le « règne » au sens de la taxobox (animal, plante, champignon, etc.)
+/rang/ : le rang du taxon
+/classification/ : la classification utilisée (GBIF, ITIS, etc.)
+/rangs.NIVEAU/ : le nom scientifique du rang NIVEAU dans la classification supérieure
+
+Exemple : sélection de la catégorie 'Espèce de cnidaires (nom scientifique)' sur l'embranchement est
+'Cnidaria' et le rang 'espèce' :
+if ((/rangs.embranchement/ == 'Cnidaria') and (/rang/ == 'espèce')) { return ['Espèce de cnidaires (nom scientifique)']; } else { return FALSE; }
+

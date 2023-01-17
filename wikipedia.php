@@ -239,6 +239,10 @@ function wp_ebauche($struct) {
   global $ebauches;
   
   if (get_config("selecteurs")) {
+    $ret = sel_evalue("selecteurs/ebauches.lst.local", $struct);
+    if ($ret !== false) {
+      return $ret;
+    }
     $ret = sel_evalue("selecteurs/ebauches.lst", $struct);
     if ($ret !== false) {
       return $ret;
@@ -481,6 +485,10 @@ function lien_pour_categorie($struct) {
   $regne = $struct['regne'];
   
   if (get_config("selecteurs")) {
+    $ret = sel_evalue("selecteurs/categories.lst.local", $struct);
+    if ($ret !== false) {
+      return $ret;
+    }
     $ret = sel_evalue("selecteurs/categories.lst", $struct);
     if ($ret !== false) {
       return $ret;
@@ -499,6 +507,10 @@ function lien_pour_categorie($struct) {
 // $portail contient le portail par défaut déjà trouvé (qui peut être ignoré ou ré-inséré)
 function lien_pour_portail($portail, $struct) {
   if (get_config("selecteurs")) {
+    $ret = sel_evalue("selecteurs/portails.lst.local", $struct);
+    if ($ret !== false) {
+      return $ret;
+    }
     $ret = sel_evalue("selecteurs/portails.lst", $struct);
     if ($ret !== false) {
       return $ret;

@@ -1,3 +1,9 @@
+# IMPORTANT : n'éditez-pas ce fichier. En effet si vous le modifiez il sera en conflit avec celui
+#             issu de GitHub (ce qui nécessite de « bricoler » un peu pour revenir à la normale)
+#             Vous pouvez créer un fichier categories.lst.local avec vos éléments à vous. Ce fichier
+#             sera évalué en premier et son retour utilisé s'il y en a un. Sinon se sera ce fichier,
+#             puis les valeurs par défaut le cas échéant.
+
 # fichier de sélection fine des catégories. Si rien ne correspond les ébauches par défaut sont utilisées
 # doit retourner FALSE (rien) ou un tableau de catégories (même si une seule catégorie)
 
