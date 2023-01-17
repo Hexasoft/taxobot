@@ -41,6 +41,10 @@ function sel_remplace($struct, $txt) {
       }
     }
   }
+  // maintenant on remplace tout ce qui reste entre "/" par un texte impossible
+  // pour éviter des messages d'erreur si un élément n'existe pas
+  $txt = preg_replace(",/[^|]*/,", "'TexteNonPossible'", $txt);
+  
   return $txt;
 }
 

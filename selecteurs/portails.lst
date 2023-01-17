@@ -10,6 +10,9 @@
 # Cnidaires
 if (/rangs.embranchement/ == 'Cnidaria') { return ['Biologie marine','Cnidaires']; } else { return FALSE; }
 
-# Geckos
-if (/rangs.infra-ordre/ == 'Gekkota') { return ['Herpétologie']; } else { return FALSE; }
+## Geckos
+# spécifique
+if (/rangs.genre/ == 'Uroplatus') { return ['Herpétologie','Madagascar']; } else { return FALSE; }
+# général
+if ((/rangs.infra-ordre/ == 'Gekkota') or (/rangs.famille/ == 'Gekkonidae')) { return ['Herpétologie']; } else { return FALSE; }
 

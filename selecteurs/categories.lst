@@ -12,3 +12,7 @@ if ((/rangs.embranchement/ == 'Cnidaria') and (/rang/ == 'espèce')) { return ['
 if ((/rangs.embranchement/ == 'Cnidaria') and (/rang/ == 'genre')) { return ['Genre de cnidaires (nom scientifique)']; } else { return FALSE; }
 if ((/rangs.embranchement/ == 'Cnidaria') and (/rang/ == 'famille')) { return ['Famille de cnidaires (nom scientifique)']; } else { return FALSE; }
 
+## Geckos
+# spécifique
+if (/rangs.genre/ == 'Uroplatus') { return ['Faune endémique de Madagascar']; } else { return FALSE; }
+
