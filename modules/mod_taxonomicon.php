@@ -38,7 +38,7 @@ function m_taxonomicon_infos(&$struct, $classif) {
   }
   
   $tbl = explode("\n", $ret);
-  $found = false;
+  $trouve = false;
   foreach($tbl as $idx => $ligne) {
     if (strpos($ligne, "Search results: 0 entities found") !== false) {
       logs("Taxonomicon: taxon non trouvé");
