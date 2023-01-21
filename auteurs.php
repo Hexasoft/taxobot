@@ -4,8 +4,402 @@
   Traitements de la zone « auteurs » (et données associées)
 */
 
+
+////// nouvelle partie : en test
+require "liste_botanistes.php"; // $aut_botanistes[]
+require "liste_zoologistes.php"; // $aut_zoologistes[]
+
+// séparateur ? (basique)
+function est_separateur($e) {
+  if (($e == ',') or ($e == '&') or ($e == ';') or ($e == ':') or
+      ($e == '(') or ($e == ')') or ($e == '[') or ($e == ']')) {
+    return true;
+  }
+  return false;
+}
+
+// true si hors tableau ou si séparateur (option pour espace=séparateur)
+function est_separateur_t($tbl, $i, $sp=false) {
+  if (!isset($tbl[$i])) {
+    return true;
+  }
+  $e = $tbl[$i];
+  if ($sp and ($e == ' ')) {
+    return true;
+  }
+  if (($e == ',') or ($e == '&') or ($e == ';') or ($e == ':') or
+      ($e == '(') or ($e == ')') or ($e == '[') or ($e == ']')) {
+    return true;
+  }
+  return false;
+}
+
+// mot à la position courante ?
+function est_mot($tbl, $i, $mot, &$der) {
+  $tmot = preg_split('//u', $mot, -1, PREG_SPLIT_NO_EMPTY);
+  $tmot = array_reverse($tmot);
+  $nb = count($tmot);
+  $match = true;
+  $ou = 0;
+  for($p=$i; $p>$i-$nb; $p--) {
+    if (!isset($tbl[$p])) {
+      $match = false;
+      break;
+    }
+    if ($tbl[$p] != $tmot[$ou]) {
+      $match = false;
+      break;
+    }
+    $ou++;
+  }
+  if (!$match) {
+    return false;
+  }
+  // a-t-on un séparateur de chaque coté ?
+  if (est_separateur_t($tbl, $i+1, true) and est_separateur_t($tbl, $i-$nb, true)) {
+    if (isset($tbl[$i-$nb])) {
+      $der = $i-$nb;
+    } else {
+      $der = -1;
+    }
+    return true;
+  }
+  return false;
+}
+
+// une date ?
+function est_date($txt) {
+  $val = (int)trim($txt);
+  if (($val >1350) and ($val < 2100)) {
+    return true;
+  }
+  return false;
+}
+
+// tente d'identifier un auteur
+function identifie_auteur($struct, $nom, $date, &$suggestions) {
+  global $aut_botanistes;
+  global $aut_zoologistes;
+  $nom = trim($nom);
+  // si règne relevant de la botanique on teste les formes auteur référencées
+  if (($struct['regne'] == 'végétal') or ($struct['regne'] == 'champignon')) {
+    $nomc = str_replace(" ", "", $nom);
+    // on cherche
+    foreach($aut_botanistes as $el) {
+      if (($nom == $el[0]) or ($nomc == $el[0])) {
+        // on ne vérifie pas les dates, c'est supposé être normalisé
+        return "[[" . $el[1] . "|" . $el[0] . "]]";
+      }
+    }
+    return false;
+  }
+  
+  if ($struct['regne'] == 'virus') {
+    // pas de gestion des auteurs pour les virus
+    return false;
+  }
+  
+  // zoologiste, on parcours la liste
+  $possibles = [];
+  foreach($aut_zoologistes as $el) {
+    if ($nom == $el[0]) {
+      $possibles[] = $el;
+    }
+  }
+  if (empty($possibles)) {
+    return false; // aucun candidat
+  }
+  // si on n'a pas de date on retourne juste les possibles
+  if (!$date) {
+    foreach($possibles as $p) {
+      $suggestions[] = $p;
+    }
+    return false;
+  }
+  
+  // dates : on teste avec un encadrement
+  foreach($possibles as $p) {
+    $d = $p[2];
+    $f = $p[4];
+    $v = $p[3];
+    if (!$d and !$f and !$v) {
+      // aucune date, on le met au cas où
+      $suggestions[] = $p;
+      continue;
+    }
+    if ($d and $f) {
+      $debut = $d+15;
+      $fin = $f;
+    } else if (!$d and !$f) {
+      $debut = $v - 10;
+      $fin = $v + 10;
+    } else if ($d and !$f) {
+      $debut = $d+15;
+      $fin = $d+70;
+    } else if (!$d and $f) {
+      $fin = $f;
+      $debut = $f-70;
+    }
+    if (($date >= $debut) and ($date <= $fin)) {
+      $suggestions[] = $p;
+    }
+  }
+  // si demandé et une seule suggestion on l'utilise
+  if ((get_config("auteurs") == 'n1') and (count($suggestions) == 1)) {
+    $tmp = $suggestions[0];
+    $suggestions = [];
+    return "[[" . $tmp[1] . "|" . $tmp[0] . "]]";
+  }
+  
+  // de toute façon on ne retourne rien
+  return false;
+}
+
+
+// coupe un élément de type chaîne (non traitée)
+// $suggestions contient des auteurs *possibles*
+function aut_analyse($struct, $el, &$suggestions, &$dt) {
+  $mots = [ ['ex.',true], ['ex',true], ['in.',true], ['in',true], ['and',false], ['et al.',false],
+            ['emend.',true], ];
+
+  $dt = false;
+  $suggestions = [];
+  $resu = [];
+  $el = trim($el);
+  $buf = "";
+  // on découpe le contenu à partir des éléments simples
+  $tbl = preg_split('//u', $el, -1, PREG_SPLIT_NO_EMPTY);
+  foreach($tbl as $e) {
+    if (est_separateur($e)) {
+      if (!empty($buf)) {
+        $out = [];
+        $out['type'] = 'cur';
+        $out['texte'] = $buf;
+        $resu[] = $out;
+        $buf = "";
+      }
+      $out = [];
+      $out['type'] = 'sep';
+      $out['texte'] = $e;
+      $resu[] = $out;
+      $buf = "";
+      continue;
+    }
+    $buf .= $e;
+  }
+  // le dernier éventuellement
+  if (!empty($buf)) {
+    $out = [];
+    $out['type'] = 'cur';
+    $out['texte'] = $buf;
+    $resu[] = $out;
+  }
+
+  $resu2 = $resu;
+  $resu = [];
+
+  // on reprend chaque élément non traité pour analyse des mots séparateurs
+  $last = 0;
+  foreach($resu2 as $el) {
+    if ($el['type'] != 'cur') {
+      $resu[] = $el;
+      continue;
+    }
+    $tbl = preg_split('//u', $el['texte'], -1, PREG_SPLIT_NO_EMPTY);
+    $last = 0;
+    foreach($tbl as $idx => $e) {
+      $ok = false;
+      $der = -1;
+      foreach($mots as $x) {
+        if (est_mot($tbl, $idx, $x[0], $der)) {
+          $ok = true;
+          $qui = $x[0];
+          break;
+        }
+      }
+      if ($ok) {
+        // on traite ce qui est avant
+        if ($der >= 0) {
+          $buf = "";
+          for($p=$last; $p<=$der; $p++) {
+            $buf .= $tbl[$p];
+          }
+          $out = [];
+          $out['type'] = 'cur';
+          $out['texte'] = $buf;
+          $resu[] = $out;
+          $last = $der+1;
+        }
+        // le séparateur
+        $out = [];
+        $out['type'] = 'sep';
+        if ($qui == 'and') {
+          $qui = '&'; // on standardise
+        }
+        if ($qui == 'et al.') {
+          $qui = '{{et al.}}'; // on standardise
+        }
+        $out['texte'] = $qui;
+        $resu[] = $out;
+        $last = $idx+1;
+      }
+    }
+    // à la fin si besoin on ajoute
+    if ($last < count($tbl)) {
+      $buf = "";
+      for($p=$last; $p<count($tbl); $p++) {
+        $buf .= $tbl[$p];
+      }
+      $out = [];
+      $out['type'] = 'cur';
+      $out['texte'] = $buf;
+      $resu[] = $out;
+    }
+  }
+  
+  $resu2 = $resu;
+  $resu = [];
+  $date = false;
+  // on cherche les dates
+  foreach($resu2 as $el) {
+    if ($el['type'] != 'cur') {
+      $resu[] = $el;
+      continue;
+    }
+    if (est_date($el['texte'])) {
+      $out = [];
+      $out['type'] = 'date';
+      $out['texte'] = "[[" . trim($el['texte']) . " en science|" . trim($el['texte']) . "]]";
+      $date = (int)trim($el['texte']);
+      $dt = $date;
+      $resu[] = $out;
+    } else {
+      $resu[] = $el;
+    }
+  }
+
+  $resu2 = $resu;
+  $resu = [];
+  // on cherche à résoudre ce qui reste comme auteur
+  foreach($resu2 as $el) {
+    if ($el['type'] != 'cur') {
+      $resu[] = $el;
+      continue;
+    }
+    $res = identifie_auteur($struct, $el['texte'], $date, $suggestions);
+    if ($res === false) {
+      $resu[] = $el;
+    } else {
+      $out = [];
+      $out['type'] = 'nom';
+      $out['texte'] = $res;
+      $resu[] = $out;
+    }
+  }
+  
+  // ce qui reste est indiqué avec le modèle {{auteur}}
+  $resu2 = $resu;
+  $resu = [];
+  foreach($resu2 as $el) {
+    if ($el['type'] != 'cur') {
+      $resu[] = $el;
+      continue;
+    }
+    if (empty(trim($el['texte']))) {
+      // les parties vides ne sont pas retenues
+      continue;
+    }
+    $out = [];
+    $out['type'] = 'nom';
+    $out['texte'] = "";
+    $tmp = $el['texte'];
+    if ($tmp[0] == ' ') {
+      $out['texte'] .= " ";
+    }
+    $out['texte'] = '{{auteur|[[' . trim($tmp) . ']]}}';
+    if (mb_substr($tmp, -1) == ' ') {
+      $out['texte'] .= " ";
+    }
+    $resu[] = $out;
+  }
+  
+  return $resu;
+}
+
+// fabrique une version texte à partir d'une structure
+function aut_vers_texte($arbre) {
+  // table des séparateurs avec leurs caractéristiques (texte, italique, sp avant, sp après)
+  $seps = [ ['(',false,true,false],['[',false,true,false],[')',false,false,true],['[',false,false,true],
+            [',',false,false,true],[';',false,true,true],[':',false,true,true],
+            ['in.',true,true,true],['in',true,true,true],['ex.',true,true,true],['ex',true,true,true],
+            ['and',false,true,true],['&',false,true,true],['{{et al.}}',false,true,false],
+            ['emend.',true,true,false],
+          ];
+  $resu = "";
+  
+  foreach($arbre as $el) {
+    if ($el['type'] == 'sep') {
+      $pre = true;
+      $post = true;
+      $it = true;
+      foreach($seps as $sep) {
+        if ($sep[0] == $el['texte']) {
+          $it = $sep[1];
+          $pre = $sep[2];
+          $post = $sep[3];
+          break;
+        }
+      }
+      if ($pre) {
+        $resu .= ' ';
+      }
+      if ($it) {
+        $resu .= "''";
+      }
+      $resu .= $el['texte'];
+      if ($it) {
+        $resu .= "''";
+      }if ($post) {
+        $resu .= ' ';
+      }
+      continue;
+    }
+    $resu .= $el['texte'];
+  }
+  $resu = preg_replace('/  /', ' ', $resu);
+  $resu = preg_replace('/  /', ' ', $resu);
+  $resu = preg_replace('/  /', ' ', $resu);
+  return trim($resu);
+}
+
+
+// traitement de la liste des auteurs ($auteurs) : retourne le texte à intégrer dans {{taxobox taxon}}
+function new_auteurs_traite(&$struct, $auteurs) {
+  // précaution
+  $auteurs = trim($auteurs);
+  if ($auteurs == "") {
+    return $auteurs;
+  }
+
+  $sug = [];
+  $date = false;
+  $arbre = aut_analyse($struct, $auteurs, $sug, $date);
+  $texte = aut_vers_texte($arbre);
+  if (!$date) {
+    $texte .= " {{date à préciser}}";
+  }
+
+  if (!empty($sug)) {
+    $struct['suggestions'] = $sug;
+  }
+  return $texte;
+}
+
+
+
+
 // mots à ignorer (même si certains sont généralement collés)
-$auteurs_ignore = [ "ex.", "ex", "&", "[", "]", ",", "(", ")" ];
+$auteurs_ignore = [ "ex.", "ex", "in", "in.", "and", "&", "[", "]", ",", "(", ")" ];
 
 // noms connus pour avoir un espace dedans (pour protection contre les erreurs)
 $auteurs_espace = [
@@ -94,8 +488,12 @@ function auteurs_resoudre($cur, $date, $struct) {
 }
 
 // retourne une nouvelle version de la chaîne d'auteurs passée en paramètre
-function auteurs_traite($struct, $auteurs) {
+function auteurs_traite(&$struct, $auteurs) {
   global $auteurs_ignore, $auteurs_espace;
+
+  if (get_config("auteurs") != 's') {
+    return new_auteurs_traite($struct, $auteurs);
+  }
 
   // cas particulier : vide
   if (trim($auteurs) == "") {
