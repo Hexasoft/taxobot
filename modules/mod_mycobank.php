@@ -506,7 +506,7 @@ function m_mycobank_analyse_taxon($res, $full=true) {
   m_mycobank_recurs2($res, $full);
   $tmp = $m_mb_results;
   $out = [];
-  
+
   // on regarde les infos sur le taxon lui-même
   $taxon = [];
   if (isset($m_mb_results['nom'])) {
@@ -654,7 +654,7 @@ function m_mycobank_analyse_taxon($res, $full=true) {
     // $struct['rangs']
     
     // mycobank_cherche_regne($nom_regne)
-  
+
   return $out;
 }
 
@@ -827,9 +827,13 @@ function m_mycobank_infos(&$struct, $classif) {
     if (isset($bla['taxon'])) {
       if ($bla['taxon']['rang'] == 'règne') {
         $struct['regne'] = mycobank_cherche_regne($bla['taxon']['nom']);
-        // on supprime ce rang
-        unset($out['rangs'][$idx]);
-        continue;
+        if ($bla['taxon']['nom'] == 'Fungi') {
+          // on supprime ce rang
+          unset($out['rangs'][$idx]);
+          continue;
+        } else {
+          $struct['cacher-regne'] = true;
+        }
       }
       $out['rangs'][$idx]['nom'] = $bla['taxon']['nom'];
       $out['rangs'][$idx]['rang'] = $bla['taxon']['rang'];

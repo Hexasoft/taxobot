@@ -82,8 +82,14 @@ function rendu_taxobox($struct) {
     $sup = "";
   }
 
+  // demande à cacher le règne
+  if (isset($struct['cacher-regne']) and $struct['cacher-regne']) {
+    $cache = "| règne=cacher ";
+  } else {
+    $cache = "";
+  }
   // affichage
-  $resu .= "{{Taxobox début | $regne | $afftaxon | $image | $legende | classification=$classif $sup}}\n";
+  $resu .= "{{Taxobox début | $regne | $afftaxon | $image | $legende $cache| classification=$classif $sup}}\n";
   
   // données de classification
   $tbl = [];
