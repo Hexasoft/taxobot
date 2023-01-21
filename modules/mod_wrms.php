@@ -370,7 +370,7 @@ function m_wrms_infos(&$struct, $classif) {
     logs("WRMS: échec de la recherche");
     return false;
   }
-  
+
   $tbl = explode("\n", $ret);
   $trouve = false;
   $url = false;
@@ -388,6 +388,7 @@ function m_wrms_infos(&$struct, $classif) {
       }
     }
   }
+
   if ($trouve === false) {
     // on cherche une réponse sans redirection ou autre unaccepted
     foreach($tbl as $l) {
@@ -427,6 +428,7 @@ function m_wrms_infos(&$struct, $classif) {
       }
     }
   }
+
   $naccept = false;
   if ($trouve === false) {
     // on cherche une réponse avec synonyme
@@ -495,6 +497,7 @@ function m_wrms_infos(&$struct, $classif) {
     $struct['liens']['wrms'] = $blob;
     return false;
   }
+
   // extraction des infos
   $res = wrms_extraire($ret, $blob['id']);
   if ($res === false) {
@@ -537,7 +540,7 @@ function m_wrms_infos(&$struct, $classif) {
   if (!$classif) {
     return true;
   }
-  
+
   // il faut la charte/règne
   if (!isset($res['charte'])) {
     logs("WRMS: charte/règne non trouvé");
@@ -565,6 +568,10 @@ function m_wrms_infos(&$struct, $classif) {
       logs("WRMS: échec d'analyse du synonyme");
       return false;
     }
+    // on note l'ancien nom
+    $struct['redirection']['nom'] = $struct['taxon']['nom'];
+    // on fixe le nouveau nom
+    $struct['taxon']['nom'] = $res['nom'];
     // on se ré-appelle sur la cible
     return(m_wrms_infos($struct, $classif));
   }
@@ -579,7 +586,6 @@ function m_wrms_infos(&$struct, $classif) {
     logs("WRMS: pas de classification trouvée");
     return false;
   }
-  
   // vernaculaires
   if (isset($res['vernaculaire'])) {
     $struct['vernaculaire'][wrms_bioref()] = $res['vernaculaire'];
