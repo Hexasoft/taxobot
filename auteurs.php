@@ -165,7 +165,7 @@ function identifie_auteur($struct, $nom, $date, &$suggestions) {
 // $suggestions contient des auteurs *possibles*
 function aut_analyse($struct, $el, &$suggestions, &$dt) {
   $mots = [ ['ex.',true], ['ex',true], ['in.',true], ['in',true], ['and',false], ['et al.',false],
-            ['emend.',true], ];
+            ['emend.',true],['et non',false],['nom. nov.',false],['nom. cons.',false] ];
 
   $dt = false;
   $suggestions = [];
@@ -338,7 +338,8 @@ function aut_vers_texte($arbre) {
             [',',false,false,true],[';',false,true,true],[':',false,true,true],
             ['in.',false,true,true],['in',false,true,true],['ex.',false,true,true],['ex',false,true,true],
             ['and',false,true,true],['&',false,true,true],['{{et al.}}',false,true,false],
-            ['emend.',false,true,true],
+            ['emend.',false,true,true],['et non',false,true,true],['nom. nov.',false,true,false],
+            ['nom. cons.',false,true,false],
           ];
   $resu = "";
   
