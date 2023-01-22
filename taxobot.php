@@ -363,6 +363,10 @@ if ($justext) {
   $resu = rendu($struct);
 }
 
+logs("Disclaimer: attention, Taxobot n'a pas pour but de générer un article prêt à l'emploi");
+logs("Même si tout est fait pour préparer du code le plus abouti possible, c'est au rédacteur");
+logs("de s'assurer de la cohérence des informations, de l'absence d'erreurs, de typos, etc.");
+
 // on affiche, selon le mode
 sortie_resultat($resu, $aide, $struct['taxon']['nom']);
 
