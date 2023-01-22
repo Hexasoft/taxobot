@@ -127,18 +127,23 @@ function identifie_auteur($struct, $nom, $date, &$suggestions) {
       $suggestions[] = $p;
       continue;
     }
+    // arbitraire :
+    // on suppose un début de travail pas avant naissance + 15 ans
+    // on suppose 10 ans après la mort (il existe des publications post-mortem)
+    // si on n'a que l'un des deux (naissance/mort) on part sur une durée de 70 ans
+    // si on a juste une date d'activité on fait une fourchette de 10 ans autour
     if ($d and $f) {
-      $debut = $d+15;
-      $fin = $f;
+      $debut = $d + 15;
+      $fin = $f + 10;
     } else if (!$d and !$f) {
       $debut = $v - 10;
       $fin = $v + 10;
     } else if ($d and !$f) {
-      $debut = $d+15;
-      $fin = $d+70;
+      $debut = $d + 15;
+      $fin = $d + 70;
     } else if (!$d and $f) {
-      $fin = $f;
-      $debut = $f-70;
+      $fin = $f + 10;
+      $debut = $f - 70;
     }
     if (($date >= $debut) and ($date <= $fin)) {
       $suggestions[] = $p;
@@ -331,9 +336,9 @@ function aut_vers_texte($arbre) {
   // table des séparateurs avec leurs caractéristiques (texte, italique, sp avant, sp après)
   $seps = [ ['(',false,true,false],['[',false,true,false],[')',false,false,true],['[',false,false,true],
             [',',false,false,true],[';',false,true,true],[':',false,true,true],
-            ['in.',true,true,true],['in',true,true,true],['ex.',true,true,true],['ex',true,true,true],
+            ['in.',false,true,true],['in',false,true,true],['ex.',false,true,true],['ex',false,true,true],
             ['and',false,true,true],['&',false,true,true],['{{et al.}}',false,true,false],
-            ['emend.',true,true,false],
+            ['emend.',false,true,true],
           ];
   $resu = "";
   
