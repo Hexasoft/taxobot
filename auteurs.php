@@ -391,6 +391,12 @@ function new_auteurs_traite(&$struct, $auteurs) {
 
   if (!empty($sug)) {
     $struct['suggestions'] = $sug;
+    // pour le moment on génère les suggestions dans les logs
+      logs("Suggestions d'auteurs (abréviation, lien, date naissance, activité vers, date mort) :");
+    foreach($sug as $s) {
+      logs($s[0] . " → [[" . $s[1] . "]] (" . ($s[2]?$s[2]:"-") . "," . ($s[3]?$s[3]:"-") . "," . ($s[4]?$s[4]:"-") . ")");
+    
+    }
   }
   return $texte;
 }
