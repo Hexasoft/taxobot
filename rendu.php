@@ -163,7 +163,7 @@ function rendu_inf($struct) {
   }
   $cnt = count($lst);
   if ($cnt == 0) {
-    $rang = "[aucun rang remonté]";
+    $rang = "taxons de rang inférieur";
   } else if ($cnt == 1) {
     $rang = $lst[0];
   } else {
@@ -177,7 +177,12 @@ function rendu_inf($struct) {
       $rang .= $lst[$i];
     }
   }
-  $_rang = $lst[0];
+  if (!isset($lst[0])) {
+    // pas terrible
+    $_rang = 'espèce';
+  } else {
+    $_rang = $lst[0];
+  }
   $mdl = $struct['sous-taxons']['source'];
   
   //$ret = "\n== Liste des taxons de rang inférieur ==\nListe des $rang selon {{Bioref|$mdl|$cdate}} :\n";
