@@ -532,31 +532,35 @@ function rendu_fin($struct) {
   return $ret;
 }
 
-// fonction de rendu global
-function rendu($struct) {
+// fonction de rendu global ($est → ne générer que les liens externes)
+function rendu($struct, $ext=false) {
   $ret = "";
   
-  // taxobox
-  $ret .= rendu_taxobox($struct);
-  // intro
-  $ret .= rendu_intro($struct);
-  // description
-  $ret .= rendu_description($struct);
-  // distribution
-  $ret .= rendu_distribution($struct);
-  // taxons inférieurs
-  $ret .= rendu_inf($struct);
-  // informations additionnelles
-  $ret .= rendu_supp($struct);
-  // étymologie
-  $ret .= rendu_etymologie($struct);
-  // publication originale
-  $ret .= rendu_originale($struct);
+  if (!$ext) {
+    // taxobox
+    $ret .= rendu_taxobox($struct);
+    // intro
+    $ret .= rendu_intro($struct);
+    // description
+    $ret .= rendu_description($struct);
+    // distribution
+    $ret .= rendu_distribution($struct);
+    // taxons inférieurs
+    $ret .= rendu_inf($struct);
+    // informations additionnelles
+    $ret .= rendu_supp($struct);
+    // étymologie
+    $ret .= rendu_etymologie($struct);
+    // publication originale
+    $ret .= rendu_originale($struct);
+  }
   // partie voir aussi
   $ret .= rendu_voir_aussi($struct);
-  // partie finale
-  $ret .= rendu_fin($struct);
-  
+  if (!$ext) {
+    // partie finale
+    $ret .= rendu_fin($struct);
+  }
+
   // nettoyage : suppression des doubles-sauts
   $ret = str_replace("\n\n\n", "\n\n", $ret);
   $ret = str_replace("\n\n\n", "\n\n", $ret);

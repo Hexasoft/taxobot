@@ -358,7 +358,7 @@ logs("Durée totale d'exécution : " . number_format($end_time-$start_time, 2) .
 
 // on génère la sortie
 if ($justext) {
-  $resu = "";
+  $resu = rendu($struct, true);
 } else {
   $resu = rendu($struct);
 }
