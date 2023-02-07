@@ -356,7 +356,7 @@ function wp_nom_rang($rang, $lien, $maj, $plur) {
 
 // exclusions pour italiques
 $exclusions = [
-  [ " cl[.]", " ''cl.''" ], [ "convar[.]", "''convar.''" ], [ " f[.]", " ''f.''" ],
+  [ " cl[.]", " ''cl.''" ], [ "convar[.]", "''convar.''" ], [ "f[.]sp[.]", "''f.sp.''" ], [ " f[.]", " ''f.''" ],
   [ " gen[.]", " ''gen.''" ], [ "kl[.]", "''kl.''" ], [ "nothog[.]", "''nothog.''" ],
   [ "nothosp[.]", "''nothosp.''" ], [ "nothovar[.]", "''nothovar.''" ], [ " ord[.]", " ''ord.''" ],
   [ " fam[.]", " ''fam.''" ], [ " sect[.]", " ''sect.''" ], [ " ser[.]", " ''ser.''" ],
@@ -368,7 +368,7 @@ $exclusions = [
   [ "chemoform", "''chemoform''" ], [ "chemotype", "''chemotype''" ], [ "morphotype", "''morphotype''" ],
   [ "pathotype", "''pathotype''" ], [ "phagotype", "''phagotype''" ], [ "lysotype", "''lysotype''" ],
   [ "phase", "''phase''" ], [ "serotype", "''serotype''" ], [ "state", "''state''" ],
-  [ "forma specialis", "''forma specialis''" ], [ "f[.]sp[.]", "''f.sp.''" ]
+  [ "forma specialis", "''forma specialis''" ]
 ];
 
 // génère en wikicode un nom scientifique avec la gestion des italiques

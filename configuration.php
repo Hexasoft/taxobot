@@ -4,7 +4,7 @@
   Gestion de la configuration
 */
 
-$version = "1.0.20";
+$version = "1.0.21";
 
 // état de la configuration (= valeur par défaut)
 $configuration = [
@@ -25,7 +25,7 @@ $configuration = [
   "help" => false,
   "version" => false,
   "article" => false,
-  "auteurs" => 's',
+  "auteurs" => 'n',
 ];
 
 // liste des éléments configurables
@@ -49,7 +49,7 @@ $liste_configuration = [
   "off" => ['string', 'Liste de modules à désactiver (noms séparés par des virgules)'],
   "selecteurs" => [ 'flag', 'Autorise l\'utilisation des fichiers de définition des ébauches/catégories/auteurs/…'],
   "article" => ['flag', 'Ne générer que la sortie de l\'article et rien d\'autre'],
-  "auteurs" => ['string', 'Mode de traitement des auteurs. s→standard*, n→nouveau, n1→nouveau+ajout réponse unique'],
+  "auteurs" => ['string', 'Mode de traitement des auteurs. s→standard, n→nouveau*, n1→nouveau+ajout réponse unique'],
 ];
 
 // retourne la configuration

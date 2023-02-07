@@ -40,6 +40,7 @@ $m_mb_rangs = [
   "subregn." => "sous-règne",
   "regn." => "règne",
   "var." => "variété",
+  "f.sp." => "forme",
   "f." => "forme",
 ];
 
@@ -825,6 +826,9 @@ function m_mycobank_infos(&$struct, $classif) {
     }
     $bla = m_mycobank_analyse_taxon($res);
     if (isset($bla['taxon'])) {
+      if (!isset($bla['taxon']['rang'])) {
+        $bla['taxon']['rang'] = "non-classé";
+      }
       if ($bla['taxon']['rang'] == 'règne') {
         $struct['regne'] = mycobank_cherche_regne($bla['taxon']['nom']);
         if ($bla['taxon']['nom'] == 'Fungi') {
