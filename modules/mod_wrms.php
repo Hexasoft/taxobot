@@ -310,6 +310,12 @@ function wrms_extraire($page, $id) {
           $i++;
           continue;
         }
+        // cas d'un taxon non pleinement valide
+        if ((strpos($tmp, "nomen dubium") !== false) or (strpos($tmp, "nomen nudum") !== false) or
+            (strpos($tmp, "uncertain") !== false) or (strpos($tmp, "unaccepted") !== false)) {
+          $i++;
+          continue;
+        }
         $blob['id'] = $t2[2];
         $p1 = preg_replace(',<a .*$,', '', $tmp);
         $x = trim(strip_tags(trim($p1)));
