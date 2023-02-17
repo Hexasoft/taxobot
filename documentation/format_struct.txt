@@ -23,12 +23,12 @@ indiquées dans "Éléments initiaux".
 Il a *obligation* de fournir les éléments suivants (sinon il doit répondre par un échec) :
 $struct['taxon']['nom'] : s'il a changé suite au suivi des synonymes
 $struct['taxon']['rang'] : le rang du taxon
-$struct['taxon']['auteur'] : l'auteur(s)+date du taxon
+$struct['taxon']['auteur'] : l'auteur(s)+date du taxon (peut être vide)
 
 $struct['classification'] : le nom de la classification
 $struct['classification-taxobox'] : le nom du champ 'classification' de Taxobox début
 
-$struct['regne'] : le règne (domaine), champ de Taxobox début
+$struct['regne'] : le règne (domaine/charte), champ de Taxobox début (premier paramètre)
 
 $struct['redirection']['nom'] : si on a suivi un synonyme, le nom d'origine doit être là-dedans
 
