@@ -12,7 +12,7 @@ require "liste_zoologistes.php"; // $aut_zoologistes[]
 // séparateur ? (basique)
 function est_separateur($e) {
   if (($e == ',') or ($e == '&') or ($e == ';') or ($e == ':') or
-      ($e == '(') or ($e == ')') or ($e == '[') or ($e == ']')) {
+      ($e == '(') or ($e == ')') or ($e == '[') or ($e == ']') or ($e == '°')) {
     return true;
   }
   return false;
@@ -28,7 +28,7 @@ function est_separateur_t($tbl, $i, $sp=false) {
     return true;
   }
   if (($e == ',') or ($e == '&') or ($e == ';') or ($e == ':') or
-      ($e == '(') or ($e == ')') or ($e == '[') or ($e == ']')) {
+      ($e == '(') or ($e == ')') or ($e == '[') or ($e == ']') or ($e == '°')) {
     return true;
   }
   return false;
@@ -165,12 +165,13 @@ function identifie_auteur($struct, $nom, $date, &$suggestions) {
 // $suggestions contient des auteurs *possibles*
 function aut_analyse($struct, $el, &$suggestions, &$dt) {
   $mots = [ ['ex.',true], ['ex',true], ['in.',true], ['in',true], ['and',false], ['et al.',false],
-            ['emend.',true],['et non',false],['nom. nov.',false],['nom. cons.',false] ];
+            ['emend.',true],['et non',false],['nom. nov.',false],['nom. cons.',false],['corrig.',true] ];
 
   $dt = false;
   $suggestions = [];
   $resu = [];
   $el = trim($el);
+  $el = preg_replace('/([^0-9])([0-9])/', '\1°\2', $el);
   $buf = "";
   // on découpe le contenu à partir des éléments simples
   $tbl = preg_split('//u', $el, -1, PREG_SPLIT_NO_EMPTY);
@@ -185,7 +186,12 @@ function aut_analyse($struct, $el, &$suggestions, &$dt) {
       }
       $out = [];
       $out['type'] = 'sep';
-      $out['texte'] = $e;
+      if ($e == '°') {
+        // spécial : pour séparer les dates sans virgule
+        $out['texte'] = '';
+      } else {
+        $out['texte'] = $e;
+      }
       $resu[] = $out;
       $buf = "";
       continue;
@@ -339,12 +345,15 @@ function aut_vers_texte($arbre) {
             ['in.',false,true,true],['in',false,true,true],['ex.',false,true,true],['ex',false,true,true],
             ['and',false,true,true],['&',false,true,true],['{{et al.}}',false,true,false],
             ['emend.',false,true,true],['et non',false,true,true],['nom. nov.',false,true,false],
-            ['nom. cons.',false,true,false],
+            ['nom. cons.',false,true,false],['corrig.',true,true,true],
           ];
   $resu = "";
   
   foreach($arbre as $el) {
     if ($el['type'] == 'sep') {
+      if ($el['texte'] == '') {
+        continue; // séparateur vide (utilisé pour les dates)
+      }
       $pre = true;
       $post = true;
       $it = true;

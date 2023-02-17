@@ -223,6 +223,22 @@ function debug($msg) {
   }
 }
 
+$o_debugc = false;
+// active le mode debug classification
+function set_debugc($mode=true) {
+  global $o_debugc;
+
+  $o_debugc = $mode;
+}
+// affiche un message de debug classification
+function debugc($msg) {
+  global $o_debugc;
+
+  if ($o_debugc) {
+    error_log("debug-classif: $msg");
+  }
+}
+
 // ajoute un message au bilan
 $o_logs = "";
 function logs($msg) {
@@ -347,6 +363,14 @@ function dates_calcule() {
 function dates_recupere() {
   global $cdate;
   return $cdate;
+}
+
+// remplace et al. par le modèle, pour aide dans la zone liens externes
+function rempl_et_al($txt) {
+  if (strpos($txt, "{{et al.}}") !== false) {
+    return $txt; // déjà fait, visiblement
+  }
+  return str_replace("et al.", "{{et al.}}", $txt);
 }
 
 // colonnes à activer ?

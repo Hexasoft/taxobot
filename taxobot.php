@@ -196,6 +196,8 @@ $classification = get_config("classification");
 $domaine = get_config("domaine");
 $debug = get_config("debug");
 set_debug($debug);
+$debugc = get_config("debugc");
+set_debugc($debugc);
 
 logs("Initial: taxon=$taxon ; classification=$classification ; domaine=$domaine");
 if ($web) {
