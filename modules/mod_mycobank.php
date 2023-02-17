@@ -520,7 +520,15 @@ function m_mycobank_analyse_taxon($res, $full=true) {
     $taxon['statut'] = $m_mb_results['statut'][-1]['valeur'];
   }
   if (isset($m_mb_results['rang'])) {
-    $x = $m_mb_results['rang'][0]['valeur'];
+    $x = false;
+    foreach($m_mb_results['rang'] as $z) {
+      if (isset($z['valeur'])) {
+        $x = $z['valeur'];
+      }
+    }
+    if ($x === false) {
+      $x = 'non-classé';
+    }
     if (isset($m_mb_rangs[$x])) {
       $taxon['rang'] = $m_mb_rangs[$x];
     } else {
@@ -665,11 +673,6 @@ function m_mycobank_analyse_taxon($res, $full=true) {
 function m_mycobank_infos(&$struct, $classif) {
   $tous_non_valides = get_config('inclure-invalides');
   $taxon = $struct['taxon']['nom'];
-
-  logs("MycoBank: ATTENTION !");
-  logs("Les données de MycoBank sont cassées : le site ne donne plus le rang des taxons.");
-  logs("Ceci empêche Taxobot de fonctionner correctement (les rangs sont nécessaires).");
-  logs("Le modèle d'article généré est donc totalement cassé.");
 
   $url = "https://webservices.bio-aware.com/cbsdatabase/api/Search/SearchForSummaryGrid";
   $post = '{"TableKey":"14682616000000067","Fields":["-100","14682616000001548","14682616000001537","14682616000001538","14682616000001539"]' . 
