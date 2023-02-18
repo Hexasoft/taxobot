@@ -1350,7 +1350,7 @@ $aut_botanistes = [
 ["Freitag","Helmut Freitag",1932,false,false],
 ["Frém.","John Charles Frémont",1813,false,1890],
 ["Frémy","Pierre Frémy",1880,false,1944],
-["Fresen.","Johann Baptist Georg Wolfgang Fresenius",1808,false,1866],
+["Fresen.","Georg Fresenius",1808,false,1866],
 ["Frey","Eduard Frey",1888,false,1974],
 ["Freyc.","Louis Claude de Saulces de Freycinet",1779,false,1842],
 ["Freyn","Josef Franz Freyn",1845,false,1903],
