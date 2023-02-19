@@ -258,6 +258,22 @@ function rendu_supp($struct) {
               "|$cdate|ref}}\n\n";
       }
     }
+    
+    if (isset($struct['type'])) {
+      $tmp = $struct['type'];
+      $cible = wp_met_italiques($tmp['nom'], $tmp['rang'], $struct['regne']);
+      if (isset($tmp['auteur']) and !empty($tmp['auteur'])) {
+        $cible .= " " . $tmp['auteur'];
+      }
+      // début de phrase
+      $txt = wp_le_rang($tmp['rang']) . $tmp['rang'];
+      $a = mb_substr($txt, 0, 1, 'UTF-8');
+      $b = mb_substr($txt, 1, null, 'UTF-8');
+      $txt = mb_strtoupper($a, 'UTF-8') . $b;
+      $ret .= $txt . " [[Type (biologie)|type]] est : " . $cible .
+              "{{Bioref|" . $tmp['source'] . "|$cdate|ref}}.\n\n";
+    }
+    
     if (isset($struct['vernaculaire'])) {
       // appel à vide (juste un test)
       $cnt = 0;

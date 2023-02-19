@@ -486,6 +486,10 @@ function m_lpsn_infos(&$struct, $classif) {
   if (isset($ret['etymologie'])) {
     $struct['etymologie'] = $ret['etymologie'];
   }
+  if (isset($ret['type'])) {
+    $struct['type'] = $ret['type'];
+    $struct['type']['source'] = 'LPSN';
+  }
 
   return true;
 }
