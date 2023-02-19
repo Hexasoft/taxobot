@@ -451,6 +451,11 @@ function m_algaebase_infos(&$struct, $classif) {
     return false;
   }
   
+  // ERREUR : il faut extraire les infos de lien externe et quitter (si !$classif)
+  if (!$classif) {
+    return true;
+  }
+  
   // parcours des rangs supérieurs
   $nop = false;
   $tbl = alg_extrait_classif($res->higherTaxa, $nop, $phylum, $kingdom);
@@ -468,8 +473,12 @@ function m_algaebase_infos(&$struct, $classif) {
   $struct['taxon'] = $found;
   $struct['liens']['algaebase'] = $found;
   // les sous-taxons
-  $tbl = alg_extrait_classif($res->lowerTaxa, $nop, $phylum, $kingdom);
-    if (!empty($tbl)) {
+  if (!isset($res->lowerTaxa)) {
+    unset($tbl);
+  } else {
+    $tbl = alg_extrait_classif($res->lowerTaxa, $nop, $phylum, $kingdom);
+  }
+  if (!empty($tbl)) {
     $struct['sous-taxons']['liste'] = $tbl;
     $struct['sous-taxons']['source'] = "AlgaeBASE";
   }
