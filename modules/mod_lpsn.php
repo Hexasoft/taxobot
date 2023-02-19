@@ -337,7 +337,8 @@ function m_lpsn_infos(&$struct, $classif) {
   }
   
   // on fait la requête de recherche
-  $url = "https://lpsn.dsmz.de/advanced_search?adv[taxon-name]=$taxon&adv[category]=" .
+  $ntaxon = str_replace(" ", "+", $taxon);
+  $url = "https://lpsn.dsmz.de/advanced_search?adv[taxon-name]=$ntaxon&adv[category]=" .
          "&adv[nomenclature]=&adv[valid-publ]=yes&adv[candidatus]=no" .
          "&adv[correct-name]=yes&adv[authority]=&adv[deposit]=" .
          "&adv[nomenclatural-status]=&adv[proposed-as]=&adv[etymology]=" .
