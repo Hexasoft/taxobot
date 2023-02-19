@@ -377,7 +377,7 @@ function m_lpsn_infos(&$struct, $classif) {
             continue;
           }
           // on vérifie que c'est le bon taxon, et qu'il est valide
-          if ($ret['nom'] != $taxon) {
+          if ((!isset($ret['nom'])) or ($ret['nom'] != $taxon)) {
             continue;
           }
           // on vérifie qu'il est valide
