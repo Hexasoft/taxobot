@@ -514,4 +514,14 @@ function m_lpsn_ext($struct) {
   }
 }
 
+// génération de liens vers les éléments (pour partie aide/debug de l'interface)
+function m_lpsn_liens($struct) {
+  if (isset($struct['liens']['lpsn']['lien'])) {
+    $data = $struct['liens']['lpsn'];
+    return "<a href='https://lpsn.dsmz.de/" . $data['rang-lpsn'] . "/" .
+           $data['lien'] . "'>LPSN</a>";
+  } else {
+    return false;
+  }
+}
 
