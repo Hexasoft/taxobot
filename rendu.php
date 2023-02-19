@@ -89,7 +89,7 @@ function rendu_taxobox($struct) {
     $cache = "";
   }
   // affichage
-  $resu .= "{{Taxobox début | $regne | $afftaxon | $image | $legende $cache| classification=$classif $sup}}\n";
+  $resu .= "{{Taxobox début | $regne | $afftaxon | $image | $legende $cache| classification=$classif $sup}}\n"; 
 
   // données de classification
   $tbl = [];
