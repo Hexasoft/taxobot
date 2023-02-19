@@ -90,7 +90,7 @@ function rendu_taxobox($struct) {
   }
   // affichage
   $resu .= "{{Taxobox début | $regne | $afftaxon | $image | $legende $cache| classification=$classif $sup}}\n";
-  
+
   // données de classification
   $tbl = [];
   foreach($struct['rangs'] as $r) {
@@ -261,7 +261,7 @@ function rendu_supp($struct) {
     
     if (isset($struct['type'])) {
       $tmp = $struct['type'];
-      $cible = wp_met_italiques($tmp['nom'], $tmp['rang'], $struct['regne']);
+      $cible = wp_met_italiques($tmp['nom'], $tmp['rang'], $struct['regne'], true);
       if (isset($tmp['auteur']) and !empty($tmp['auteur'])) {
         $cible .= " " . $tmp['auteur'];
       }

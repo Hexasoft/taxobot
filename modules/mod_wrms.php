@@ -670,7 +670,6 @@ function m_wrms_infos(&$struct, $classif) {
     $struct['sous-taxons']['liste'] = $lst;
     $struct['sous-taxons']['source'] = wrms_bioref();
   }
-
   return true;
 }
 
