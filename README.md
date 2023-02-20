@@ -43,8 +43,15 @@ non valides (synonymes, etc.)
 Note : sans classification, certaines informations peuvent être omises ou mal présentées
 * `-liens-inf-sp oui/*non` : mettre des wikiliens sur les taxons inférieurs à l'espèce
 * `-liens-synonymes *oui/non` : mettre des wikiliens sur les synonymes
-* `-seuil-colonnes NOMBRE` : seuil (nombre d'éléments) avant mise en multi-colonnes de
-l'affichage (-2=défaut (25) ; -1=toujours ; 0=jamais)
+* `-seuil-colonnes NOMBRE` : seuil (nombre d'éléments) avant mise en multi-colonnes de l'affichage (-2=défaut (25) ; -1=toujours ; 0=jamais)
+* `-debug` (flag) : Activer ou pas le mode debug
+* `-liste` (flag) : Afficher la liste des modules
+* `-help` (flag) : Afficher ce message d'aide
+* `-version` (flag) : Afficher la version de Taxobot
+* `-off` (string) : Liste de modules à désactiver (noms séparés par des virgules)
+* `-selecteurs` (flag) : Autorise l'utilisation des fichiers de définition des ébauches/catégories/auteurs/…
+* `-article` (flag) : Ne générer que la sortie de l'article et rien d'autre
+* `-auteurs` (string) : Mode de traitement des auteurs. s→standard*, n→nouveau, n1→nouveau+ajout réponse unique
 
 Ces options sont celles de la ligne de commande. En mode WEB ces options sont passées en
 `GET` : l'option a le même nom (sans le tiret) et sa valeur est celle passée. Exemple :
