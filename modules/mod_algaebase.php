@@ -451,7 +451,29 @@ function m_algaebase_infos(&$struct, $classif) {
     return false;
   }
   
-  // ERREUR : il faut extraire les infos de lien externe et quitter (si !$classif)
+  if (!isset($res->higherTaxa)) {
+    logs("AlgaeBase: taxon non trouvé (suite)");
+    return false;
+  }
+  $tmp = end($res->higherTaxa);
+  if (!isset($tmp->{"dwc:taxonID"})) {
+    logs("AlgaeBase: taxon sans identifiant");
+    return false;
+  }
+  $blob = [];
+  $blob['id'] = $tmp->{"dwc:taxonID"};
+  $blob['nom'] = $tmp->{"dwc:scientificName"};
+  if (isset($tmp->{"dwc:scientificNameAuthorship"})) {
+    $blob['auteur'] = $tmp->{"dwc:scientificNameAuthorship"};
+  } else {
+    $blob['auteur'] = '';
+  }
+  if (isset($tmp->{"dwc:namePublishedInYear"})) {
+    $blob['auteur'] .= " " . $tmp->{"dwc:namePublishedInYear"};
+  }
+  $blob['rang'] = alg_rang($tmp->{"dwc:taxonRank"});
+  $struct['liens']['algaebase'] = $blob;
+  
   if (!$classif) {
     return true;
   }
