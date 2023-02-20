@@ -13,6 +13,13 @@ function m_photoark_init() {
 // gérer la classification également
 function m_photoark_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
+  
+  return false; // désactivé pour le moment
+  
+  // ne s'applique qu'aux espèces
+  if ($struct['taxon']['rang'] != "espèce") {
+    return false;
+  }
   return false; // le site a changé
 
   $t = strtolower($taxon);
