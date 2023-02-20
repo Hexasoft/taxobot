@@ -760,12 +760,14 @@ function m_mycobank_infos(&$struct, $classif) {
     logs("MycoBank: échec de récupération des détails du taxon trouvé");
     return false;
   }
-  
+
   // si c'est un synonyme
-  if (isset($res->Data->RecordDetails->{"14682616000006675"}->SelectedRecord->RecordId) and
-      isset($res->Data->RecordDetails->{"14682616000006675"}->CurrentNameRecord->RecordId) and
-      ($res->Data->RecordDetails->{"14682616000006675"}->SelectedRecord->RecordId !=
-       $res->Data->RecordDetails->{"14682616000006675"}->CurrentNameRecord->RecordId)) {
+  if (isset($res->Data->RecordDetails->{"14682616000006675"}->SynInfo->SelectedRecord->RecordId) and
+      isset($res->Data->RecordDetails->{"14682616000006675"}->SynInfo->CurrentNameRecord->RecordId) and
+      ($res->Data->RecordDetails->{"14682616000006675"}->SynInfo->SelectedRecord->RecordId !=
+       $res->Data->RecordDetails->{"14682616000006675"}->SynInfo->CurrentNameRecord->RecordId)) {
+    // la cible
+    $cible = $res->Data->RecordDetails->{"14682616000006675"}->SynInfo->CurrentNameRecord->RecordId;
     // c'est un synonyme : si pas classif on l'indique
     if (!$classif) {
       // seulement si on les veut
@@ -781,7 +783,7 @@ function m_mycobank_infos(&$struct, $classif) {
       // si on doit suivre les synonymes
       if (get_config("suivre-synonymes")) {
         // on se relance sur la cible du synonyme
-        $res = m_mycobank_get_rec($res->Data->RecordDetails->{"14682616000006675"}->CurrentNameRecord->RecordId);
+        $res = m_mycobank_get_rec($cible);
         if ($res === false) {
           logs("MycoBank : échec de récupération du synonyme, et suivi des synonymes demandé");
           return false;
