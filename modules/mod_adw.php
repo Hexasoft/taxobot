@@ -35,19 +35,29 @@ function m_adw_infos(&$struct, $classif) {
   // recherche de la citation (il faut parcourir car c'est sur la ligne suivante)
   $tbl = explode("\n", $ret);
   $cite = '';
+  $nom = '';
   foreach($tbl as $idx => $ligne) {
     if (strpos($ligne, "To cite this page:") !== false) {
       if (isset($tbl[$idx+1])) {
         $l = $tbl[$idx+1];
         $cite = trim(preg_replace("/([1-9][0-9][0-9][0-9])[.].*$/", '\1', $l));
-        break;
+        continue;
       }
+    }
+    if (strpos($ligne, '<h2 class="rank-') !== false) {
+      $x = preg_replace('/^[^<]*<[^>]*>/', '', $ligne);
+      $auteur = trim(preg_replace('/<.*$/', '', $ligne));
+      continue;
     }
   }
   if (!empty($cite)) {
     $struct['liens']['adw']['cite'] = $cite;
   }
-  $struct['liens']['adw']['nom'] = $taxon; // la flemme de cercher le nom local
+  if (!empty($auteur)) {
+    $struct['liens']['adw']['nom'] = $auteur;
+  } else {
+    $struct['liens']['adw']['nom'] = $taxon; // on utilise le nom issu de la classification
+  }
   $struct['liens']['adw']['id'] = $cible;
   
   if (!$classif == true) {
