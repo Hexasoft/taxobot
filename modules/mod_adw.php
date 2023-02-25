@@ -39,8 +39,7 @@ function m_adw_infos(&$struct, $classif) {
     if (strpos($ligne, "To cite this page:") !== false) {
       if (isset($tbl[$idx+1])) {
         $l = $tbl[$idx+1];
-        $cite = preg_replace("/^[ ]*/", "", $l);
-        $cite = preg_replace("/([1-9][0-9][0-9][0-9])[.].*$/", '\1', $cite);
+        $cite = trim(preg_replace("/([1-9][0-9][0-9][0-9])[.].*$/", '\1', $l));
         break;
       }
     }
