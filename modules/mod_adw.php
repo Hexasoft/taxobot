@@ -16,7 +16,8 @@ function m_adw_infos(&$struct, $classif) {
   
   $url = "https://animaldiversity.org/accounts/";
   $cible = str_replace(" ", "_", $taxon);
-  $url .= $cible . "/classification/";
+  $url .= $cible . "/";
+  //$url .= $cible . "/classification/";
   
   $ret = get_data($url);
   if ($ret === false) {
@@ -31,6 +32,22 @@ function m_adw_infos(&$struct, $classif) {
     return false;
   }
   
+  // recherche de la citation (il faut parcourir car c'est sur la ligne suivante)
+  $tbl = explode("\n", $ret);
+  $cite = '';
+  foreach($tbl as $idx => $ligne) {
+    if (strpos($ligne, "To cite this page:") !== false) {
+      if (isset($tbl[$idx+1])) {
+        $l = $tbl[$idx+1];
+        $cite = preg_replace("/^[ ]*/", "", $l);
+        $cite = preg_replace("/([1-9][0-9][0-9][0-9])[.].*$/", '\1', $cite);
+        break;
+      }
+    }
+  }
+  if (!empty($cite)) {
+    $struct['liens']['adw']['cite'] = $cite;
+  }
   $struct['liens']['adw']['nom'] = $taxon; // la flemme de cercher le nom local
   $struct['liens']['adw']['id'] = $cible;
   
@@ -44,7 +61,7 @@ function m_adw_infos(&$struct, $classif) {
 // génération des liens externes (modèles dans Voir aussi)
 function m_adw_ext($struct) {
   $cdate = dates_recupere();
-  if (!isset($struct['liens']['adw'])) {
+  if (!isset($struct['liens']['adw']['id'])) {
     return false;
   }
   $data = $struct['liens']['adw'];
@@ -53,11 +70,12 @@ function m_adw_ext($struct) {
   } else {
     $txt = wp_met_italiques($struct['taxon']['nom'], $struct['taxon']['rang'], $struct['regne']);
   }
-  if (isset($data['id'])) {
-    return "{{ADW | " . $data['id'] . " | " . $txt . " | " . "consulté le=$cdate }}";
+  if (isset($data['cite'])) {
+    $cite = "auteur=" . $data['cite'] . " | ";
   } else {
-    return false;
+    $cite = "";
   }
+  return "{{ADW | " . $data['id'] . " | " . $txt . " | $cite" . "consulté le=$cdate }}";
 }
 
 // génération de liens vers les éléments (pour partie aide/debug de l'interface)
