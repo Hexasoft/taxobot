@@ -6,7 +6,7 @@
 
 // déclaration du module
 function m_photoark_init() {
-  return declare_module("photoark", false, true, true);
+  return declare_module("photoark", false, false, false);
 }
 
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
