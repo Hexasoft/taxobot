@@ -457,10 +457,19 @@ function rendu_voir_aussi($struct) {
       isset($struct['liens']['externe']['ccommons'])) {
     $tmp = [];
     // page commons, sinon catégorie commons (si présent)
+    $cpage = false;
     if (isset($struct['liens']['externe']['commons']['page'])) {
       $tmp[] = "commons=" . $struct['liens']['externe']['commons']['page'];
-    } elseif (isset($struct['liens']['externe']['ccommons']['page'])) {
-      $tmp[] = "commons=Category:" . $struct['liens']['externe']['ccommons']['page'];
+      $cpage = true;
+    }
+    if (isset($struct['liens']['externe']['ccommons']['page'])) {
+      if ($cpage) {
+        $tmp[] = "commons2=Category:" . $struct['liens']['externe']['ccommons']['page'];
+        $tmp[] = "commons titre2=Catégorie " . $struct['liens']['externe']['ccommons']['page'];
+      } else {
+        $tmp[] = "commons=Category:" . $struct['liens']['externe']['ccommons']['page'];
+        $tmp[] = "commons titre=Catégorie " . $struct['liens']['externe']['ccommons']['page'];
+      }
     }
     if (isset($struct['liens']['externe']['species']['page'])) {
       $tmp[] = "species=" . $struct['liens']['externe']['species']['page'];
