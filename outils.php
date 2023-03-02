@@ -283,6 +283,46 @@ function valide_parametre($val, $type) {
   return $val; // on n'arrive jamais là, mais par précaution…
 }
 
+
+// vérifie s'il y a des paramètres inconnus sur la ligne de commande
+function parametre_inconnu() {
+  global $argv, $argc;
+
+  if (!isset($argv)) {
+    return false;
+  }
+  $lst = list_config();
+  $bad = [];
+  for($i=1; $i<$argc; $i++) {
+    if (!isset($argv[$i])) {
+      break; // ?!
+    }
+    $trouve = false;
+    $inc = 0;
+    foreach($lst as $nom => $det) {
+      if ($argv[$i] == "-$nom") {
+        // trouvé
+        if ($det[0] != 'flag') {
+          $inc = 1;
+        }
+        $trouve = true;
+        break;
+      }
+    }
+    if (!$trouve) {
+      $bad[] = $argv[$i];
+      continue;
+    }
+    $i += $inc; // on passe les éventuelles options
+  }
+  // si pas vide
+  if (empty($bad)) {
+    return false;
+  }
+  return $bad;
+}
+
+
 // retourne la valeur d'un paramètre ou NULL si non présent
 // $type est le type attendu : int, bool, string
 function parametre($nom, $type) {

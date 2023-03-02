@@ -127,6 +127,7 @@ function sortie_resultat($article, $liens, $taxon) {
   }
 }
 
+
 // on récupère les éléments de configuration
 $liste = list_config();
 foreach($liste as $c => $data) {
@@ -161,6 +162,15 @@ if (get_config('version')) {
   echo "Taxobot version $version\n";
   fini_outils();
   die();
+}
+
+// on vérifie qu'il n'y a pas de paramètre inconnu
+$ret = parametre_inconnu();
+if ($ret !== false) {
+  echo "Paramètre(s) inconnu(s) :\n";
+  echo implode("\n", $ret);
+  echo "\nUtilisez l'option '-help' pour la liste des options disponibles.\n";
+  die(1);
 }
 
 // si on demande la liste des modules, on traite (et on quitte)
