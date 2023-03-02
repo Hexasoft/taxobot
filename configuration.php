@@ -27,6 +27,7 @@ $configuration = [
   "version" => false,
   "article" => false,
   "auteurs" => 'n',
+  "plan" => false,
 ];
 
 // liste des éléments configurables
@@ -52,6 +53,7 @@ $liste_configuration = [
   "selecteurs" => [ 'flag', 'Autorise l\'utilisation des fichiers de définition des ébauches/catégories/auteurs/…'],
   "article" => ['flag', 'Ne générer que la sortie de l\'article et rien d\'autre'],
   "auteurs" => ['string', 'Mode de traitement des auteurs. s→standard, n→nouveau*, n1→nouveau+ajout réponse unique'],
+  "plan" => [ 'flag', 'Générer un plan-type, même quand il n\'y a pas d\'information'],
 ];
 
 // retourne la configuration

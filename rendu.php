@@ -8,6 +8,32 @@
 require_once "auteurs.php";
 
 
+// retourne TRUE si la section concernée doit être rendue même vide,
+// selon la section et l'état de l'option "plan"
+function rendu_vide($section) {
+  $plan = get_config('plan');
+  // table des cas : section / rendu vide si plan=false / rendu vide si plan=true
+  $cas = [
+    'intro' => [ true, true ], // pas utilisé
+    'taxobox' => [ true, true ], // pas utilisé
+    'repartition' => [ true, true ],
+    'description' => [ true, true ],
+    'etymologie' => [ false, true ],
+    'inf' => [ false, true ],
+    'originale' => [ false, true ],
+    'systematique' => [ true, true ],
+  ];
+
+  if (isset($cas[$section])) {
+    if ($plan) {
+      return $cas[$section][1];
+    } else {
+      return $cas[$section][0];
+    }
+  }
+  return false;
+}
+
 // rendu de l'introduction
 function rendu_intro($struct) {
   // on cherche une famille
@@ -144,10 +170,18 @@ function rendu_taxobox($struct) {
 function rendu_inf($struct) {
   $cdate = dates_recupere();
   if (!isset($struct['sous-taxons']) or empty($struct['sous-taxons'])) {
-    return "";
+    if (rendu_vide('inf')) {
+      return "\n== Liste des taxons de rang inférieur ==\n{{Section vide ou incomplète}}\n";
+    } else {
+      return "";
+    }
   }
   if (!isset($struct['sous-taxons']['liste']) or empty($struct['sous-taxons']['liste'])) {
-    return "";
+    if (rendu_vide('inf')) {
+      return "\n== Liste des taxons de rang inférieur ==\n{{Section vide ou incomplète}}\n";
+    } else {
+      return "";
+    }
   }
   //$_rang = cherche_rang($struct['sous-taxons']['liste'][0]['rang'], $struct['sous-taxons']['source']);
   // on cherche la liste des rangs inférieurs
@@ -341,8 +375,12 @@ function rendu_supp($struct) {
 function rendu_description($struct) {
   $resu = "\n== Description ==\n";
   if (!isset($struct['description'])) {
-    $resu .= "{{Section vide ou incomplète}}\n";
-    return $resu;
+    if (rendu_vide('description')) {
+      $resu .= "{{Section vide ou incomplète}}\n";
+      return $resu;
+    } else {
+      return "";
+    }
   }
   foreach($struct['description'] as $ref => $liste) {
     $resu .= implode(". ", $liste);
@@ -355,8 +393,12 @@ function rendu_description($struct) {
 function rendu_distribution($struct) {
   $resu = "\n== Distribution ==\n";
   if (!isset($struct['distribution'])) {
-    $resu .= "{{Section vide ou incomplète}}\n";
-    return $resu;
+    if (rendu_vide('distribution')) {
+      $resu .= "{{Section vide ou incomplète}}\n";
+      return $resu;
+    } else {
+      return "";
+    }
   }
   // conversion code-pays
   $source = "";
@@ -413,12 +455,17 @@ function rendu_distribution($struct) {
   return $resu;
 }
 
-// rendu "tymologie
+// rendu étymologie
 function rendu_etymologie($struct) {
-  if (!isset($struct['etymologie'])) {
-    return "";
-  }
   $resu = "\n== Étymologie ==\n";
+  if (!isset($struct['etymologie'])) {
+    if (rendu_vide('etymologie')) {
+      $resu .= "{{Section vide ou incomplète}}\n";
+      return $resu;
+    } else {
+      return "";
+    }
+  }
   $resu .= $struct['etymologie']['texte'] . "{{Bioref|" . $struct['etymologie']['source'] . "|ref}}.\n";
   return $resu;
 }
@@ -426,7 +473,11 @@ function rendu_etymologie($struct) {
 // rendu publication originale
 function rendu_originale($struct) {
   if (!isset($struct['originale'])) {
-    return "";
+    if (rendu_vide('originale')) {
+      return "\n== Publications originales ==\n{{Section vide ou incomplète}}\n";
+    } else {
+      return "";
+    }
   }
   
   if (is_array($struct['originale']) and (count($struct['originale']) > 1)) {
@@ -446,6 +497,7 @@ function rendu_originale($struct) {
 
 // rendu de la zone voir aussi
 function rendu_voir_aussi($struct) {
+  $plan = get_config('plan');
   global $gauto;
   $resu = "";
   $ext = [];
@@ -538,7 +590,11 @@ function rendu_voir_aussi($struct) {
   if (!empty($resu)) {
     return "\n$resu";
   } else {
-    return "";
+    if (rendu_vide('externes')) {
+      return "== Liens externes ==\n{{Section vide ou incomplète}}\n";
+    } else {
+      return "";
+    }
   }
 }
 
