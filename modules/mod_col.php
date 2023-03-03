@@ -10,13 +10,46 @@ function m_col_init() {
 }
 
 
+// curl 'https://api.checklistbank.org/dataset/9880/nameusage/suggest?fuzzy=false&limit=25&q=Ecliptopera' -H 'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/110.0' -H 'Accept: application/json, text/plain, */*' -H 'Accept-Language: fr-FR,fr;q=0.8,en-US;q=0.5,en;q=0.3' -H 'Accept-Encoding: gzip, deflate, br' -H 'Origin: https://www.catalogueoflife.org' -H 'Connection: keep-alive' -H 'Referer: https://www.catalogueoflife.org/' -H 'Sec-Fetch-Dest: empty' -H 'Sec-Fetch-Mode: cors' -H 'Sec-Fetch-Site: cross-site'
+
+
+
+/*
+  TODO : il faut récupérer le numéro du "dataset" qui visiblement évolue au cours du temps
+         et ne contient pas les mêmes identifiants
+*/
+
+
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
 // gérer la classification également
 function m_col_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
 
   $ret = get_data("https://www.catalogueoflife.org");
-  $url = "https://api.checklistbank.org/dataset/9812/nameusage/search?" .
+  if ($ret === false) {
+    logs("CoL: Échec de récupération de la page d'accueil");
+    return false;
+  }
+  
+  // il faut récupérer le numéro du dataset
+  $tbl = explode("\n", $ret);
+  $dataset = false;
+  foreach($tbl as $ligne) {
+    if (strpos($ligne, "catalogueKey:") !== false) {
+      $tmp = preg_replace("/^.*catalogueKey:[ ]*'/", "", $ligne);
+      $tmp = preg_replace("/'.*$/", "", $tmp);
+      if (is_numeric($tmp)) {
+        $dataset = $tmp;
+        break;
+      }
+    }
+  }
+  if (!$dataset) {
+    logs("CoL: Identifiant du 'dataset' non trouvé");
+    return false;
+  }
+
+  $url = "https://api.checklistbank.org/dataset/$dataset/nameusage/search?" .
          "facet=rank&facet=issue&facet=status&facet=nomStatus&facet=nameType&facet=field&limit=50&offset=0&q=" .
           str_replace(" ", "%20", $taxon) . "&sortBy=taxonomic&status=_NOT_NULL&type=EXACT";
   $ret = get_data($url);
