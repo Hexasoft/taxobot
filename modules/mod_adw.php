@@ -14,12 +14,14 @@
  * @return array|bool
  */
 function m_adw_init() {
-    // Déclare le module ADW en spécifiant ses fonctionnalités.
+    /* Déclare le module ADW en spécifiant ses fonctionnalités.
+    * @return declare_module : voir modules.php
+    */
     return declare_module(
-        "adw",  // Nom du module.
-        false,  // Pas de lien de classification.
-        true,   // Peut générer des liens externes.
-        true    // Peut générer des liens internes.
+        "adw",
+        false,
+        true,
+        true
     );
 }
 
