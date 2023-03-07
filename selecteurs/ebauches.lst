@@ -14,3 +14,6 @@ if (/rangs.embranchement/ == 'Cnidaria') { return ['cnidaire']; } else { return 
 # général
 if ((/rangs.infra-ordre/ == 'Gekkota') or (/rangs.famille/ == 'Gekkonidae')) { return ['gecko']; } else { return FALSE; }
 
+# tortues
+if (/rangs.ordre/ == 'Testudines') { return ['tortue']; } else { return FALSE; }
+
