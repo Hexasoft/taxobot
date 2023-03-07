@@ -212,30 +212,39 @@ function desactive_modules($liste) {
   return true;
 }
 
-// déclare l'existence d'un module
-// $classif : true si est utilisable comme classification
-// $ext : true si utilisable pour générer des liens externes
-// $domaines : liste de noms de domaines (ex. : animal ; oiseau…) applicables
-// Si la liste est vide tous les domaines sont applicables
+/**
+ * La fonction "declare_module" permet de déclarer un module avec différentes propriétés et de l'ajouter au tableau des modules existants.
+ * @param string $nom : nom du module à déclarer
+ * @param bool $classif indique si le module peut être utilisé comme classification
+ * @param bool $ext indique si le module peut être utilisé pour générer des liens externes
+ * @param array $domaines : liste des noms de domaines (ex. : animal ; oiseau…) applicables. Si la liste est vide, tous les domaines sont applicables.
+ * @param int $niveau : niveau de priorité du module (0 étant le niveau par défaut)
+ * @param bool $default indique si le module est le module par défaut (true) ou non (par défaut: false).
+ * @global array $m_modules : infra
+ * @global bool $m_default : infra
+ * @global bool $m_off : infra
+ */
+
 function declare_module($nom, $classif, $ext, $domaines, $niveau=0, $default=false) {
   global $m_modules, $m_default, $m_off;
 
+  // Vérification : module déjà déclaré
   if (isset($m_modules[$nom])) {
     logs("declare_module: le module '$nom' est déjà déclaré");
     return false;
   }
   
-  // si le module est désactivé, on zappe son enregistrement
+  // Vérification : si le module est désactivé, on ignore son enregistrement
   if (in_array($nom, $m_off)) {
     return true; // on l'ignore silencieusement
   }
   
-  // par défaut ?
+  // Si le module est marqué comme étant le module par défaut, la variable globale $m_default est mise à jour avec le nom du nouveau module
   if ($default) {
     $m_default = $nom;
   }
   
-  // initialisation du module
+  // Initialisation : tableau contenant les propriétés du module est créé avec les paramètres fournis
   $blob = [];
   $blob['nom'] = $nom;
   $blob['classification'] = $classif;
@@ -255,9 +264,10 @@ function declare_module($nom, $classif, $ext, $domaines, $niveau=0, $default=fal
   
   $m_modules[$nom] = $blob;
   
-  // trier les modules présents selon leur priorité
+  // Tri des modules présents par ordre de priorité à l'aide de la fonction "mod_trie"
   uasort($m_modules, "mod_trie");
 
+  // le module a été enregistré avec succès
   return true;
 }
 
