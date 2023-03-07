@@ -34,6 +34,12 @@ function get_clear() {
   file_put_contents($fichier_temp, "");
 }
 
+// debug : affiche les cookies
+function get_cookies() {
+  global $fichier_temp;
+  return file_get_contents($fichier_temp);
+}
+
 // wrapper pour récupérer les données
 function get_data($url, $header=false, $follow=true) {
   global $fichier_temp;
