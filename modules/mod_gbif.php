@@ -559,14 +559,15 @@ nop3:
  * Génère le modèle {{GBIF}} de la section "Voir aussi"
  * @param array $struct : correspond aux données liées à GBIF récupérées par m_gbif_infos()
  * @return string|bool : retourne le modèle généré à partir des informations sur un taxon (modèle, identifiant, nom, etc.) ou FALSE
+ *
+ * Données utilisées : id (identifiant taxon) ; nom ; auteur ; rang (ou taxon->rang) ; synonyme
  */
-// retourne les liens externes liés à GBIF (si présents)
 function m_gbif_ext($struct) {
   $cdate = dates_recupere();
   
   if (isset($struct['liens']['gbif']['id'])) {
     $data = $struct['liens']['gbif'];
-    $cible = wp_met_italiques($data['nom'], $struct['taxon']['rang'], $struct['regne']);
+    $cible = wp_met_italiques($data['nom'], isset($data['rang'])?$data['rang']:$struct['taxon']['rang'], $struct['regne']);
     if (isset($data['auteur'])) {
       $cible .= " " . $data['auteur'];
     }
