@@ -218,6 +218,7 @@ function gbif_marqueur_rang($marker) {
  * @return array|bool : structure décrivant le taxon ou FALSE si erreur/non trouvé.
  */
 function gbif_taxon_info($id, $name="<ndef>", $deja=0) {
+  // requête pour accéder aux informations sur le taxon (via son identifiant GBIF)
   $url = "https://api.gbif.org/v1/species/$id/name";
   $ret = get_data($url);
   
@@ -227,7 +228,7 @@ function gbif_taxon_info($id, $name="<ndef>", $deja=0) {
       logs("GBIF: erreur réseau (id=$id, name=$name)");
       return false;
     } else {
-      sleep(2);
+      sleep($deja+1);
       return gbif_taxon_info($id, $name, $deja+1);
     }
   }
@@ -243,6 +244,8 @@ function gbif_taxon_info($id, $name="<ndef>", $deja=0) {
   } elseif (isset($cur->canonicalName)) {
     $result['nom'] = $cur->canonicalName;
   }
+  // il n'y a pas de champ 'auteur', il faut enlever le nom scientifique du
+  // champ 'nom complet' pour l'obtenir
   $tmp = $cur->canonicalNameComplete;
   $lng = strlen($result['nom']);
   $result['auteur'] = substr($tmp, $lng+1);
