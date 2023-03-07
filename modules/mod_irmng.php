@@ -23,7 +23,7 @@ function m_irmng_infos(&$struct, $classif) {
     return false;
   }
   $url = "https://www.irmng.org/aphia.php?p=taxlist";
-  $post = "searchpar=0&tComp=is&action=search&rSkips=0&adv=0&vOnly=1&tName=" .
+  $post = "searchpar=0&tComp=is&action=search&rSkips=0&adv=0&tName=" .
           str_replace(" ", "+", $taxon);
   $header = [
      "Host: www.irmng.org",
@@ -35,7 +35,10 @@ function m_irmng_infos(&$struct, $classif) {
 	 'Sec-Fetch-Dest: document',
 	 'Sec-Fetch-Mode: navigate',
 	 'Sec-Fetch-Site: same-origin',
+	 'Accept-Encoding: gzip, deflate, br',
 	 'Sec-Fetch-User: ?1',
+     'Connection: keep-alive',
+     'Accept-Language: fr-FR,fr;q=0.8,en-US;q=0.5,en;q=0.3',
 	 'TE: trailers',
   ];
 
@@ -44,6 +47,7 @@ function m_irmng_infos(&$struct, $classif) {
     logs("IRMNG: echec de récupération réseau (2)");
     return false;
   }
+  
   $tbl =explode("\n", $ret);
   $ok = false;
   foreach($tbl as $ligne) {
@@ -74,6 +78,11 @@ function m_irmng_infos(&$struct, $classif) {
         $auteur = str_replace($taxon, "", $comp);
         $auteur = trim($auteur);
         if (!empty($auteur)) {
+          $auteur = str_replace("&nbsp;", " ", $auteur);
+          if (strpos($auteur, "&#8224;") !== false) {
+            $blob['eteint'] = true;
+            $auteur = str_replace(" &#8224;", "", $auteur);
+          }
           $blob['auteur'] = $auteur;
         }
         continue;
@@ -81,6 +90,11 @@ function m_irmng_infos(&$struct, $classif) {
       if (strpos($ligne, "Status</label>") !== false) {
         $status = strip_tags(trim($tbl[$idx+4]));
         if (!empty($status)) {
+          if ($status != "accepted") {
+            $blob['synonyme'] = true;
+          }
+        } else {
+          $status = strip_tags(trim($tbl[$idx+5]));
           if ($status != "accepted") {
             $blob['synonyme'] = true;
           }
@@ -98,7 +112,7 @@ function m_irmng_infos(&$struct, $classif) {
       }
     }
   }
-  
+
   // on stocke les infos
   $struct['liens']['irmng'] = $blob;
 
@@ -121,6 +135,10 @@ function m_irmng_ext($struct) {
     if (isset($data['auteur'])) {
       $cible .= " " . $data['auteur'];
     }
+    if (isset($data['eteint']) and $data['eteint']) {
+      $cible = "† " . $cible;
+    }
+    
     if (isset($data['synonyme']) and $data['synonyme']) {
       $post = " </small>(non valide";
       if (isset($data['cible']) and !empty($data['cible'])) {
