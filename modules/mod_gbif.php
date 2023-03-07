@@ -563,8 +563,14 @@ nop3:
  * Données utilisées : id (identifiant taxon) ; nom ; auteur ; rang (ou taxon->rang) ; synonyme
  */
 function m_gbif_ext($struct) {
-  $cdate = dates_recupere();
+  if (!($cdate = dates_recupere())) { // Assignation $cdate = dates_recupere(); cf. outils.php
+    return false; // sauf si $cdate non récupérée (input validation)
+  }
   
+  if (!is_array($struct) || !isset($struct['liens']['gbif']['id'])) {
+    return false; // Input validation : si format $struct incorrect ou clé introuvable
+  }
+
   if (isset($struct['liens']['gbif']['id'])) {
     $data = $struct['liens']['gbif'];
     $cible = wp_met_italiques($data['nom'], isset($data['rang'])?$data['rang']:$struct['taxon']['rang'], $struct['regne']);
