@@ -9,14 +9,11 @@
  */
 
 /**
- * Déclare le module ADW.
+ * Déclare le module ADW en spécifiant ses fonctionnalités.
  * 
- * @return array|bool
+ * @return array|bool declare_module : voir modules.php
  */
 function m_adw_init() {
-    /* Déclare le module ADW en spécifiant ses fonctionnalités.
-    * @return declare_module : voir modules.php
-    */
     return declare_module(
         "adw",
         false,
