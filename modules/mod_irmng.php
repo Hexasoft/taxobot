@@ -1,16 +1,37 @@
 <?php
 
-/*
-  Module pour IRMNG (non classification)
-*/
 
+/**
+ * Module - Interim Register of Marine and Nonmarine Genera (IRMNG)
+ *
+ * Ce module permet de récupérer des informations sur un taxon à partir du site IRMNG.
+ * Il génère des liens externes et des liens internes pour le site, mais il ne génère aucune classification.
+ *
+ */
+
+/**
+ * Déclare le module IRMNG.
+ * 
+ * @return array|bool
+ */
 // déclaration du module
 function m_irmng_init() {
-  return declare_module("irmng", false, true, true);
+  return declare_module("irmng",  // nom
+                        false,    // pas classification
+                        true,     // liens externes
+                        true      // liens internes
+                       );
 }
 
-// récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
-// gérer la classification également
+
+/**
+ * Extrait les informations et les stocke dans une structure de données.
+ *
+ * @param array &$struct : cgstructure de données à remplir avec les informations.
+ * @param bool $classif : indique si la classification du taxon doit être gérée.
+ * @return bool True si les informations ont été récupérées avec succès, false sinon.
+ * 
+ */
 function m_irmng_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
 
@@ -42,6 +63,7 @@ function m_irmng_infos(&$struct, $classif) {
 	 'TE: trailers',
   ];
 
+  // requête de recherche : on ne veut pas être redirigé (paramètre false)
   $ret = post_data_header($url, $post, $header, false);
   if ($ret === false) {
     logs("IRMNG: echec de récupération réseau (2)");
@@ -79,6 +101,7 @@ function m_irmng_infos(&$struct, $classif) {
         $auteur = trim($auteur);
         if (!empty($auteur)) {
           $auteur = str_replace("&nbsp;", " ", $auteur);
+          // présence d'une obèle
           if (strpos($auteur, "&#8224;") !== false) {
             $blob['eteint'] = true;
             $auteur = str_replace(" &#8224;", "", $auteur);
@@ -88,6 +111,7 @@ function m_irmng_infos(&$struct, $classif) {
         continue;
       }
       if (strpos($ligne, "Status</label>") !== false) {
+        // le statut peut être à +4 ou à +5 selon les cas…
         $status = strip_tags(trim($tbl[$idx+4]));
         if (!empty($status)) {
           if ($status != "accepted") {
@@ -125,7 +149,11 @@ function m_irmng_infos(&$struct, $classif) {
   return false;
 }
 
-// génération des liens externes (modèles dans Voir aussi)
+/**
+ * Génère le modèle IRMNG de la section "Voir aussi"
+ * @param array $struct : correspond aux données récupérées par m_irmng_infos()
+ * @return string : retourne le modèle généré à partir des informations (identifiant, nom, auteur, éteint, synonyme)
+ */
 function m_irmng_ext($struct) {
   $cdate = dates_recupere();
   if (isset($struct['liens']['irmng'])) {
@@ -155,7 +183,11 @@ function m_irmng_ext($struct) {
   }
 }
 
-// génération de liens vers les éléments (pour partie aide/debug de l'interface)
+/**
+ * Génère le lien vers la page IRMNG
+ * @param array $struct : correspond aux données récupérées par m_irmng_infos()
+ * @return string : lien HTML
+ */
 function m_irmng_liens($struct) {
   if (isset($struct['liens']['irmng']['id'])) {
     return "<a href='https://www.irmng.org/aphia.php?p=taxdetails&id=" . $struct['liens']['irmng']['id'] .
