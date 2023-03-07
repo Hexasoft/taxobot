@@ -162,7 +162,10 @@ $gbif_regnes = [
   'Chromista' => 'algue',
 ];
 
-// retourne le nom du modèle Bioref associé à GBIF (théoriquement peut dépendre du rang)
+/**
+ * Retourne le nom du modèle Bioref associé à GBIF (théoriquement peut dépendre du rang, mais en
+ * pratique c'est toujours le même).
+ */
 function gbif_bioref($rang=null) {
   return "GBIF";
 }
@@ -171,7 +174,9 @@ function gbif_classif() {
   return "GBIF";
 }
 
-// retourne le règne à partir de la donnée GBIF
+/**
+ * Retourne le règne (charte taxobox) à partir du règne GBIF.
+ */
 function gbif_cherche_regne($regne) {
   global $gbif_regnes;
   if (!isset($gbif_regnes[$regne])) {
@@ -180,7 +185,9 @@ function gbif_cherche_regne($regne) {
   return $gbif_regnes[$regne];
 }
 
-// retourne le rang WP associé
+/**
+ * Retourne le rang (Wikipédia/taxobox) associé au rang GBIF.
+ */
 function gbif_cherche_rang($rang) {
   global $gbif_wp;
   
@@ -190,7 +197,9 @@ function gbif_cherche_rang($rang) {
   return $gbif_wp[$rang];
 }
 
-// retourne le rang GBIF à partir du "marqueur" (un autre nom)
+/**
+ * Retourne le rang GBIF à partir du "marqueur" (GBIF utilise deux nommages différents).
+ */
 function gbif_marqueur_rang($marker) {
   global $gbif_markers;
   if (!isset($gbif_markers[$marker])) {
@@ -200,11 +209,19 @@ function gbif_marqueur_rang($marker) {
 }
 
 // données dédiées à un taxon
+/**
+ * Extraction des données liées à un taxon, via son identifiant GBIF ($id).
+ *
+ * @param string $id : identifiant GBIF du taxon.
+ * @param string $name : plus utilisé.
+ * @param int $deja : compteur de ré-entrance pour ré-essayer les requêtes.
+ * @return array|bool : structure décrivant le taxon ou FALSE si erreur/non trouvé.
+ */
 function gbif_taxon_info($id, $name="<ndef>", $deja=0) {
   $url = "https://api.gbif.org/v1/species/$id/name";
   $ret = get_data($url);
-  // erreur CURL
   
+  // Si erreur on re-tente un peu plus tard (max 3 fois)
   if ($ret === false) {
     if ($deja >= 3) {
       logs("GBIF: erreur réseau (id=$id, name=$name)");
