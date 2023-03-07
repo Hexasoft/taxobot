@@ -1,10 +1,17 @@
 <?php
 
-/*
-  Module de classification GBIF
+/**
+ * Module - Global Biodiversity Information Facility (GBIF)
+ *
+ * Ce module permet de récupérer des informations sur un taxon à partir du site GBIF (https://gbif.org).
+ * Il génère une classification, des liens externes et des liens internes pour le site.
+ *
+ */
+
+
+/**
+  Tableau d'équivalences des rangs dans GBIF (ils utilisent plusieurs notations).
 */
-
-
 $gbif_markers = [
   "dom." => "DOMAIN",
   "superreg." => "SUPERKINGDOM",
@@ -79,7 +86,9 @@ $gbif_markers = [
   "cv." => "CULTIVAR",
   "strain" => "STRAIN",
 ];
-
+/**
+  Tableau de conversion entre les rangs GBIF et les rangs Wikipédia.
+*/
 $gbif_wp = [
   'CLADE' => 'clade',
   'TYPE' => 'type',
@@ -138,8 +147,9 @@ $gbif_wp = [
   'SUBKINGDOM' => 'sous-royaume',
   'NOTFOUND' => 'NOTFOUND',
 ];
-
-// liste des "règnes" et traduction selon WP
+/**
+  Tableau des équivalences des "règnes" entre GBIF et Wikipédia (taxobox).
+*/
 $gbif_regnes = [
   'Animalia' => 'animal',
   'Archaea' => 'archaea',
@@ -232,14 +242,29 @@ function gbif_taxon_info($id, $name="<ndef>", $deja=0) {
 }
 
 
-// déclaration du module
+
+/**
+ * Déclare le module GBIF.
+ * 
+ * @return array|bool
+ */
 function m_gbif_init() {
-  // gère la classification, les liens externes, accepte tous les domaines,
-  // priorité max, et classification par défaut
-  return declare_module("gbif", true, true, true, 999, true);
+  return declare_module("gbif",   // Nom du module
+                        true,     // Peut générer une classification
+                        true,     // Peut générer des liens externes
+                        true,     // Peut générer des liens internes
+                        999,      // Priorité max
+                        true);    // Classification par défaut
 }
 
-// récupère les données générales liées à GBIF. Si $classif=TRUE récupère aussi les données de classification
+/**
+ * Extrait les informations et les stocke dans une structure de données.
+ *
+ * @param array &$struct : structure de données à remplir avec les informations.
+ * @param bool $classif : indique si la classification du taxon doit être gérée.
+ * @return bool True si les informations ont été récupérées avec succès, false sinon.
+ * 
+ */
 function m_gbif_infos(&$struct, $classif) {
   global $gbif_wp;
   // les options dont on a besoin
@@ -505,6 +530,11 @@ nop3:
   return true;
 }
 
+/**
+ * Génère le modèle {{GBIF}} de la section "Voir aussi"
+ * @param array $struct : correspond aux données liées à GBIF récupérées par m_gbif_infos()
+ * @return gbif : retourne le modèle généré à partir des informations sur un taxon (modèle, identifiant, nom, etc.)
+ */
 // retourne les liens externes liés à GBIF (si présents)
 function m_gbif_ext($struct) {
   $cdate = dates_recupere();

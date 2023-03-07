@@ -24,14 +24,13 @@ function m_adw_init() {
 }
 
 /**
- * Extraire les informations et les stocke dans une structure de données.
+ * Extrait les informations et les stocke dans une structure de données.
  *
  * @param array &$struct : cgstructure de données à remplir avec les informations.
  * @param bool $classif : indique si la classification du taxon doit être gérée.
  * @return bool True si les informations ont été récupérées avec succès, false sinon.
  * 
  */
-
 function m_adw_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
   
@@ -127,7 +126,6 @@ function m_adw_infos(&$struct, $classif) {
  * @param array $struct : correspond aux données récupérées par m_adw_infos()
  * @return adw : retourne le modèle généré à partir des informations sur un taxon, la citation (date et auteur) de la page ADW, etc.
  */
-
 function m_adw_ext($struct) {
   $cdate = dates_recupere(); // Récupération de la date actuelle depuis outils.php
   if (!isset($struct['liens']['adw']['id'])) { // Vérification de la présence de l'identifiant ADW dans la structure donnée
