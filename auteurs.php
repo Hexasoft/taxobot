@@ -160,10 +160,18 @@ function identifie_auteur($struct, $nom, $date, &$suggestions) {
   return false;
 }
 
-
-// coupe un élément de type chaîne (non traitée)
-// $suggestions contient des auteurs *possibles*
-function aut_analyse($struct, $el, &$suggestions, &$dt) {
+/**
+ * Découpe une chaîne de citation d'auteurs (brute, non traitée) pour construire une liste
+ * "propre" formatée correctement. Met également en forme les séparateurs et modèles (et al. par exemple)
+ * et s'occupe des auteurs (modèle {{auteur}} ou lien (botanistes) ou suggestion (zoologistes)).
+ * @param array $struct : la structure décrivant le taxon (en pratique pour connaître le domaine)
+ * @param string $el : le texte à analyser
+ * @param array &$suggestions : liste d'auteurs possibles
+ * @param &$dt : TRUE si une date a été trouvée dans la chaîne
+ * @param &$mdla : TRUE si au moins un auteur est présent via {{auteur}}
+ * @return string : la chaîne mise en forme 
+ */
+function aut_analyse($struct, $el, &$suggestions, &$dt, &$mdla) {
   $mots = [ ['ex.',true], ['ex',true], ['in.',true], ['in',true], ['and',false], ['et al.',false],
             ['emend.',true],['et non',false],['nom. nov.',false],['nom. cons.',false],['corrig.',true] ];
 
@@ -328,6 +336,7 @@ function aut_analyse($struct, $el, &$suggestions, &$dt) {
       $out['texte'] .= " ";
     }
     $out['texte'] = '{{auteur|[[' . trim($tmp) . ']]}}';
+    $mdla = true; // au moins un des auteurs utilise le modèle {{auteur}}
     if (mb_substr($tmp, -1) == ' ') {
       $out['texte'] .= " ";
     }
@@ -398,7 +407,8 @@ function new_auteurs_traite(&$struct, $auteurs) {
 
   $sug = [];
   $date = false;
-  $arbre = aut_analyse($struct, $auteurs, $sug, $date);
+  $mdla = false;
+  $arbre = aut_analyse($struct, $auteurs, $sug, $date, $mdla);
   $texte = aut_vers_texte($arbre);
   if (!$date) {
     $texte .= " {{date à préciser}}";
@@ -411,6 +421,11 @@ function new_auteurs_traite(&$struct, $auteurs) {
     foreach($sug as $s) {
       logs($s[0] . " → [[" . $s[1] . "]] (" . ($s[2]?$s[2]:"-") . "," . ($s[3]?$s[3]:"-") . "," . ($s[4]?$s[4]:"-") . ")");
     
+    }
+  } else {
+    if ($mdla) {
+      // il y a des auteurs inconnus, mais pas de suggestion, on l'indique
+      logs("Aucune suggestion d'auteurs trouvée");
     }
   }
   return $texte;
