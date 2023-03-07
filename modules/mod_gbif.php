@@ -288,7 +288,7 @@ function m_gbif_infos(&$struct, $classif) {
   $suivre_synonymes = get_config("suivre-synonymes");
   $taxon = $struct['taxon']['nom'];
   
-  // on effectue l'appel
+  // on effectue une recherche sur le nom du taxon
   $url = "https://api.gbif.org/v1/species?datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&name=" .
          urlencode($taxon);
   $ret = get_data($url);
@@ -312,6 +312,7 @@ function m_gbif_infos(&$struct, $classif) {
   // on parcours pour trouver le "bon" taxon
   $cur = false;
   foreach($_cur->results as $r) {
+    // il faut que le taxon soit 'ACCEPTED'
     if ($r->taxonomicStatus == "ACCEPTED") {
       $cur = $r;
       break;
@@ -320,6 +321,7 @@ function m_gbif_infos(&$struct, $classif) {
   if ($cur === false) {
     logs("GBIF: taxon non trouvé en 'ACCEPTED'");
     if (!$suivre_synonymes) {
+      // si on ne suit pas les synonymes alors on s'arrête : non trouvé
       return false;
     }
   }
@@ -327,6 +329,7 @@ function m_gbif_infos(&$struct, $classif) {
   // si false on cherche l'entrée cible (suivre_synonyme)
   if ($cur === false) {
     foreach($_cur->results as $r) {
+      // normalement il n'y en a pas plusieurs
       $cur = $r;
       break;
     }
@@ -335,8 +338,8 @@ function m_gbif_infos(&$struct, $classif) {
   // données lien externe
   $struct['liens']['gbif']['id'] = $cur->key;
   $tmp = gbif_taxon_info($cur->key);
-  $struct['liens']['gbif']['auteur'] = $tmp['auteur']; // trim($cur->authorship);
-  $struct['liens']['gbif']['nom'] = $tmp['nom']; // trim($cur->canonicalName);
+  $struct['liens']['gbif']['auteur'] = $tmp['auteur'];
+  $struct['liens']['gbif']['nom'] = $tmp['nom'];
   if (isset($tmp['rang'])) {
     $struct['liens']['gbif']['rang'] = $tmp['rang'];
   }
@@ -345,10 +348,13 @@ function m_gbif_infos(&$struct, $classif) {
   // on reboucle
   if (isset($cur->acceptedKey) and ($cur->acceptedKey != $cur->key)) {
     if (!$classif) {
+      // si on n'est pas classification on se contente d'indiquer la synonymie
+      // et on quitte (on a fait le travail)
       $struct['liens']['gbif']['synonyme'] = true;
       return true;
     }
     if ($suivre_synonymes) {
+      // on récupère les infos sur le synonyme
       $tmp = gbif_taxon_info($cur->acceptedKey);
       if ($tmp === false) {
         logs("Echec de récupération du nom du synonyme GBIF");
@@ -370,11 +376,10 @@ function m_gbif_infos(&$struct, $classif) {
   }
   
   // données taxon
-  //$result['taxon']['nom'] = trim($cur->canonicalName); // déjà présent (par définition)
-  $struct['taxon']['auteur'] = $tmp['auteur']; // trim($cur->authorship);
+  $struct['taxon']['auteur'] = $tmp['auteur'];
   $struct['taxon']['rang'] = gbif_cherche_rang($cur->rank);
   // on remplace le nom par le nom retourné
-  $struct['taxon']['nom'] = $cur->canonicalName;
+  $struct['taxon']['nom'] = trim($cur->canonicalName);
   $taxon = $struct['taxon']['nom'];
   $struct['classification'] = 'GBIF';
   $struct['classification-taxobox'] = gbif_classif();
@@ -537,7 +542,7 @@ nop2:
       $offset += 20;
     }
   }
-  // Note : on ne boucle pas s'il y a plus de réponse (20, c'est déjà énorme)
+  
   if (!empty($tmp)) {
     $struct['synonymes']['liste'] = $tmp;
     $struct['synonymes']['source'] = gbif_bioref();
@@ -550,7 +555,7 @@ nop3:
 /**
  * Génère le modèle {{GBIF}} de la section "Voir aussi"
  * @param array $struct : correspond aux données liées à GBIF récupérées par m_gbif_infos()
- * @return gbif : retourne le modèle généré à partir des informations sur un taxon (modèle, identifiant, nom, etc.)
+ * @return string|bool : retourne le modèle généré à partir des informations sur un taxon (modèle, identifiant, nom, etc.) ou FALSE
  */
 // retourne les liens externes liés à GBIF (si présents)
 function m_gbif_ext($struct) {
@@ -572,7 +577,11 @@ function m_gbif_ext($struct) {
   }
 }
 
-// retourne les liens HTTP directs liés à GBIF (si présents)
+/**
+ * Retourne les liens HTTP directs liés à GBIF (si présents).
+ * @param array $struct : correspond aux données liées à GBIF récupérées par m_gbif_infos()
+ * @return string|bool : retourne le lien vers le site GBIF ou FALSE
+ */
 function m_gbif_liens($struct) {
   if (isset($struct['liens']['gbif']['id'])) {
     return "<a href='https://www.gbif.org/species/" .
