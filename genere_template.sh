@@ -1,18 +1,29 @@
 #!/bin/bash
 
-if [ "$1" = "" ]
+if [ "$1" = "" -o "$2" = "" ]
 then
-  echo "Usage : $0 NOM-MODULE"
+  echo "Usage : $0 TYPE NOM-MODULE"
+  echo "TYPE : classif ou nonclassif"
   exit 1
 fi
 
-if [ -e ./modules/mod_"$1".php ]
+TYPE="$1"
+NOM="$2"
+
+if [ -e ./modules/mod_"$NOM".php ]
 then
   echo "La cible existe déjà"
   exit 1
 fi
 
-cp ./templates/mod_XXX.php ./modules/mod_"$1".php
+if [ "$TYPE" = "classif" ]
+then
+  SOURCE="mod_classif.php"
+else
+  SOURCE="non_nonclassif.php"
+fi
 
-sed -i -e "s/XXX/$1/g" ./modules/mod_"$1".php
+cp ./modules/templates/"$SOURCE" ./modules/mod_"$NOM".php
+
+sed -i -e "s/XXX/$NOM/g" ./modules/mod_"$NOM".php
 
