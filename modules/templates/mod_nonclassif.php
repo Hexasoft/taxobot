@@ -50,7 +50,9 @@ function m_XXX_ext($struct) {
   if (isset($struct['liens']['XXX'])) {
     $data = $struct['liens']['XXX'];
     // le nom (avec italiques si besoin)
-    $nom = wp_met_italiques($data['nom'], $struct['taxon']['rang'], $struct['regne']);
+    $nom = wp_met_italiques($data['nom'],
+                            isset($data['rang'])?$data['rang']:$struct['taxon']['rang'],
+                            $struct['regne']);
     if (isset($data['auteur'])) {
       $nom .= " " . $data['auteur'];
     }
