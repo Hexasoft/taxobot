@@ -77,12 +77,12 @@ function m_adw_infos(&$struct, $classif) {
             $premier_auteur .= ' ' . $pamatches['prenom2'];
         }
         // Autre[s] auteur[s]
-        preg_match_all('/(?P<prenom1>[A-Z]\.)(?P<prenom2> [A-Z]\.)? (?P<nom>\p{L}+)/', $citation, $almatches);
+        preg_match_all('/(and )?(?P<prenom1>[A-Z]\.)(?P<prenom2> [A-Z]\.)? (?P<nom>\p{L}+)/', $citation, $almatches);
         $nb_auteurs = count($almatches[1]);
         if ($nb_auteurs == 0) {
           $auteurs = $premier_auteur;
         } else {
-          if ($nb_auteurs > 2) {
+          if ($nb_auteurs >= 2) {
             $auteurs = $premier_auteur . ' {{et al.}}';
           } elseif ($nb_auteurs == 1) {
             $auteurs = $premier_auteur . ' et ' . $almatches['nom'][1] . ' ' . $almatches['prenom1'][1];
