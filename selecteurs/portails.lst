@@ -10,8 +10,24 @@
 # Anélides
 if (/rangs.embranchement/ == 'Annelida') { return ['Biologie marine','Annélides']; } else { return FALSE; }
 
+# Arachnologie : ["acarien", "amblypyge", "opilion", "araignée", "palpigrade", "pseudoscorpion", "ricinule", "schizomide", "scorpion", "uropyge"]
+if (/rangs.infra-classe/ == 'Arachnida') { return ['Arachnologie']; } else { return FALSE; }
+## Éteints
+if (/rangs.infra-classe/ == 'Haptopoda') { return ['Arachnologie', 'Paléontologie']; } else { return FALSE; }
+if (/rangs.infra-classe/ == 'Phalangiotarbida') { return ['Arachnologie', 'Paléontologie']; } else { return FALSE; }
+if (/rangs.infra-classe/ == 'Trigonotarbida') { return ['Arachnologie', 'Paléontologie']; } else { return FALSE; }
+if (/rangs.infra-classe/ == 'Uraraneida') { return ['Arachnologie', 'Paléontologie']; } else { return FALSE; }
+
 # Botanique : trop large sur Plantae (règne) ?
 ## if (/rangs.règne/ == 'Plantae') { return ['Botanique']; } else { return FALSE; }
+
+# Carcinologie (crustacés)
+if (/rangs.sous-embranchement/ == 'Crustacea') { return ['Carcinologie', 'Biologie marine']; } else { return FALSE; }
+
+## Éteints
+if (/rangs.famille/ == 'Waptiidae') { return ['Carcinologie', 'Paléontologie']; } else { return FALSE; }
+if (/rangs.famille/ == 'Erymidae') { return ['Carcinologie', 'Paléontologie']; } else { return FALSE; }
+
 
 # Cétacés : parfois il y a aussi "Biologie marine"" & "Maritime : à clarifier
 if (/rangs.infra-ordre/ == 'Cetacea') { return ['Cétacés','Mammifères']; } else { return FALSE; }
