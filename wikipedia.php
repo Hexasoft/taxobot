@@ -248,7 +248,7 @@ function wp_ebauche($struct) {
       return $ret;
     }
   }
-  
+
   // on fait simple : sur le règne
   if (isset($ebauches[$struct['regne']])) {
     return [ $ebauches[$struct['regne']] ];
