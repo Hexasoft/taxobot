@@ -11,7 +11,7 @@ function m_ifpni_init() {
 
 
 // commun
-function m_ifpni_infos_generique($url) {
+function m_ifpni_infos_generique($url, $taxon) {
   $ret = get_data($url);
   if ($ret === false) {
     logs("IFPNI: problème réseau");
@@ -67,12 +67,13 @@ function m_ifpni_infos_generique($url) {
 // spécifique espece
 function m_ifpni_infos_espece($struct) {
   $taxon = $struct['taxon']['nom'];
+  $_taxon = $taxon;
   $taxon = str_replace(" ", "+", $taxon);
   
   $url = 'http://www.ifpni.org/species.htm?formIndex=def&name=' . $taxon .
          '&isExtended=&author=&originalSpelling=&yearFrom=&yearTo=&paleoID=&submitForm=Search';
 
-  $el = m_ifpni_infos_generique($url);
+  $el = m_ifpni_infos_generique($url, $_taxon);
   if ($el !== false) {
     $el['rang'] = $struct['taxon']['rang'];
   }
@@ -82,12 +83,13 @@ function m_ifpni_infos_espece($struct) {
 // spécifique en dessous de l'espece
 function m_ifpni_infos_subespece($struct) {
   $taxon = $struct['taxon']['nom'];
+  $_taxon = $taxon;
   $taxon = str_replace(" ", "+", $taxon);
   
   $url = 'http://www.ifpni.org/infraspecies.htm?formIndex=def&name=' . $taxon .
          '&isExtended=&author=&originalSpelling=&yearFrom=&yearTo=&paleoID=&submitForm=Search';
   
-  $el = m_ifpni_infos_generique($url);
+  $el = m_ifpni_infos_generique($url, $_taxon);
   if ($el !== false) {
     $el['rang'] = $struct['taxon']['rang'];
   }
@@ -101,7 +103,7 @@ function m_ifpni_infos_supgenre($struct) {
   $url = 'http://www.ifpni.org/supragenus.htm?formIndex=def&name=' . $taxon . 
          '&isExtended=&author=&originalSpelling=&yearFrom=&yearTo=&submitForm=Search';
 
-  $el = m_ifpni_infos_generique($url);
+  $el = m_ifpni_infos_generique($url, $taxon);
   if ($el !== false) {
     $el['rang'] = $struct['taxon']['rang'];
   }
@@ -115,7 +117,7 @@ function m_ifpni_infos_genre($struct) {
   $url='http://www.ifpni.org/genus.htm?formIndex=def&name=' . $taxon .
        '&isExtended=1&author=&originalSpelling=&yearFrom=&yearTo=&submitForm=Search&submitForm=Search';
 
-  $el = m_ifpni_infos_generique($url);
+  $el = m_ifpni_infos_generique($url, $taxon);
   if ($el !== false) {
     $el['rang'] = 'genre';
   }
