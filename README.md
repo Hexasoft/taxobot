@@ -49,7 +49,7 @@ Note : sans classification, certaines informations peuvent être omises ou mal p
 * `-help` (flag) : Afficher ce message d'aide
 * `-version` (flag) : Afficher la version de Taxobot
 * `-off` (string) : Liste de modules à désactiver (noms séparés par des virgules)
-* `-selecteurs` (flag) : Autorise l'utilisation des fichiers de définition des ébauches/catégories/auteurs/…
+* `-selecteurs` (bool) : Autorise l'utilisation des fichiers de définition des ébauches/catégories/auteurs/…
 * `-article` (flag) : Ne générer que la sortie de l'article et rien d'autre
 * `-auteurs` (string) : Mode de traitement des auteurs. s→standard*, n→nouveau, n1→nouveau+ajout réponse unique
 
