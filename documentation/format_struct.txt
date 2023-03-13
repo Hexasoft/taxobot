@@ -66,6 +66,9 @@ $struct['synonymes']['liste'][] : liste de synonymes du taxon. Chaque élément 
  ['nom'] + ['rang'] + ['auteur'].
 Il faut ajouter $struct['synonymes']['source'], le nom technique du module pour sourçage Bioref.
 
+$struct['type'] : taxon-type (taxon de rang inférieur qui constitue la création du taxon)
+ ['nom'] + ['rang'] + ['auteur'] + ['source'].
+
 <à compléter : répartition, …>
 <donner un exemple bien complet>
 
