@@ -1,6 +1,8 @@
 Taxobot
 =======
 
+NOTE : ce fichier n'est plus mis à jour. Consultez README.md.
+
 * Présentation
 --------------
 
