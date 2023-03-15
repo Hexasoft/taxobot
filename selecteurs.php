@@ -25,6 +25,10 @@
 // remplace les entrées de valeurs dans le texte indiqué
 function sel_remplace($struct, $txt) {
   global $rangs;
+  
+  if (!isset($struct['rangs'])) {
+    return $txt;
+  }
 
   $val = $struct['regne'];
   $txt = str_replace("/regne/", "'$val'", $txt);
@@ -50,6 +54,11 @@ function sel_remplace($struct, $txt) {
 
 // charge et évalue un fichier de sélections à partir de la structure courante
 function sel_evalue($fichier, $struct) {
+  // si on n'a pas de classification on ne fait rien (appel en mode "-juste-ext" probablement)
+  if (!isset($struct['rangs']) or empty($struct['rangs'])) {
+    return false;
+  }
+
   if (!file_exists($fichier)) {
     return false;
   }
