@@ -219,13 +219,13 @@ function m_itis_infos(&$struct, $classif) {
   $_res = get_xml($ret);
   if ($_res === null) {
     logs("ITIS: echec de AcceptedNames");
-    return $ext; // pas grave si seulement liens externes
+    return !$classif; // pas grave si seulement liens externes
   }
   $res = json_decode(json_encode($_res), true);
   if (isset($res['return']['acceptedNames']['acceptedName']) and
       !empty($res['return']['acceptedNames']['acceptedName'])) {
     // c'est un synonyme : si demandé on se relance (seulement si !$ext)
-    if ($ext) {
+    if (!$classif) {
       $struct['liens']['itis']['synonyme'] = true;
       $struct['liens']['itis']['nom-synonyme'] = $res['return']['acceptedNames']['acceptedName'];
       $struct['liens']['itis']['id-synonyme'] = $res['return']['acceptedNames']['acceptedTsn'];
@@ -237,7 +237,7 @@ function m_itis_infos(&$struct, $classif) {
       // on change le taxon
       $struct['taxon']['nom'] = $res['return']['acceptedNames']['acceptedName'];
       // on se relance sur le nouveau nom
-      return infos_itis($struct, $ext);
+      return m_itis_infos($struct, !$classif);
     }
   }
   if (!$classif) {
