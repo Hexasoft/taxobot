@@ -1,38 +1,49 @@
 # Présentation
 
-Taxobot est un programme de génération de squelette d'article biologique,
-utilisant les diverses sources référencées par le projet Biologie.
+Taxobot est un programme qui permet de générer le squelette d'un article de biologie pour un taxon donné. Il extrait les données de diverses sources de référence utilisées par le projet Biologie.
 
-Il est intégralement dédié à Wikipédia en français (même si toute la partie
-extraction des méta-données pourrait facilement être réutilisée).
+## Principe de fonctionnement
 
-# Principe de fonctionnement
+Pour générer le squelette d'un article, le programme utilise une source de classification qu'il sélectionne lui-même ou qu'on lui indique. Ensuite, il récupère les données externes de toutes les autres sources.
 
-Le programme utilise une source de classification (qu'il sélectionne
-lui-même ou qu'on lui indique) pour générer les méta-données de classification
-du taxon indiqué : rang, auteur(s), rangs supérieurs, rangs inférieurs,
-synonymes, basionyme, noms vernaculaires, etc. (selon la source et le taxon
-tout ou partie de ces informations sont remontées, mais rang + auteurs +
-rangs supérieurs sont obligatoires, sinon il y a erreur).
+Ces sources sont designées au sein du projet en tant que **[modules](https://github.com/Hexasoft/taxobot/tree/main/modules)** nominatifs (adw, algaebase, etc.).
 
-Ensuite le programme récupère les données externes de toutes les autres sources
-(lien externe Bioref + d'autres données éventuelles comme noms vernaculaires…).
+### Données
+Pour un taxon indiqué, il extrait la classification biologique : rangs y compris supérieurs et inférieurs, auteur(s), synonyme(s), basionyme, nom(s) vernaculaire(s), etc.
 
-Enfin à partir de toutes ces méta-données il génère un squelette d'article :
+Il recense également l'ensemble des sources externes utilisées qu'il affiche lors du débogage ou dans le contenu du squelette.
 
-* ébauche
-* taxobox
-* introduction minimale
-* informations de systématique (basionyme, noms vernaculaires, synonymes…)
-* taxons de rangs inférieurs
-* section "Voir aussi" (liens Bioref + commons/species)
-* références
-* catégories et portails
+### Squelette
 
-# Options
+Le squelette généré suit les [recommandations wikipédiennes](https://fr.wikipedia.org/wiki/Projet:Biologie/Plan_%C3%A9bauche_taxon#Contenu_minimum_requis) et comprend les éléments suivants :
+* Bandeau d'ébauche 
+* Taxobox
+* Introduction minimale
+* Informations de systématique (basionyme, nom(s) vernaculaire(s), synonyme(s), etc.)
+* Taxons de rangs inférieurs
+* Section "Voir aussi" (liens Bioref, liens interprojets : commons et species)
+* Références
+* Catégories
+* Portail
+
+# Installation et utilisation
+## Installation
+Quel que soit votre système d'exploitation, vous pouvez utiliser Taxobot. Référez-vous aux informations fournies dans **[INSTALL.md](https://github.com/Hexasoft/taxobot/blob/main/INSTALL.md)** pour l'installation.
+
+## Utilisation
+
+Deux méthodes d'utilisation sont disponibles :
+* « ligne de commande » : les commandes possibles sont décrites ci-dessous dans **Options**
+* « WEB » : le point d'accès est **[index.php](https://github.com/Hexasoft/taxobot/blob/main/index.php)**
+
+Exemples :
+* root@xxxxx:~/taxobot# `php taxobot.php -taxon "Uroplatus fimbriatus" -classification gbif`
+* https:~/taxobot.php?classification=gbif&taxon=Uroplatus+fimbriatus
+
+## Options
 
 Taxobox a les options suivantes :
-* `-taxon "NOM TAXON"` : obligatoire. Le nom scientifique du taxon à chercher
+* `-taxon "NOM TAXON"` : ***obligatoire***. Le nom scientifique du taxon à chercher
 * `-classification NOM` : permet de forcer le choix d'une classification
 * `-domaine NOM` : indique le domaine du vivant pour le taxon. Permet de restreindre
 les modules qui seront appelés (y compris les sources de classifications utilisables)
@@ -45,18 +56,23 @@ Note : sans classification, certaines informations peuvent être omises ou mal p
 * `-liens-synonymes *oui/non` : mettre des wikiliens sur les synonymes
 * `-seuil-colonnes NOMBRE` : seuil (nombre d'éléments) avant mise en multi-colonnes de l'affichage (-2=défaut (25) ; -1=toujours ; 0=jamais)
 * `-debug` (flag) : Activer ou pas le mode debug
-* `-liste` (flag) : Afficher la liste des modules
-* `-help` (flag) : Afficher ce message d'aide
+* `-liste` (flag) : Afficher la liste des modules et leurs capacités
+* `-help` (flag) : Afficher ce message d'aide et rappelle les diverses options
 * `-version` (flag) : Afficher la version de Taxobot
 * `-off` (string) : Liste de modules à désactiver (noms séparés par des virgules)
 * `-selecteurs` (bool) : Autorise l'utilisation des fichiers de définition des ébauches/catégories/auteurs/…
 * `-article` (flag) : Ne générer que la sortie de l'article et rien d'autre
 * `-auteurs` (string) : Mode de traitement des auteurs. s→standard*, n→nouveau, n1→nouveau+ajout réponse unique
 
-Ces options sont celles de la ligne de commande. En mode WEB ces options sont passées en
-`GET` : l'option a le même nom (sans le tiret) et sa valeur est celle passée. Exemple :
-`…&seuil-colonnes=30&…`
+En mode WEB ces options sont passées en `GET` : l'option a le même nom (sans le tiret) et sa valeur est celle passée. Exemple : `…&seuil-colonnes=30&…`
 
-Il existe également l'option `-liste` qui retourne la liste des modules et leurs capacités,
-et l'option `-help` qui affiche un message rappelant les diverses options.
+## Personnalisation
+Plusieurs éléments sont personnalisables, référez-vous au dossier **[Documentation](https://github.com/Hexasoft/taxobot/tree/main/documentation)** pour plus d'informations.
 
+# Licence et participation
+
+Bien qu'intégralement dédié à Wikipédia en français, son code peut être réutilisé pour d'autres projets, tout ou partie, comme l'extraction des méta-données.
+
+Il est placé sous licence ***GNU General Public License v3.0*** ([en savoir plus](https://github.com/Hexasoft/taxobot/blob/main/LICENSE)).
+
+Si vous souhaitez participer à son amélioration, vous pouvez le télécharger, le tester, consulter le fichier à l'intention des [développeurs](https://github.com/Hexasoft/taxobot/blob/main/DEVEL.md) et signaler les bugs rencontrés ou faire part de suggestions en ouvrant une [pull request](https://github.com/Hexasoft/taxobot/pulls).
