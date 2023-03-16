@@ -1,6 +1,4 @@
 <?php
-
-
 /*
   point d'entrée de Taxobot
 */
@@ -30,13 +28,13 @@ EOT;
 
 
 // les éléments nécessaires
-require_once "outils.php";
-require_once "configuration.php";
-require_once "modules.php";
-require_once "selecteurs.php";
-require_once "wikipedia.php";
-require_once "rendu.php";
-require_once "data_pays.php";
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'controleurs', 'outils.php'));
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'controleurs', 'modules.php'));
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'controleurs', 'selecteurs.php'));
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'controleurs', 'wikipedia.php'));
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'modeles', 'configuration.php'));
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'modeles', 'rendu.php'));
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'modeles', 'data', 'data_pays.php'));
 
 $web = false;
 
@@ -63,6 +61,7 @@ function sortie_resultat($article, $liens, $taxon) {
   $juste_article = get_config('article');
   if ($web) {
     html_head("Résultats pour $taxon − Taxobot v$version");
+    echo '<link rel="stylesheet" type="text/css" href="WEB/assets/style.css">';
     echo "<table width='99%'>\n";
     echo "<tr><td width='80%' style='vertical-align: top;'>\n";
     echo "<i>Informations sur la requête : </i>";
@@ -71,6 +70,7 @@ function sortie_resultat($article, $liens, $taxon) {
       echo "$t ; ";
     }
     echo "</br>\n";
+    echo '<script type="text/javascript" src="WEB/assets/script.js"></script>';
     echo "<br/><hr><button id='copybutton' onclick='copyFunction()'>Copier le wikitexte</button><div id='wikitexte' width='99%'>";
     echo $article;
     echo "</div>";
@@ -237,7 +237,7 @@ debug("Modules : " . print_r($id_modules, true));
 
 // on charge tous les modules
 foreach($modules as $m) {
-  require_once "./modules/$m";
+  require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'controleurs', 'modules', $m));
 }
 
 // on initialise tous les modules
