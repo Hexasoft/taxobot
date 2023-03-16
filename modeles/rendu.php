@@ -5,8 +5,7 @@
 */
 
 // pour la mise en forme des liens auteur
-require_once "auteurs.php";
-
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'auteurs.php'));
 
 // retourne TRUE si la section concernée doit être rendue même vide,
 // selon la section et l'état de l'option "plan"
