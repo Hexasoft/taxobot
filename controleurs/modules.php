@@ -309,7 +309,7 @@ function classif_modules() {
 
 // retourne la liste de tous les modules (dans le répertoire modules/)
 function cherche_modules() {
-  $fichiers = scandir("./modules");
+  $fichiers = scandir(join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'controleurs', 'modules')));
   if ($fichiers === false) {
     error("cherche_modules: échec du 'scandir'");
     return false;
