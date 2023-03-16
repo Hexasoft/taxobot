@@ -7,15 +7,16 @@
 
 
 // les éléments nécessaires
-require_once "outils.php";
-require_once "configuration.php";
-require_once "modules.php";
-require_once "wikipedia.php";
-require_once "rendu.php";
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'controleurs', 'outils.php'));
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'controleurs', 'modules.php'));
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'controleurs', 'wikipedia.php'));
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'modeles', 'configuration.php'));
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'modeles', 'rendu.php'));
 
 
 // on initialise la page
 html_head("Taxobot - v" . $version);
+echo '<link rel="stylesheet" type="text/css" href="assets/style.css">';
 
 // message de début
 echo <<<EOL
@@ -45,7 +46,7 @@ $id_modules = noms_vers_identifiants($modules);
 
 // on charge tous les modules
 foreach($modules as $m) {
-  require_once "./modules/$m";
+  require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'controleurs', 'modules', $m));
 }
 
 // on initialise tous les modules
@@ -66,7 +67,7 @@ $cdef = meilleure_classification("*");
 
 
 // on prépare la FORM
-echo "<form action='taxobot.php' method='GET'>\n";
+echo "<form action='../taxobot.php' method='GET'>\n";
 
 // table de mise en forme
 echo "<table>\n";
