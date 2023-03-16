@@ -6,8 +6,9 @@
 
 
 ////// nouvelle partie : en test
-require "liste_botanistes.php"; // $aut_botanistes[]
-require "liste_zoologistes.php"; // $aut_zoologistes[]
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'modeles', 'data', 'liste_botanistes.php')); // $aut_botanistes[]
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'modeles', 'data', 'liste_zoologistes.php'));  // $aut_zoologistes[]
+
 
 // séparateur ? (basique)
 function est_separateur($e) {
