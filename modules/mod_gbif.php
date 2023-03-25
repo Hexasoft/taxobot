@@ -246,7 +246,14 @@ function gbif_taxon_info($id, $name="<ndef>", $deja=0) {
   }
   // il n'y a pas de champ 'auteur', il faut enlever le nom scientifique du
   // champ 'nom complet' pour l'obtenir
-  $tmp = $cur->canonicalNameComplete;
+  unset($tmp);
+  if (isset($cur->canonicalNameComplete)) {
+    $tmp = $cur->canonicalNameComplete;
+  }
+  if (!isset($tmp) or !isset($result['nom'])) {
+    logs("GBIF: pas de nom associé au taxon '$id'");
+    return false;
+  }
   $lng = strlen($result['nom']);
   $result['auteur'] = substr($tmp, $lng+1);
   if (isset($cur->rank)) {
