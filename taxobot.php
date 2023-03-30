@@ -28,6 +28,7 @@ EOT;
 
 
 // les éléments nécessaires
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'controleurs', 'dependencies.php'));
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'controleurs', 'outils.php'));
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'controleurs', 'modules.php'));
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'controleurs', 'selecteurs.php'));
