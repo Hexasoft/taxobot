@@ -59,7 +59,7 @@ function m_col_infos(&$struct, $classif) {
   }
 
   $trouve = false;
-  $bundle = false;
+  $rbundle = [];
   // si on trouve directement (le bon nom, 'accepted')
   foreach($res->result as $r) {
     if (($r->usage->status == 'accepted') and ($r->usage->name->scientificName == $taxon)) {
@@ -70,6 +70,7 @@ function m_col_infos(&$struct, $classif) {
         $bundle['auteur'] = $r->usage->name->authorship;
       }
       $trouve = true;
+      $rbundle[] = $bundle;
       break;
     }
   }
@@ -85,8 +86,9 @@ function m_col_infos(&$struct, $classif) {
         if (isset($r->usage->accepted->name->authorship)) {
           $bundle['auteur'] = $r->usage->accepted->name->authorship;
         }
+        $bundle['syn'] = true;
         $trouve = true;
-        break;
+        $rbundle[] = $bundle;
       }
     }
   }
@@ -102,6 +104,7 @@ function m_col_infos(&$struct, $classif) {
           $bundle['auteur'] = $r->usage->name->authorship;
         }
         $trouve = true;
+        $rbundle[] = $bundle;
         break;
       }
     }
@@ -111,7 +114,7 @@ function m_col_infos(&$struct, $classif) {
   if (!$trouve) {
     return false;
   }
-  $struct['liens']['col'] = $bundle;
+  $struct['liens']['col'] = $rbundle;
 
   if (!$classif) {
     return true;
@@ -123,25 +126,51 @@ function m_col_infos(&$struct, $classif) {
 // génération des liens externes (modèles dans Voir aussi)
 function m_col_ext($struct) {
   $cdate = dates_recupere();
-  if (isset($struct['liens']['col']['id'])) {
-    $data = $struct['liens']['col'];
+  if (!isset($struct['liens']['col'])) {
+    return false;
+  }
+  if (!isset($struct['liens']['col'][0])) {
+    // ce n'est pas une liste, on la met sous forme de liste
+    $struct['liens']['col'][0] = $struct['liens']['col'];
+  }
+
+  $res = [];
+  foreach($struct['liens']['col'] as $data) {
+    if (!isset($data['id'])) {
+      continue;
+    }
     $cible = wp_met_italiques($data['nom'], $struct['taxon']['rang'], $struct['regne']);
     if (isset($data['auteur'])) {
       $cible .= " " . $data['auteur'];
     }
-    return "{{CatalogueofLife | " . $data['id'] . " | " . $cible . " | " . "consulté le=$cdate }}";
-  } else {
+    if (isset($data['syn']) and $data['syn']) {
+      $cible .= " <small>(synonyme)</small>";
+    }
+    $res[] = "{{CatalogueofLife | " . $data['id'] . " | " . $cible . " | " . "consulté le=$cdate }}";
+  }
+  if (empty($res)) {
     return false;
   }
+  return $res;
 }
 
 // génération de liens vers les éléments (pour partie aide/debug de l'interface)
 function m_col_liens($struct) {
-  if (isset($struct['liens']['col']['id'])) {
-    return "<a href='https://www.catalogueoflife.org/data/taxon/" . $struct['liens']['col']['id'] .
-           "'>CoL</a>";
-  } else {
+  if (!isset($struct['liens']['col'][0])) {
+    // ce n'est pas une liste, on la met sous forme de liste
+    $struct['liens']['col'][0] = $struct['liens']['col'];
+  }
+  $res = [];
+  foreach($struct['liens']['col'] as $data) {
+    if (!isset($data['id'])) {
+      continue;
+    }
+    $res[] = "<a href='https://www.catalogueoflife.org/data/taxon/" . $data['id'] .
+             "'>CoL</a>";
+  }
+  if (empty($res)) {
     return false;
   }
+  return $res;
 }
 
