@@ -242,6 +242,9 @@ function rendu_inf($struct) {
   } else {
     $ret .= $ret0;
   }
+  if (isset($struct['sous-taxons']['coupe']) and $struct['sous-taxons']['coupe']) {
+    $ret .= "ATTENTION : liste des sous-taxons tronquée car trop longue. Utilisez '-limite-listes' pour modifier ce comportement.\n";
+  }
   return "\n" . $ret;
 }
 
@@ -360,6 +363,9 @@ function rendu_supp($struct) {
         $ret .= colonnes_contenu($ret0);
       } else {
         $ret .= $ret0;
+      }
+      if (isset($struct['synonymes']['coupe']) and $struct['synonymes']['coupe']) {
+        $ret .= "ATTENTION : liste des synonymes tronquée car trop longue. Utilisez '-limite-listes' pour modifier ce comportement.\n";
       }
     }
   }
