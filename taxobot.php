@@ -325,6 +325,10 @@ if (!$justext) { // si juste-ext → rien coté classification
   // juste-ext → on met quelques infos pour éviter les erreurs
   $struct['taxon']['rang'] = 'espèce';
   $struct['regne'] = 'animal';
+  // si indiqué, on "force" le règne
+  if (get_config("force-regne") != "") {
+    $struct['regne'] = get_config("force-regne");
+  }
 }
 
 // on lance tous les autres modules (sauf celui de la classification)
