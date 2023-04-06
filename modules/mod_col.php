@@ -156,7 +156,10 @@ function m_col_ext($struct) {
 
 // génération de liens vers les éléments (pour partie aide/debug de l'interface)
 function m_col_liens($struct) {
-  if (!isset($struct['liens']['col'][0])) {
+  if (!isset($struct['liens']['col'])) {
+    return false;
+  }
+  if (isset($struct['liens']['col']['id'])) {
     // ce n'est pas une liste, on la met sous forme de liste
     $struct['liens']['col'][0] = $struct['liens']['col'];
   }
