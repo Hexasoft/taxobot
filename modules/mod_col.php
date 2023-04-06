@@ -10,16 +10,6 @@ function m_col_init() {
 }
 
 
-// curl 'https://api.checklistbank.org/dataset/9880/nameusage/suggest?fuzzy=false&limit=25&q=Ecliptopera' -H 'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/110.0' -H 'Accept: application/json, text/plain, */*' -H 'Accept-Language: fr-FR,fr;q=0.8,en-US;q=0.5,en;q=0.3' -H 'Accept-Encoding: gzip, deflate, br' -H 'Origin: https://www.catalogueoflife.org' -H 'Connection: keep-alive' -H 'Referer: https://www.catalogueoflife.org/' -H 'Sec-Fetch-Dest: empty' -H 'Sec-Fetch-Mode: cors' -H 'Sec-Fetch-Site: cross-site'
-
-
-
-/*
-  TODO : il faut récupérer le numéro du "dataset" qui visiblement évolue au cours du temps
-         et ne contient pas les mêmes identifiants
-*/
-
-
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
 // gérer la classification également
 function m_col_infos(&$struct, $classif) {
@@ -67,34 +57,66 @@ function m_col_infos(&$struct, $classif) {
     logs("CoL: taxon non trouvé");
     return false;
   }
-  
-  $struct['liens']['col']['id'] = $res->result[0]->id;
-  $struct['liens']['col']['nom'] = $res->result[0]->usage->name->scientificName;
-  if (isset($res->result[0]->usage->name->authorship)) {
-    $struct['liens']['col']['auteur'] = $res->result[0]->usage->name->authorship;
-  }
+
+  $trouve = false;
+  $bundle = false;
+  // si on trouve directement (le bon nom, 'accepted')
   foreach($res->result as $r) {
-    if (!isset($r->usage->accepted)) {
-      $struct['liens']['col']['id'] = $r->id;
-      $struct['liens']['col']['nom'] = $r->usage->name->scientificName;
+    if (($r->usage->status == 'accepted') and ($r->usage->name->scientificName == $taxon)) {
+      $bundle = [];
+      $bundle['id'] = $r->id;
+      $bundle['nom'] = $r->usage->name->scientificName;
       if (isset($r->usage->name->authorship)) {
-        $struct['liens']['col']['auteur'] = $r->usage->name->authorship;
+        $bundle['auteur'] = $r->usage->name->authorship;
       }
+      $trouve = true;
       break;
     }
+  }
   
-    if (isset($r->usage->name->status) and ($r->usage->name->status == "accepted")) {
-      $struct['liens']['col']['id'] = $r->id;
-      $struct['liens']['col']['nom'] = $r->usage->name->scientificName;
-      if (isset($r->usage->name->authorship)) {
-        $struct['liens']['col']['auteur'] = $r->usage->name->authorship;
+  // si non trouvé on tente de suivre les synonymes
+  if (!$trouve) {
+    foreach($res->result as $r) {
+      if (($r->usage->name->scientificName == $taxon) and isset($r->usage->accepted) and
+          ($r->usage->accepted->status == 'accepted')) {
+        $bundle = [];
+        $bundle['id'] = $r->usage->accepted->id;
+        $bundle['nom'] = $r->usage->accepted->name->scientificName;
+        if (isset($r->usage->accepted->name->authorship)) {
+          $bundle['auteur'] = $r->usage->accepted->name->authorship;
+        }
+        $trouve = true;
+        break;
       }
     }
   }
   
+  // si rien trouvé et que 'inclure-invalides' on prend le premier qui a le bon nom scientifique
+  if (!$trouve and get_config('inclure-invalides')) {
+    foreach($res->result as $r) {
+      if ($r->usage->name->scientificName == $taxon) {
+        $bundle = [];
+        $bundle['id'] = $r->id;
+        $bundle['nom'] = $r->usage->name->scientificName;
+        if (isset($r->usage->name->authorship)) {
+          $bundle['auteur'] = $r->usage->name->authorship;
+        }
+        $trouve = true;
+        break;
+      }
+    }
+  }
+
+  // retour
+  if (!$trouve) {
+    return false;
+  }
+  $struct['liens']['col'] = $bundle;
+
   if (!$classif) {
     return true;
   }
+  // on ne fait pas la classification
   return false;
 }
 
