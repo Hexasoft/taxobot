@@ -300,6 +300,7 @@ if (!$justext) { // si juste-ext → rien coté classification
   $ret = $class($struct, true);
   $elaps2 = microtime(true);
   
+  debug("Temps d'exécution du module (classification) $classification : " . number_format($elaps2-$elaps1, 2) . "s");
   logs("Temps d'exécution du module (classification) $classification : " . number_format($elaps2-$elaps1, 2) . "s");
 
   if (!$ret) {
