@@ -9,6 +9,38 @@ function m_col_init() {
   return declare_module("col", false, true, true);
 }
 
+// table des rangs
+$m_col_ranks = [
+  "family" => "famille",
+  "superfamily" => "super-famille",
+  "subfamily" => "sous-famille",
+  "superclass" => "super-classe",
+  "class" => "classe",
+  "subclass" => "sous-classe",
+  "genus" => "genre",
+  "subgenus" => "sous-genre",
+  "species" => "espèce",
+  "superclass" => "super-classe",
+  "megaclass" => "super-classe",
+  "gigaclass" => "super-classe",
+  "parvphylum" => "micro-embranchement",
+  "infraphylum" => "infra-embranchement",
+  "subphylum" => "sous-embranchement",
+  "phylum" => "embranchement",
+  "kingdom" => "règne",
+];
+
+// conversion de rang CoL → WP
+function m_col_rang($rang) {
+  global $m_col_ranks;
+  
+  if (isset($m_col_ranks[$rang])) {
+    return $m_col_ranks[$rang];
+  }
+  return "non classé";
+}
+
+
 
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
 // gérer la classification également
@@ -69,6 +101,9 @@ function m_col_infos(&$struct, $classif) {
       if (isset($r->usage->name->authorship)) {
         $bundle['auteur'] = $r->usage->name->authorship;
       }
+      if (isset($r->usage->name->rank)) {
+        $bundle['rang'] = m_col_rang($r->usage->name->rank);
+      }
       $trouve = true;
       $rbundle[] = $bundle;
       break;
@@ -86,6 +121,9 @@ function m_col_infos(&$struct, $classif) {
         if (isset($r->usage->accepted->name->authorship)) {
           $bundle['auteur'] = $r->usage->accepted->name->authorship;
         }
+        if (isset($r->usage->name->rank)) {
+          $bundle['rang'] = m_col_rang($r->usage->name->rank);
+        }
         $bundle['syn'] = true;
         $trouve = true;
         $rbundle[] = $bundle;
@@ -102,6 +140,9 @@ function m_col_infos(&$struct, $classif) {
         $bundle['nom'] = $r->usage->name->scientificName;
         if (isset($r->usage->name->authorship)) {
           $bundle['auteur'] = $r->usage->name->authorship;
+        }
+        if (isset($r->usage->name->rank)) {
+          $bundle['rang'] = m_col_rang($r->usage->name->rank);
         }
         $trouve = true;
         $rbundle[] = $bundle;
@@ -139,7 +180,9 @@ function m_col_ext($struct) {
     if (!isset($data['id'])) {
       continue;
     }
-    $cible = wp_met_italiques($data['nom'], $struct['taxon']['rang'], $struct['regne']);
+    $cible = wp_met_italiques($data['nom'],
+         isset($data['rang'])?$data['rang']:$struct['taxon']['rang'],
+         $struct['regne']);
     if (isset($data['auteur'])) {
       $cible .= " " . $data['auteur'];
     }
