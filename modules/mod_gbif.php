@@ -301,6 +301,7 @@ function m_gbif_infos(&$struct, $classif) {
   // on effectue une recherche sur le nom du taxon
   $url = "https://api.gbif.org/v1/species?datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&name=" .
          urlencode($taxon);
+  debugc("Requête GBIF : recherche du taxon '$taxon'");
   $ret = get_data($url);
   // erreur CURL
   if ($ret === false) {
@@ -321,6 +322,7 @@ function m_gbif_infos(&$struct, $classif) {
   
   // on parcours pour trouver le "bon" taxon
   $cur = false;
+  debugc("Recherche réponses");
   foreach($_cur->results as $r) {
     // il faut que le taxon soit 'ACCEPTED'
     if ($r->taxonomicStatus == "ACCEPTED") {
@@ -346,6 +348,7 @@ function m_gbif_infos(&$struct, $classif) {
   }
   
   // données lien externe
+  debugc("Extraction des données");
   $struct['liens']['gbif']['id'] = $cur->key;
   $tmp = gbif_taxon_info($cur->key);
   $struct['liens']['gbif']['auteur'] = $tmp['auteur'];
@@ -356,6 +359,7 @@ function m_gbif_infos(&$struct, $classif) {
   
   // si le taxon est un synonyme, et qu'on demande à suivre les synonymes,
   // on reboucle
+  debugc("Extraction des données (2)");
   if (isset($cur->acceptedKey) and ($cur->acceptedKey != $cur->key)) {
     if (!$classif) {
       // si on n'est pas classification on se contente d'indiquer la synonymie
@@ -386,6 +390,7 @@ function m_gbif_infos(&$struct, $classif) {
   }
   
   // données taxon
+  debugc("Extraction des données (3)");
   $struct['taxon']['auteur'] = $tmp['auteur'];
   $struct['taxon']['rang'] = gbif_cherche_rang($cur->rank);
   // on remplace le nom par le nom retourné
@@ -421,6 +426,7 @@ function m_gbif_infos(&$struct, $classif) {
   }
   
   // basionyme ?
+  debugc("Extraction des données (4)");
   if (isset($cur->basionymKey) and !empty($cur->basionymKey)) {
     $url = "https://api.gbif.org/v1/species/" .
          urlencode($cur->basionymKey);
@@ -439,11 +445,19 @@ function m_gbif_infos(&$struct, $classif) {
   }
   
   // si présent, les sous-taxons
+  debugc("Extraction des données (5)");
   if (isset($cur->numDescendants) and ($cur->numDescendants > 0)) {
     $encore = true;
     $offset = 0;
     $liste = [];
+    $coupe = false;
+    $limite = get_config("limite-listes");
     while ($encore) {
+      if (($limite > 0) and (count($liste) > $limite)) {
+        $coupe = true;
+        break;
+      }
+      debugc("Sous-taxons (" . count($liste) . ")");
       $url = "https://api.gbif.org/v1/species/" . $struct['liens']['gbif']['id'] . "/children?offset=$offset";
       $ret = get_data($url);
       // erreur CURL
@@ -467,6 +481,7 @@ function m_gbif_infos(&$struct, $classif) {
         if ($x === false) {
           continue;
         }
+        debugc("-> " . $x['nom']);
         $tmp['nom'] = $x['nom'];
         $tmp['auteur'] = $x['auteur'];
         if (isset($x['rang'])) {
@@ -483,11 +498,13 @@ function m_gbif_infos(&$struct, $classif) {
     if (!empty($liste)) {
       $struct['sous-taxons']['liste'] = $liste;
       $struct['sous-taxons']['source'] = gbif_bioref();
+      $struct['sous-taxons']['coupe'] = $coupe;
     }
   }
 nop:
 
   // si présent, les noms vernaculaires en français
+  debugc("Extraction des données (6)");
   $offset = 0;
   $encore = true;
   $liste = [];
@@ -519,10 +536,17 @@ nop:
 nop2:
 
   // synonymes
+  debugc("Extraction des données (7)");
   $offset = 0;
   $encore = true;
   $tmp = [];
+  $coupe = false;
+  $limite = get_config("limite-listes");
   while($encore) {
+    if (($limite > 0) and (count($liste) > $limite)) {
+      $coupe = true;
+      break;
+    }
     $url = "https://api.gbif.org/v1/species/" . $struct['liens']['gbif']['id'] . "/synonyms?offset=$offset";
     $ret = get_data($url);
     // erreur CURL
@@ -556,6 +580,7 @@ nop2:
   if (!empty($tmp)) {
     $struct['synonymes']['liste'] = $tmp;
     $struct['synonymes']['source'] = gbif_bioref();
+    $struct['synonymes']['coupe'] = $coupe;
   }
 nop3:
 
