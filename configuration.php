@@ -28,6 +28,7 @@ $configuration = [
   "article" => false,
   "auteurs" => 'n',
   "plan" => false,
+  "limite-listes" => -1,
 ];
 
 // liste des éléments configurables
@@ -54,6 +55,7 @@ $liste_configuration = [
   "article" => ['flag', 'Ne générer que la sortie de l\'article et rien d\'autre'],
   "auteurs" => ['string', 'Mode de traitement des auteurs. s→standard, n→nouveau*, n1→nouveau+ajout réponse unique'],
   "plan" => [ 'flag', 'Générer un plan-type, même quand il n\'y a pas d\'information'],
+  "limite-listes" => [ 'int', "Nombre maximum d'éléments dans les listes (sous-taxons, synonymes). <=0 : pas de limite [256]"],
 ];
 
 // retourne la configuration
