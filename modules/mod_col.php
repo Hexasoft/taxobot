@@ -187,7 +187,7 @@ function m_col_ext($struct) {
       $cible .= " " . $data['auteur'];
     }
     if (isset($data['syn']) and $data['syn']) {
-      $cible .= " <small>(synonyme)</small>";
+      $cible .= " <small>(synonymie)</small>";
     }
     $res[] = "{{CatalogueofLife | " . $data['id'] . " | " . $cible . " | " . "consulté le=$cdate }}";
   }
