@@ -323,6 +323,7 @@ if (!$justext) { // si juste-ext → rien coté classification
   }
 } else {
   // juste-ext → on met quelques infos pour éviter les erreurs
+  $struct['juste-ext'] = true;
   $struct['taxon']['rang'] = 'espèce';
   $struct['regne'] = 'animal';
   // si indiqué, on "force" le règne
