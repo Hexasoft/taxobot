@@ -9,7 +9,7 @@ function m_col_init() {
   return declare_module("col", false, true, true);
 }
 
-// table des rangs
+// table des rangs (à compléter)
 $m_col_ranks = [
   "family" => "famille",
   "superfamily" => "super-famille",
@@ -29,6 +29,32 @@ $m_col_ranks = [
   "phylum" => "embranchement",
   "kingdom" => "règne",
 ];
+
+// détermine le règne
+function m_col_regne($classif) {
+  foreach($classif as $el) {
+    if (isset($el->name)) {
+      if ($el->name == "Animalia") {
+        return "animal";
+      } else if ($el->name == "Plantae") {
+        return "végétal";
+      } else if ($el->name == "Fungi") {
+        return "champignon";
+      } else if ($el->name == "Archaea") {
+        return "archaea";
+      } else if ($el->name == "Chromista") {
+        return "protiste";
+      } else if ($el->name == "Protozoa") {
+        return "protiste";
+      } else if ($el->name == "Bacteria") {
+        return "bactérie";
+      }
+    }
+  }
+
+  return null;
+}
+
 
 // conversion de rang CoL → WP
 function m_col_rang($rang) {
@@ -92,6 +118,7 @@ function m_col_infos(&$struct, $classif) {
 
   $trouve = false;
   $rbundle = [];
+  $classif = false;
   // si on trouve directement (le bon nom, 'accepted')
   foreach($res->result as $r) {
     if (($r->usage->status == 'accepted') and ($r->usage->name->scientificName == $taxon)) {
@@ -106,6 +133,7 @@ function m_col_infos(&$struct, $classif) {
       }
       $trouve = true;
       $rbundle[] = $bundle;
+      $classif = $r->classification;
       break;
     }
   }
@@ -127,6 +155,7 @@ function m_col_infos(&$struct, $classif) {
         $bundle['syn'] = true;
         $trouve = true;
         $rbundle[] = $bundle;
+        $classif = $r->classification;
       }
     }
   }
@@ -146,11 +175,20 @@ function m_col_infos(&$struct, $classif) {
         }
         $trouve = true;
         $rbundle[] = $bundle;
+        $classif = $r->classification;
         break;
       }
     }
   }
-
+  
+  // si 'juste-ext' et qu'on a un un règne on le force
+  if (isset($struct['juste-ext']) and $struct['juste-ext'] and ($classif !== false)) {
+    $tmp = m_col_regne($classif);
+    if ($tmp) {
+      $struct['regne'] = $tmp;
+    }
+  }
+  
   // retour
   if (!$trouve) {
     return false;
