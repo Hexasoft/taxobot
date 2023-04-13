@@ -1,3 +1,11 @@
+![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/Hexasoft/taxobot?label=version&sort=semver&logo=github)
+![GitHub last commit](https://img.shields.io/github/last-commit/Hexasoft/taxobot)
+![PHP version](https://img.shields.io/badge/PHP-%3E%3D%207.x-8892BF.svg?logo=php)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![Windows](https://img.shields.io/badge/Linux-lightgrey?logo=Linux)
+![Linux](https://img.shields.io/badge/Windows-lightgrey?logo=windows)
+![MacOS](https://img.shields.io/badge/macOS-lightgrey?logo=Apple)
+
 # Présentation
 
 Taxobot est un programme qui permet de générer le squelette d'un article de biologie pour un taxon donné. Il extrait les données de diverses sources de référence utilisées par le projet Biologie.
