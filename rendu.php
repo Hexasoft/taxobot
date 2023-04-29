@@ -397,6 +397,7 @@ function rendu_description($struct) {
 
 // rendu de la zone "Distribution"
 function rendu_distribution($struct) {
+  $cdate = dates_recupere();
   $resu = "\n== Distribution ==\n";
   if (!isset($struct['distribution'])) {
     if (rendu_vide('distribution')) {
@@ -436,9 +437,9 @@ function rendu_distribution($struct) {
   if (count($struct['distribution']) == 1) {
     if (!empty($certain)) {
       if (count($certain) > 1) {
-        $resu .= "Ce taxon se rencontre dans les pays suivants{{Bioref|$source|ref}} : ";
+        $resu .= "Ce taxon se rencontre dans les pays suivants{{Bioref|$source|$cdate|ref}} : ";
       } else {
-        $resu .= "Ce taxon se rencontre dans le pays suivant{{Bioref|$source|ref}} : ";
+        $resu .= "Ce taxon se rencontre dans le pays suivant{{Bioref|$source|$cdate|ref}} : ";
       }
       $resu .= implode(", ", $certain);
       $resu .= ".\n";
@@ -448,9 +449,9 @@ function rendu_distribution($struct) {
         $resu .= "\n";
       }
       if (count($uncertain) > 1) {
-        $resu .= "La présence de ce taxon est incertaine dans les pays suivants{{Bioref|$source|ref}} : ";
+        $resu .= "La présence de ce taxon est incertaine dans les pays suivants{{Bioref|$source|$cdate|ref}} : ";
       } else {
-        $resu .= "La présence de ce taxon est incertaine dans le pays suivant{{Bioref|$source|ref}} : ";
+        $resu .= "La présence de ce taxon est incertaine dans le pays suivant{{Bioref|$source|$cdate|ref}} : ";
       }
       $resu .= implode(", ", $uncertain);
       $resu .= ".\n";
@@ -463,6 +464,7 @@ function rendu_distribution($struct) {
 
 // rendu étymologie
 function rendu_etymologie($struct) {
+  $cdate = dates_recupere();
   $resu = "\n== Étymologie ==\n";
   if (!isset($struct['etymologie'])) {
     if (rendu_vide('etymologie')) {
@@ -472,7 +474,7 @@ function rendu_etymologie($struct) {
       return "";
     }
   }
-  $resu .= $struct['etymologie']['texte'] . "{{Bioref|" . $struct['etymologie']['source'] . "|ref}}.\n";
+  $resu .= $struct['etymologie']['texte'] . "{{Bioref|" . $struct['etymologie']['source'] . "|$cdate|ref}}.\n";
   return $resu;
 }
 
