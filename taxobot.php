@@ -254,6 +254,12 @@ foreach($id_modules as $id) {
 
 // on récupère la liste des modules qui peuvent traiter le domaine
 $possibles = modules_possibles($domaine);
+if ($possibles === false) {
+  logs("Domaine '$domaine' non reconnu");
+  sortie_erreur("Domaine '$domaine' non reconnu.");
+  fini_outils();
+  die(1);
+}
 debug("Possibles : " . print_r($possibles, true));
 logs("Modules possibles (pour domaine '$domaine') : " . implode(", ", $possibles));
 
@@ -318,6 +324,12 @@ if (!$justext) { // si juste-ext → rien coté classification
     $domaine = $struct['regne'];
     // on regénère la liste des modules possibles à partir de ce domaine
     $possibles = modules_possibles($domaine);
+    if ($possibles === false) {
+      logs("Domaine '$domaine' non reconnu");
+      sortie_erreur("Domaine '$domaine' non reconnu.");
+      fini_outils();
+      die(1);
+    }
     logs("Affinage domaine : '*' → '$domaine'");
     logs("Modules possibles (màj) : " . implode(", ", $possibles));
   }
