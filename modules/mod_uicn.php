@@ -35,6 +35,8 @@ function get_curl($url, $ref=null) {
   global $ch;
 
   curl_setopt($ch['curl'], CURLOPT_URL, $url);
+  curl_setopt($ch['curl'], CURLOPT_NOPROGRESS, false);
+  curl_setopt($ch['curl'], CURLOPT_PROGRESSFUNCTION, function() {});
   curl_setopt($ch['curl'], CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0");
 
   /* Crappy hack to add extra cookies, should be cleaned up */
@@ -85,6 +87,8 @@ function get_curl_redirect($url) {
   global $ch;
 
   curl_setopt($ch['curl'], CURLOPT_URL, $url);
+  curl_setopt($ch['curl'], CURLOPT_NOPROGRESS, false);
+  curl_setopt($ch['curl'], CURLOPT_PROGRESSFUNCTION, function() {});
   curl_setopt($ch['curl'], CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0");
 
   /* Crappy hack to add extra cookies, should be cleaned up */
@@ -127,6 +131,8 @@ function post_curl($url, $data) {
   global $ch;
 
   curl_setopt($ch['curl'], CURLOPT_URL, $url);
+  curl_setopt($ch['curl'], CURLOPT_NOPROGRESS, false);
+  curl_setopt($ch['curl'], CURLOPT_PROGRESSFUNCTION, function() {});
   curl_setopt($ch['curl'], CURLOPT_USERAGENT, "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0");
 
   /* Crappy hack to add extra cookies, should be cleaned up */
@@ -162,6 +168,8 @@ function curl_start2() {
   global $ch;
   curl_close($ch['curl']);
   $ch['curl'] = curl_init();
+  curl_setopt($ch['curl'], CURLOPT_NOPROGRESS, false);
+  curl_setopt($ch['curl'], CURLOPT_PROGRESSFUNCTION, function() {});
   curl_setopt($ch['curl'], CURLOPT_COOKIEJAR, $fichier_temp);
   curl_setopt($ch['curl'], CURLOPT_COOKIEFILE, $fichier_temp);
   curl_setopt($ch['curl'], CURLOPT_MAXCONNECTS, 100);
