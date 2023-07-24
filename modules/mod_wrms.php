@@ -79,8 +79,6 @@ $wrms_rangs = [
   'Domain' => 'domaine',
   'Superdomain' => 'super-domaine',
   'Empire' => 'empire',
-  'Kingdom' => 'royaume',
-  'Subkingdom' => 'sous-royaume',
 ];
 function wrms_rang($rang) {
   global $wrms_rangs;
