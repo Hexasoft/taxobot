@@ -143,7 +143,9 @@ function wrms_extraire($page, $id) {
     }
     // statut
     if (strpos($ligne, '>Status<') !== false) {
-      $out['statut'] = trim(strip_tags($tbl[$idx+5]));
+      if (isset($tbl[$idx+5])) {
+        $out['statut'] = trim(strip_tags($tbl[$idx+5]));
+      }
     }
     // basionyme
     if (strpos($ligne, '>Orig. name<') !== false) {
@@ -220,7 +222,7 @@ function wrms_extraire($page, $id) {
         $blob = [];
         $blob['nom'] = $ns;
         $blob['rang'] = wrms_rang($p2);
-        if ($blob['rang'] != 'royaume') {
+        if (($blob['rang'] != 'royaume') and ($blob['rang'] != 'règne')) {
           $out['classification'][] = $blob;
         } else {
           // on ne traite pas ce rang mais il sert pour la charte
