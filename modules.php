@@ -149,10 +149,15 @@ $domaines_false = [
   ],
 ];
 
+// noms de tous les domaines rencontrés
+$tous_domaines = [];
+
 
 // insert récursivement la valeur $val pour l'entrée $nom et ses descendants dans le $domaine
 function rec_domaines(&$domaine, $nom, $val) {
+  global $tous_domaines;
   foreach($domaine as $id => $cont) {
+    $tous_domaines[$id] = $id;
     if (($nom == "*") or ($id == $nom)) {
       $domaine[$id]['accepte'] = $val;
       // si présents on fait pareil sur les descendants
@@ -348,7 +353,7 @@ function vrai_dans_domaine($def) {
     return false;
   }
   foreach($def as $nom => $data) {
-    if ($data['accepte']) {
+    if (isset($data['accepte']) and $data['accepte']) {
       return true;
     }
     $ret = vrai_dans_domaine($data['sous']);
@@ -389,7 +394,15 @@ function rec_strict_domaine($domaine, $def) {
 
 // recherche les modules qui peuvent traiter le domaine concerné
 function modules_possibles($domaine) {
-  global $m_modules;
+  global $m_modules, $tous_domaines;
+
+  // le domaine indiqué doit exister
+  if ($domaine != "*") {
+    if (!isset($tous_domaines[$domaine])) {
+      return false;
+    }
+  }
+  
   $tbl = [];
   // si domaine=* on ajoute tout
   if ($domaine == "*") {

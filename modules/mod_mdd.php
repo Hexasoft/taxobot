@@ -66,7 +66,9 @@ function m_mdd_ext($struct) {
   if (isset($struct['liens']['mdd']['id'])) {
     $data = $struct['liens']['mdd'];
     $cdate = dates_recupere();
-    return "{{MDD | " . $data['id'] . " | ''" . $data['nom'] . "'' | consulté le=$cdate }}";
+    $tmp = explode(" ", trim($data['nom']));
+    $pre = implode(" | ", $tmp);
+    return "{{MDD | $pre | " . $data['id'] . " | ''" . $data['nom'] . "'' | consulté le=$cdate }}";
   } else {
     return false;
   }

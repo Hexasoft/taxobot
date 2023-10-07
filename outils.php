@@ -45,6 +45,8 @@ function get_data($url, $header=false, $follow=true) {
   global $fichier_temp;
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_NOPROGRESS, false);
+  curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, function() {});
   curl_setopt($ch, CURLOPT_USERAGENT,
               "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0");
   curl_setopt($ch, CURLOPT_COOKIEJAR, $fichier_temp);
@@ -75,6 +77,8 @@ function get_data_header($url, $header=false, $follow=true) {
   global $fichier_temp;
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_NOPROGRESS, false);
+  curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, function() {});
   curl_setopt($ch, CURLOPT_USERAGENT,
               "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0");
   curl_setopt($ch, CURLOPT_COOKIEJAR, $fichier_temp);
@@ -108,6 +112,8 @@ function post_data($url, $post, $header=false) {
   global $fichier_temp;
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_NOPROGRESS, false);
+  curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, function() {});
   curl_setopt($ch, CURLOPT_USERAGENT,
               "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0");
   curl_setopt($ch, CURLOPT_COOKIEJAR, $fichier_temp);
@@ -136,6 +142,8 @@ function post_data_header($url, $post, $header=false, $follow=true) {
   global $fichier_temp;
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_NOPROGRESS, false);
+  curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, function() {});
   curl_setopt($ch, CURLOPT_USERAGENT,
               "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0");
   curl_setopt($ch, CURLOPT_COOKIEJAR, $fichier_temp);

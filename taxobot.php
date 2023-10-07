@@ -254,6 +254,12 @@ foreach($id_modules as $id) {
 
 // on récupère la liste des modules qui peuvent traiter le domaine
 $possibles = modules_possibles($domaine);
+if ($possibles === false) {
+  logs("Domaine '$domaine' non reconnu");
+  sortie_erreur("Domaine '$domaine' non reconnu.");
+  fini_outils();
+  die(1);
+}
 debug("Possibles : " . print_r($possibles, true));
 logs("Modules possibles (pour domaine '$domaine') : " . implode(", ", $possibles));
 
@@ -318,6 +324,12 @@ if (!$justext) { // si juste-ext → rien coté classification
     $domaine = $struct['regne'];
     // on regénère la liste des modules possibles à partir de ce domaine
     $possibles = modules_possibles($domaine);
+    if ($possibles === false) {
+      logs("Domaine '$domaine' non reconnu");
+      sortie_erreur("Domaine '$domaine' non reconnu.");
+      fini_outils();
+      die(1);
+    }
     logs("Affinage domaine : '*' → '$domaine'");
     logs("Modules possibles (màj) : " . implode(", ", $possibles));
   }
@@ -332,6 +344,18 @@ if (!$justext) { // si juste-ext → rien coté classification
   }
 }
 
+$timeout = get_config('timeout');
+$timed = false;
+
+if ($timeout > 0) {
+  debug("Initialisation 'timer' ($timeout)");
+  pcntl_async_signals(true);
+  pcntl_signal(SIGALRM, function($signal) use (&$timed) {
+    debug("Déclenchement du timeout");
+    $timed = true;
+  });
+}
+
 // on lance tous les autres modules (sauf celui de la classification)
 foreach($possibles as $id) {
   if ($classification == $id) {
@@ -344,8 +368,25 @@ foreach($possibles as $id) {
   // on nettoie les précédents cookies (éventuels)
   get_clear();
   $elaps1 = microtime(true);
+  $timed = false;
+  if ($timeout > 0) {
+    // si demandé on fixe le timeout
+    debug("Armement timer [$timeout]");
+    pcntl_alarm($timeout);
+  }
   $ret = $f($struct, false); // en mode données (pas classification)
   $elaps2 = microtime(true);
+  if (($timeout > 0) and (!$timed)) {
+    // on coupe le timeout s'il n'a pas servi
+    pcntl_alarm(0);
+  }
+  // si on a été coupé par timeout on l'indique
+  if (($timeout > 0) and $timed) {
+    logs("Module '$id' : timeout ($timeout sec.)");
+    debug("Module '$id' : timeout ($timeout sec.)");
+    $ret = false; // le module n'a pas fonctionné normalement
+  }
+  
   logs("Temps d'exécution du module (externe) $id : " . number_format($elaps2-$elaps1, 2) . "s");
   if ($ret == false) {
     logs("Échec de récupération d'informations du module '$id' (non classification)");
