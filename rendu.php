@@ -395,10 +395,10 @@ function rendu_description($struct) {
   return $resu . "\n";
 }
 
-// rendu de la zone "Distribution"
+// rendu de la zone de répartition ("Distribution")
 function rendu_distribution($struct) {
   $cdate = dates_recupere();
-  $resu = "\n== Distribution ==\n";
+  $resu = "\n== Répartition ==\n";
   if (!isset($struct['distribution'])) {
     if (rendu_vide('distribution')) {
       $resu .= "{{Section vide ou incomplète}}\n";
