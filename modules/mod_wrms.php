@@ -358,9 +358,20 @@ function m_wrms_infos(&$struct, $classif) {
   $ret = get_data($url);
   // on cherche le taxon
   $url = "https://www.marinespecies.org/aphia.php?p=taxlist";
-  $post = "searchpar=0&tComp=is&tName=" . str_replace(" ", "+", $taxon) .
-	      "&action=search&rSkips=0&adv=1&vOnly=0&marine=&fresh=&terrestrial=&fossil=4" .
-	      "&brackish=&unacceptreason=&image=&basionym=&nType=";
+  $post = "searchpar=0" . // Search by scientific name
+          "&tComp=is" . // Full name
+          "&tName=" . str_replace(" ", "+", $taxon) . // Taxon name
+          "&action=search&rSkips=0&adv=1" .
+          "&vOnly=0" . // only accepted taxa : 1, all : 0
+          // Environmental parameters on "any"
+          "&marine=" .
+          "&fresh=" . 
+          "&terrestrial=" .
+          "&brackish=" .
+          "&fossil=4" . // empty = any ; 3 = recent + fossil ; 4 = extant, not fossil-only. Pas mieux en any ?
+          // cf. Demande 143. Problème de regex ? On a une sortie "charte/règne non trouvé", même en "any".
+          // others flags : any
+          "&unacceptreason=&image=&basionym=&nType=";
   $header = [ 'Referer: https://www.marinespecies.org/aphia.php?p=search',
               'Sec-Fetch-Dest: document',
               'Sec-Fetch-Mode: navigate',
