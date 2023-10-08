@@ -1,5 +1,12 @@
 <?php
-
+/**
+ * Table d'équivalence des auteurs en zoologie.
+ *
+ * Format : <abréviation>, <lien interne>, <date de naissance>, <actif vers>, <date de mort>
+ * 
+ * Exemple : Aaliya → [[Ryan Aaliya]] (-,2019,-)
+ * 
+ */
 $aut_zoologistes = [
  [ "Aaliya","Ryan Aaliya",false,"2019",false,],
  [ "Abadi","Mahtab Rahmat Abadi",false,"2016",false,],
