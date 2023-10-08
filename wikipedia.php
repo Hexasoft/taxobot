@@ -386,7 +386,7 @@ function wp_met_italiques($taxon, $rang, $regne, $lien=false, $souslien=true) {
     }
   }
   foreach($exclusions as $e) {
-    $taxon = preg_replace("/" . $e[0] . "/", $e[1], $taxon);
+    $taxon = preg_replace("/\b" . $e[0] . "\b/", $e[1], $taxon);
   }
   
   if ($taxon == $ref) {
