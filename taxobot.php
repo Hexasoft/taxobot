@@ -13,18 +13,21 @@ taxon, puis met ces données en forme pour proposer un squelette d'article qui
 reprend ces informations et les pré-formate en suivant les conventions des
 articles de biologie de wikipédia en français.
 
-Taxobot prend en entrée le nom du taxon. Si le module à utiliser pour la classification
-n'est pas spécifié il détermine lui-même la classification suivie (en filtrant
-éventuellement par le domaine s'il est précisé). La classification retourne au
-minimum : le nom+rang+auteur du taxon et sa classification supérieure. Elle peut aussi
-retourner : les taxons inférieurs, les synonymes, le basionyme.
-Une fois les données de classification extraites il parcours les modules qui
+Taxobot prend le nom du taxon en entrée.
+
+Si le module à utiliser pour la classification n'est pas spécifié,
+il détermine lui-même la classification suivie (en filtrant éventuellement par le domaine s'il est précisé).
+La classification retourne au minimum : le nom + rang + auteur du taxon et sa classification supérieure.
+Elle peut aussi retourner : les taxons inférieurs, les synonymes, le basionyme.
+
+Une fois les données de classification extraites, il parcourt les modules qui
 correspondent au domaine du taxon pour obtenir diverses informations additionnelles
-(liens externes, noms vernaculaires…).
+(liens externes, noms vernaculaires, etc.).
+
 Quelques modules spécifiques retournent également des informations plus spécifiques :
 catégorie, portail, ébauche, projets frères…
-Au final la fonction de rendu utilise toutes ces informations pour construire un
-article, en adaptant les différents textes et liens aux conventions biologiques.
+Au final la fonction de rendu utilise toutes ces informations pour construire une
+ébauche d'article, en adaptant les différents textes et liens aux conventions biologiques.
 
 EOT;
 
@@ -169,7 +172,7 @@ $ret = parametre_inconnu();
 if ($ret !== false) {
   echo "Paramètre(s) inconnu(s) :\n";
   echo implode("\n", $ret);
-  echo "\nUtilisez l'option '-help' pour la liste des options disponibles.\n";
+  echo "\nUtilisez l'option « -help » pour la liste des options disponibles.\n";
   die(1);
 }
 
@@ -184,7 +187,7 @@ if (get_config('liste')) {
     $f = "m_" . $id . "_init";
     $ret = $f();
     if ($ret == false) {
-      logs("Échec d'initialisation du module '$id'");
+      logs("Échec d'initialisation du module « $id »");
     }
   }
   $ret = affiche_modules();
@@ -245,8 +248,8 @@ foreach($id_modules as $id) {
   $f = "m_" . $id . "_init";
   $ret = $f();
   if ($ret == false) {
-    logs("Échec d'initialisation du module '$id'");
-    sortie_erreur("Échec d'initialisation du module '$id'.");
+    logs("Échec d'initialisation du module « $id »");
+    sortie_erreur("Échec d'initialisation du module « $id ».");
     fini_outils();
     die(1);
   }
@@ -267,8 +270,8 @@ logs("Modules possibles (pour domaine '$domaine') : " . implode(", ", $possibles
 if (empty($classification)) {
   $classification = meilleure_classification($domaine);
   if ($classification === false) {
-    logs("Meilleure_classification : non trouvé");
-    sortie_erreur("Meilleure_classification : non trouvé.");
+    logs("Meilleure classification : non trouvée");
+    sortie_erreur("Meilleure classification : non trouvée.");
     fini_outils();
     die(1);
   }
@@ -280,8 +283,8 @@ if (empty($classification)) {
 // on vérifie que la classification existe (si elle vient des options)
 $tmp = classif_modules();
 if (!in_array($classification, $tmp)) {
-  logs("Le module '$classification' n'existe pas où ne gère pas la classification.");
-  sortie_erreur("Le module '$classification' n'existe pas où ne gère pas la classification.");
+  logs("Le module '$classification' n'existe pas ou ne gère pas la classification");
+  sortie_erreur("Le module '$classification' n'existe pas ou ne gère pas la classification.");
   fini_outils();
   die(1);
 }
@@ -389,9 +392,9 @@ foreach($possibles as $id) {
   
   logs("Temps d'exécution du module (externe) $id : " . number_format($elaps2-$elaps1, 2) . "s");
   if ($ret == false) {
-    logs("Échec de récupération d'informations du module '$id' (non classification)");
+    logs("Échec de récupération d'informations du module « $id » (non classification)");
   } else {
-    logs("Données non classification ajoutées (possiblement) via le module '$id'");
+    logs("Données non classification ajoutées (possiblement) via le module « $id »");
   }
 }
 
@@ -422,9 +425,9 @@ if ($justext) {
   $resu = rendu($struct);
 }
 
-logs("Disclaimer: attention, Taxobot n'a pas pour but de générer un article prêt à l'emploi");
+logs("Disclaimer : attention, Taxobot n'a pas pour but de générer un article prêt à l'emploi.");
 logs("Même si tout est fait pour préparer du code le plus abouti possible, c'est au rédacteur");
-logs("de s'assurer de la cohérence des informations, de l'absence d'erreurs, de typos, etc.");
+logs("de s'assurer de la cohérence des informations, de l'absence d'erreurs, de la typographie, etc.");
 
 // on affiche, selon le mode
 sortie_resultat($resu, $aide, $struct['taxon']['nom']);
