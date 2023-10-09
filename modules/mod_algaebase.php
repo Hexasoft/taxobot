@@ -85,7 +85,7 @@ function alg_rang($_rang) {
 // retourne une clé API
 function alg_apikey() {
   // cookie
-  $ret = get_data("https://www.algaebase.org/search/");
+  $ret = get_data("https://www.algaebase.org/");
   // API key
   $url = "https://api2.algaebase.org/auth/";
   $header = [
@@ -344,6 +344,9 @@ function m_algaebase_infos(&$struct, $classif) {
     // recherche sur une espèce
     return m_algaebase_infos_espece($struct, $classif);
   }
+  
+  // recherche sur un genre ou un taxon supérieur
+  
   // clé API
   $key = alg_apikey();
   if ($key === false) {
