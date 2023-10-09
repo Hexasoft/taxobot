@@ -345,6 +345,10 @@ if (!$justext) { // si juste-ext → rien coté classification
   if (get_config("force-regne") != "") {
     $struct['regne'] = get_config("force-regne");
   }
+  // idem pour le rang
+  if (get_config("force-rang") != "") {
+    $struct['taxon']['rang'] = get_config("force-rang");
+  }
 }
 
 $timeout = get_config('timeout');
