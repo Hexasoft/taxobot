@@ -6,7 +6,7 @@
 
 // déclaration du module
 function m_ncbi_init() {
-  return declare_module("ncbi", false, true, ['animal']);
+  return declare_module("ncbi", false, true, true);
 }
 
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
