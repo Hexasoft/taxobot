@@ -6,6 +6,8 @@
 
 // pour la mise en forme des liens auteur
 require_once "auteurs.php";
+// pour la gestion des homonymes
+require_once "homonymes.php";
 
 
 // retourne TRUE si la section concernée doit être rendue même vide,
@@ -122,7 +124,13 @@ function rendu_taxobox($struct) {
   foreach($struct['rangs'] as $r) {
     $rangN = $r['rang'];
     $nom = $r['nom'];
-    $tbl[] = "{{Taxobox | $rangN | $nom }}";
+    // on regarde si le terme a une homonymie
+    $hom = cherche_homonyme($nom, $regne);
+    if ($hom === false) {
+      $tbl[] = "{{Taxobox | $rangN | $nom }}";
+    } else {
+      $tbl[] = "{{Taxobox | $rangN | $hom | $nom }}";
+    }
   }
   $tbl = array_reverse($tbl);
   // affichage
