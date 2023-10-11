@@ -125,9 +125,11 @@ function rendu_taxobox($struct) {
     $rangN = $r['rang'];
     $nom = $r['nom'];
     // on regarde si le terme a une homonymie
-    $hom = cherche_homonyme($nom, $regne);
+    list($pageh, $hom) = cherche_homonyme($nom, $regne);
     if ($hom === false) {
       $tbl[] = "{{Taxobox | $rangN | $nom }}";
+    } elseif ($pageh === true) {
+      $tbl[] = "{{Taxobox | $rangN | {{Lien vers une page d'homonymie|$hom}} }}";
     } else {
       $tbl[] = "{{Taxobox | $rangN | $hom | $nom }}";
     }
