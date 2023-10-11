@@ -3,6 +3,7 @@
 $homonymes = [
   'Cancer' => [ '*' => 'Cancer (crustacé)' ],
   'Pilumnus' => [ '*' => 'Pilumnus (crabe)' ],
+  'Abronia' => [ 'animal' => 'Abronia (zoologie)', 'végétal' => 'Abronia (botanique)' ],
 ];
 
 /*
