@@ -7,7 +7,7 @@
 // pour la mise en forme des liens auteur
 require_once "auteurs.php";
 // pour la gestion des homonymes
-require_once "homonymes.php";
+require_once "liste_homonymes.php";
 
 
 // retourne TRUE si la section concernée doit être rendue même vide,
