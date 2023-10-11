@@ -111,6 +111,15 @@ function wrms_charte($nom) {
   return $wrms_regnes[$nom];
 }
 
+// nettoyage des entrées ayant un † dans le nom
+function wrms_nettoie_dagger($txt) {
+  $tmp = str_replace("&nbsp;&#8224;", "", $txt);
+  $tmp = str_replace("&nbsp;", "", $tmp);
+  $tmp = str_replace("&#8224;", "", $tmp);
+  
+  return $tmp;
+}
+
 // extraction des infos de la page WRMS
 function wrms_extraire($page, $id) {
   $out = [];
@@ -120,7 +129,7 @@ function wrms_extraire($page, $id) {
     $ligne = trim($ligne);
     // nom complet (parfois nécessaire)
     if (strpos($ligne, '<b><i role="button" tabindex="0"') !== false) {
-      $out['nom-complet'] = trim(strip_tags($ligne));
+      $out['nom-complet'] = wrms_nettoie_dagger(trim(strip_tags($ligne)));
     }
     // nom accepté (seulement présent si synonyme)
     if (strpos($ligne, '>Accepted Name<') !== false) {
@@ -128,7 +137,7 @@ function wrms_extraire($page, $id) {
       if (isset($tmp[1])) {
         $x = explode("=", $tmp[1]);
         if (isset($x[2])) {
-          $out['cible'] = $x[2];
+          $out['cible'] = wrms_nettoie_dagger($x[2]);
         }
       }
       $out['rang'] = wrms_rang(trim($tbl[$idx+5]));
@@ -158,6 +167,7 @@ function wrms_extraire($page, $id) {
           $out['basionyme'] = $y[2];
         }
       }
+      // pourquoi j'ai désactivé ça ?!
       //$out['basionyme'] = trim(strip_tags($tbl[$idx+5]));
     }
     // vernaculaires
@@ -197,7 +207,7 @@ function wrms_extraire($page, $id) {
             if (!isset($out['synonymes'])) {
               $out['synonymes'] = [];
             }
-            $out['synonymes'][] = $y[4];
+            $out['synonymes'][] = wrms_nettoie_dagger($y[4]);
           }
         }
         $i++;
@@ -222,7 +232,7 @@ function wrms_extraire($page, $id) {
         $p2 = strip_tags($p2);
         $p2 = str_replace(['&nbsp;', '(', ')'], '', $p2);
         $blob = [];
-        $blob['nom'] = $ns;
+        $blob['nom'] = wrms_nettoie_dagger($ns);
         $blob['rang'] = wrms_rang($p2);
         if (($blob['rang'] != 'royaume') and ($blob['rang'] != 'règne')) {
           $out['classification'][] = $blob;
@@ -324,7 +334,7 @@ function wrms_extraire($page, $id) {
         $blob['rang'] = wrms_rang($x);
         $p2 = preg_replace(',^.*<a ,', '<a ', $tmp);
         $x = trim(strip_tags(trim($p2)));
-        $blob['nom'] = $x;
+        $blob['nom'] = wrms_nettoie_dagger($x);
         $out['sous-taxons'][] = $blob;
         $i++;
       }
@@ -368,7 +378,7 @@ function m_wrms_infos(&$struct, $classif) {
           "&fresh=" . 
           "&terrestrial=" .
           "&brackish=" .
-          "&fossil=4" . // empty = any ; 3 = recent + fossil ; 4 = extant, not fossil-only. Pas mieux en any ?
+          "&fossil=0" . // empty = any ; 3 = recent + fossil ; 4 = extant, not fossil-only. Pas mieux en any ?
           // cf. Demande 143. Problème de regex ? On a une sortie "charte/règne non trouvé", même en "any".
           // others flags : any
           "&unacceptreason=&image=&basionym=&nType=";
@@ -407,7 +417,7 @@ function m_wrms_infos(&$struct, $classif) {
       }
     }
   }
-
+  
   if ($trouve === false) {
     // on cherche une réponse sans redirection ou autre unaccepted
     foreach($tbl as $l) {
@@ -506,6 +516,9 @@ function m_wrms_infos(&$struct, $classif) {
   $blob['id'] = $trouve;
   // on récupère la page pour avoir les autres infos
   $url = "https://www.marinespecies.org/aphia.php?p=taxdetails&id=" . $trouve;
+  // cookies pour accepter tous les types de taxon…
+  add_cookies('www.marinespecies.org	FALSE	/	FALSE	0	limit_marine	0');
+  add_cookies('www.marinespecies.org	FALSE	/	FALSE	0	limit_extant	0');
   $ret = get_data($url);
   if ($ret === false) {
     logs("WRMS: échec de récupération de la page d'informations");
@@ -528,7 +541,7 @@ function m_wrms_infos(&$struct, $classif) {
     $struct['liens']['wrms'] = $blob;
     return false;
   }
-  
+
   $tmp = [];
   if (isset($res['nom'])) {
     $tmp['nom'] = $res['nom'];

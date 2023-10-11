@@ -40,6 +40,13 @@ function get_cookies() {
   return file_get_contents($fichier_temp);
 }
 
+// ajoute une ligne aux cookies (attention : risqué !)
+function add_cookies($txt) {
+  global $fichier_temp;
+  file_put_contents($fichier_temp, "$txt\n", FILE_APPEND);
+}
+
+
 // wrapper pour récupérer les données
 function get_data($url, $header=false, $follow=true) {
   global $fichier_temp;
