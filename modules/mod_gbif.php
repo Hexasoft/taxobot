@@ -208,6 +208,34 @@ function gbif_marqueur_rang($marker) {
   return $gbif_markers[$marker];
 }
 
+/*
+ * Tente de déterminer si le taxon (à partir de son ID) est éteint ou pas
+ */
+function gbif_is_extinct($id) {
+  // on tente de déterminer s'il s'agit d'un taxon éteint
+  $url = "http://api.gbif.org/v1/species/$id/speciesProfiles";
+  $ret = get_data($url);
+  if ($ret === false) {
+    // on re-tente une fois
+    sleep(2);
+    $ret = get_data($url);
+  }
+  if ($ret !== false) {
+    $cur = json_decode($ret);
+    if ($cur !== null) {
+      if (isset($cur->results)) {
+        foreach($cur->results as $r) {
+          if (isset($r->extinct)) {
+            return $r->extinct;
+          }
+        }
+      }
+    }
+  }
+  return null; // information non trouvée
+}
+
+
 // données dédiées à un taxon
 /**
  * Extraction des données liées à un taxon, via son identifiant GBIF ($id).
@@ -221,7 +249,7 @@ function gbif_taxon_info($id, $name="<ndef>", $deja=0) {
   // requête pour accéder aux informations sur le taxon (via son identifiant GBIF)
   $url = "https://api.gbif.org/v1/species/$id/name";
   $ret = get_data($url);
-  
+
   // Si erreur on re-tente un peu plus tard (max 3 fois)
   if ($ret === false) {
     if ($deja >= 3) {
@@ -237,7 +265,7 @@ function gbif_taxon_info($id, $name="<ndef>", $deja=0) {
     logs("GBIF: erreur de décodage des informations GBIF");
     return false;
   }
-  
+
   $result = [];
   if (isset($cur->canonicalNameWithMarker)) {
     $result['nom'] = $cur->canonicalNameWithMarker;
@@ -263,6 +291,12 @@ function gbif_taxon_info($id, $name="<ndef>", $deja=0) {
     if ($buf != 'NOTFOUND') {
       $result['rang'] = gbif_cherche_rang($buf);
     }
+  }
+  
+  // est-il éteint ?
+  $ret = gbif_is_extinct($id);
+  if ($ret !== null) {
+    $result['eteint'] = $ret;
   }
 
   return $result;
@@ -356,6 +390,9 @@ function m_gbif_infos(&$struct, $classif) {
   if (isset($tmp['rang'])) {
     $struct['liens']['gbif']['rang'] = $tmp['rang'];
   }
+  if (isset($tmp['eteint'])) {
+    $struct['liens']['gbif']['eteint'] = $tmp['eteint'];
+  }
   
   // si le taxon est un synonyme, et qu'on demande à suivre les synonymes,
   // on reboucle
@@ -393,6 +430,9 @@ function m_gbif_infos(&$struct, $classif) {
   debugc("Extraction des données (3)");
   $struct['taxon']['auteur'] = $tmp['auteur'];
   $struct['taxon']['rang'] = gbif_cherche_rang($cur->rank);
+  if (isset($tmp['eteint'])) {
+    $struct['taxon']['eteint'] = $tmp['eteint'];
+  }
   // on remplace le nom par le nom retourné
   $struct['taxon']['nom'] = trim($cur->canonicalName);
   $taxon = $struct['taxon']['nom'];
@@ -401,6 +441,7 @@ function m_gbif_infos(&$struct, $classif) {
   
   // extraction de la classification
   $tbl = [];
+
   foreach($gbif_wp as $tmp => $nop) {
     $rr = strtolower($tmp);
     if (isset($cur->$rr)) {
@@ -412,6 +453,12 @@ function m_gbif_infos(&$struct, $classif) {
           $x = [];
           $x['nom'] = $cur->$rr;
           $x['rang'] = $buf;
+          if (isset($cur->{$rr . "Key"})) {
+            $ex = gbif_is_extinct($cur->{$rr . "Key"});
+            if ($ex !== null) {
+              $x['eteint'] = $ex;
+            }
+          }
           $tbl[] = $x;
         }
       }
@@ -486,6 +533,9 @@ function m_gbif_infos(&$struct, $classif) {
         $tmp['auteur'] = $x['auteur'];
         if (isset($x['rang'])) {
           $tmp['rang'] = $x['rang'];
+        }
+        if (isset($x['eteint'])) {
+          $tmp['eteint'] = $x['eteint'];
         }
         $liste[] = $tmp;
       }
@@ -609,10 +659,15 @@ function m_gbif_ext($struct) {
     if (isset($data['auteur'])) {
       $cible .= " " . $data['auteur'];
     }
-    if (isset($data['synonyme']) and $data['synonyme']) {
-      return "{{GBIF | " . $data['id'] . " | " . $cible . " | nv | consulté le=$cdate }}";
+    if (isset($data['eteint']) and $data['eteint']) {
+      $sup = " | éteint=oui";
     } else {
-      return "{{GBIF | " . $data['id'] . " | " . $cible . " | consulté le=$cdate }}";
+      $sup = "";
+    }
+    if (isset($data['synonyme']) and $data['synonyme']) {
+      return "{{GBIF | " . $data['id'] . " | " . $cible . $sup . " | nv | consulté le=$cdate }}";
+    } else {
+      return "{{GBIF | " . $data['id'] . " | " . $cible . $sup . " | consulté le=$cdate }}";
     }
   } else {
     return false;
