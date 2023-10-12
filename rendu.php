@@ -57,6 +57,9 @@ function rendu_intro($struct) {
   } else {
     $tmp = "Les '''$tnom''' forment $lien" . $nom . " ";
   }
+  if (isset($struct['taxon']['eteint']) and $struct['taxon']['eteint']) {
+    $tmp .= wp_eteint_rang($struct['taxon']['rang']) . " ";
+  }
   if ($fam) {
     $tmp .= 'de la [[Famille (biologie)|famille]] des ';
     $tmp .= $fam . ".\n";
