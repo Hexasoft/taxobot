@@ -313,7 +313,7 @@ function m_gbif_init() {
   return declare_module("gbif",   // Nom du module
                         true,     // Peut générer une classification
                         true,     // Peut générer des liens externes
-                        true,     // Peut générer des liens internes
+                        true,     // Couvre tous les domaines
                         999,      // Priorité max
                         true);    // Classification par défaut
 }
