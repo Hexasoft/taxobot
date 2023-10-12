@@ -124,14 +124,19 @@ function rendu_taxobox($struct) {
   foreach($struct['rangs'] as $r) {
     $rangN = $r['rang'];
     $nom = $r['nom'];
+    if (isset($r['eteint']) and $r['eteint']) {
+      $sup = " | éteint=oui";
+    } else {
+      $sup = "";
+    }
     // on regarde si le terme a une homonymie
     list($pageh, $hom) = cherche_homonyme($nom, $regne);
     if ($hom === false) {
-      $tbl[] = "{{Taxobox | $rangN | $nom }}";
+      $tbl[] = "{{Taxobox | $rangN | $nom$sup }}";
     } elseif ($pageh === true) {
-      $tbl[] = "{{Taxobox | $rangN | {{Lien vers une page d'homonymie|$hom}} }}";
+      $tbl[] = "{{Taxobox | $rangN | {{Lien vers une page d'homonymie|$hom}}$sup }}";
     } else {
-      $tbl[] = "{{Taxobox | $rangN | $hom | $nom }}";
+      $tbl[] = "{{Taxobox | $rangN | $hom | $nom$sup }}";
     }
   }
   $tbl = array_reverse($tbl);
@@ -140,8 +145,13 @@ function rendu_taxobox($struct) {
   $resu .= "\n";
   
   // le taxon lui-même
+  if (isset($struct['taxon']['eteint']) and $struct['taxon']['eteint']) {
+    $sup = " | éteint=oui";
+  } else {
+    $sup = "";
+  }
   $auteur = auteurs_traite($struct, isset($struct['taxon']['auteur'])?$struct['taxon']['auteur']:"");
-  $resu .= "{{Taxobox taxon | $regne | $rang | $taxon | $auteur }}\n";
+  $resu .= "{{Taxobox taxon | $regne | $rang | $taxon | $auteur$sup }}\n";
   
   // UICN
   if (isset($struct['liens']['uicn']) and isset($struct['liens']['uicn']['risque'])) {
@@ -245,6 +255,9 @@ function rendu_inf($struct) {
       $auteur = "";
     }
     $cible = wp_met_italiques($l['nom'], $x, $struct['regne'], true);
+    if (isset($l['eteint']) and $l['eteint']) {
+      $cible = "† " . $cible;
+    }
     $ret0 .= "* $cible" . $auteur . "\n";
   }
   if (est_colonnes(count($struct['sous-taxons']['liste']))) {
