@@ -325,7 +325,7 @@ function m_algaebase_infos_espece(&$struct, $classif) {
   // la charte
   $struct['regne'] = alg_charte($phylum, $kingdom);
   if ($struct['regne'] != 'algue') {
-    $struct['regne-cache'] = true;
+    $struct['cacher-regne'] = true;
   }
   
   return true;

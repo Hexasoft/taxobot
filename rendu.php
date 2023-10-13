@@ -27,12 +27,9 @@ function rendu_vide($section) {
   ];
 
   if (isset($cas[$section])) {
-    if ($plan) {
-      return $cas[$section][1];
-    } else {
-      return $cas[$section][0];
-    }
-  }
+    return $plan ? $cas[$section][1] : $cas[$section][0];
+}
+
   return false;
 }
 
@@ -69,16 +66,11 @@ function rendu_intro($struct) {
   return $tmp;
 }
 
-
 // rendu de la taxobox
 function rendu_taxobox($struct) {
   $resu = "";
   $tmp = wp_ebauche($struct);
-  if (!empty($tmp) and is_array($tmp)) {
-    $resu .= "{{ébauche|" . implode("|", $tmp) . "}}\n";
-  } else {
-    $resu .= "{{ébauche}}\n";
-  }
+  $resu .= !empty($tmp) && is_array($tmp) ? "{{ébauche|" . implode("|", $tmp) . "}}\n" : "{{ébauche}}\n";
   
   // si charte = algue on supprime l'empire
   if ($struct['regne'] == 'algue') {
@@ -88,98 +80,68 @@ function rendu_taxobox($struct) {
   // données taxobox début
   $taxon = $struct['taxon']['nom'];
   $rang = $struct['taxon']['rang'];
-  if (isset($struct['classification-taxobox'])) {
-    $classif = $struct['classification-taxobox'];
-  } else {
-    $classif = "";
-  }
-  if (isset($struct['image']['image'])) {
-    $image = $struct['image']['image'];
-    if (isset($struct['image']['legende'])) {
-      $legende = $struct['image']['legende'];
-    } else {
-      $legende = "<!-- insérez légende descriptive de l'image -->";
-    }
-  } else {
-    $image = "<!-- insérez une image -->";
-    $legende = "<!-- légende si image -->";
-  }
   $regne = $struct['regne'];
+
   $afftaxon = wp_met_italiques($taxon, $rang, $regne);
+  $image = isset($struct['image']['image']) ? $struct['image']['image'] : "<!-- insérez une image -->";
+  $legende = isset($struct['image']['legende']) ? $struct['image']['legende'] : "<!-- insérez légende descriptive de l'image -->";
+  $classification = "classification=$classifN";
+  $classifN = isset($struct['classification-taxobox']) ? $struct['classification-taxobox'] : "";
+  $cache = isset($struct['cacher-regne']) && $struct['cacher-regne'] ? " |règne=cacher" : "";
 
-  if (isset($struct['regne-cache']) and $struct['regne-cache']) {
-    $sup = "| règne=cacher ";
-  } else {
-    $sup = "";
-  }
-
-  // demande à cacher le règne
-  if (isset($struct['cacher-regne']) and $struct['cacher-regne']) {
-    $cache = "| règne=cacher ";
-  } else {
-    $cache = "";
-  }
   // affichage
-  $resu .= "{{Taxobox début | $regne | $afftaxon | $image | $legende $cache| classification=$classif $sup}}\n"; 
+  $resu .= "{{Taxobox début | $regne | $afftaxon | $image | $legende | $classification $cache }}\n"; 
 
   // données de classification
   $tbl = [];
   foreach($struct['rangs'] as $r) {
     $rangN = $r['rang'];
     $nom = $r['nom'];
-    if (isset($r['eteint']) and $r['eteint']) {
-      $sup = " | éteint=oui";
-    } else {
-      $sup = "";
-    }
+    $eteint = isset($r['eteint']) && $r['eteint'] ? " |éteint=oui" : "";
+
     // on regarde si le terme a une homonymie
     list($pageh, $hom) = cherche_homonyme($nom, $regne);
+    
+    // construction de Taxobox
+    $taxobox = "{{Taxobox | $rangN"; // Ouverture
+    
     if ($hom === false) {
-      $tbl[] = "{{Taxobox | $rangN | $nom$sup }}";
+        $taxobox .= " | $nom";
     } elseif ($pageh === true) {
-      $tbl[] = "{{Taxobox | $rangN | {{Lien vers une page d'homonymie|$hom}}$sup }}";
+        $taxobox .= " | {{Lien vers une page d'homonymie|$hom}}";
     } else {
-      $tbl[] = "{{Taxobox | $rangN | $hom | $nom$sup }}";
+        $taxobox .= " | $hom | $nom";
     }
+    $taxobox .= " $eteint }}"; // Fermerture
+
+    $tbl[] = $taxobox;
   }
+
   $tbl = array_reverse($tbl);
+
   // affichage
   $resu .= implode("\n", $tbl);
   $resu .= "\n";
   
-  // le taxon lui-même
-  if (isset($struct['taxon']['eteint']) and $struct['taxon']['eteint']) {
-    $sup = " | éteint=oui";
-  } else {
-    $sup = "";
-  }
+  // taxobox taxon : taxon lui-même
+  $eteint = isset($struct['taxon']['eteint']) && $struct['taxon']['eteint'] ? " |éteint=oui" : "";
   $auteur = auteurs_traite($struct, isset($struct['taxon']['auteur'])?$struct['taxon']['auteur']:"");
-  $resu .= "{{Taxobox taxon | $regne | $rang | $taxon | $auteur$sup }}\n";
+  $resu .= "{{Taxobox taxon | $regne | $rang | $taxon | $auteur $eteint }}\n";
   
   // UICN
   if (isset($struct['liens']['uicn']) and isset($struct['liens']['uicn']['risque'])) {
     $risque = $struct['liens']['uicn']['risque'];
-    if (isset($struct['liens']['uicn']['critere'])) {
-      $critere = $struct['liens']['uicn']['critere'];
-    } else {
-      $critere = "";
-    }
+    $critere = $struct['liens']['uicn']['critere'] ?? "";
+    
     $resu .= "{{Taxobox UICN | $risque | $critere }}\n";
   }
 
   // CITES
   if (isset($struct['liens']['cites']) and isset($struct['liens']['cites']['annexe'])) {
     $annexe = $struct['liens']['cites']['annexe'];
-    if (isset($struct['liens']['cites']['date'])) {
-      $date = $struct['liens']['cites']['date'];
-    } else {
-      $date = "";
-    }
-    if (isset($struct['liens']['cites']['precision'])) {
-      $prec = $struct['liens']['cites']['precision'];
-    } else {
-      $prec = "";
-    }
+    $date = $struct['liens']['cites']['date'] ?? "";
+    $prec = $struct['liens']['cites']['precision'] ?? "";
+
     $resu .= "{{Taxobox CITES | $annexe | $date | $prec }}\n";
   }
   
