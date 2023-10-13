@@ -85,8 +85,8 @@ function rendu_taxobox($struct) {
   $afftaxon = wp_met_italiques($taxon, $rang, $regne);
   $image = isset($struct['image']['image']) ? $struct['image']['image'] : "<!-- insérez une image -->";
   $legende = isset($struct['image']['legende']) ? $struct['image']['legende'] : "<!-- insérez légende descriptive de l'image -->";
-  $classification = "classification=$classifN";
   $classifN = isset($struct['classification-taxobox']) ? $struct['classification-taxobox'] : "";
+  $classification = "classification=$classifN";
   $cache = isset($struct['cacher-regne']) && $struct['cacher-regne'] ? " |règne=cacher" : "";
 
   // affichage
@@ -124,7 +124,7 @@ function rendu_taxobox($struct) {
   $resu .= "\n";
   
   // taxobox taxon : taxon lui-même
-  $eteint = isset($struct['taxon']['eteint']) && $struct['taxon']['eteint'] ? " |éteint=oui" : "";
+  $eteint = isset($struct['taxon']['eteint']) && $struct['taxon']['eteint'] ? "|éteint=oui" : "";
   $auteur = auteurs_traite($struct, isset($struct['taxon']['auteur'])?$struct['taxon']['auteur']:"");
   $resu .= "{{Taxobox taxon | $regne | $rang | $taxon | $auteur $eteint }}\n";
   
