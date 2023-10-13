@@ -213,7 +213,7 @@ function gbif_marqueur_rang($marker) {
  */
 function gbif_is_extinct($id) {
   // on tente de déterminer s'il s'agit d'un taxon éteint
-  $url = "http://api.gbif.org/v1/species/$id/speciesProfiles";
+  $url = "https://api.gbif.org/v1/species/$id/speciesProfiles";
   $ret = get_data($url);
   if ($ret === false) {
     // on re-tente une fois
