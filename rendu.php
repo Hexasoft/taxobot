@@ -87,10 +87,10 @@ function rendu_taxobox($struct) {
   $legende = isset($struct['image']['legende']) ? $struct['image']['legende'] : "<!-- insérez légende descriptive de l'image -->";
   $classifN = isset($struct['classification-taxobox']) ? $struct['classification-taxobox'] : "";
   $classification = "classification=$classifN";
-  $cache = isset($struct['cacher-regne']) && $struct['cacher-regne'] ? " |règne=cacher" : "";
+  $cache = isset($struct['cacher-regne']) && $struct['cacher-regne'] ? " |règne=cacher " : "";
 
   // affichage
-  $resu .= "{{Taxobox début | $regne | $afftaxon | $image | $legende | $classification $cache }}\n"; 
+  $resu .= "{{Taxobox début | $regne | $afftaxon | $image | $legende | $classification $cache}}\n"; 
 
   // données de classification
   $tbl = [];
