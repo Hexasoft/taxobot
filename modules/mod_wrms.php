@@ -177,8 +177,8 @@ function wrms_extraire($page, $id) {
           $out['basionyme'] = $y[2];
         }
       }
-      // pourquoi j'ai désactivé ça ?!
-      //$out['basionyme'] = trim(strip_tags($tbl[$idx+5]));
+      // pourquoi j'avais désactivé ça ?!
+      $out['basionyme'] = trim(strip_tags($tbl[$idx+5]));
     }
     // vernaculaires
     if (strpos($ligne, 'aphia_ct_vernacular_') !== false) {
@@ -247,11 +247,17 @@ function wrms_extraire($page, $id) {
         $blob['nom'] = $tmp['txt'];
         $blob['rang'] = wrms_rang($p2);
         $blob['eteint'] = $tmp['eteint'];
+        if (($blob['rang'] == 'royaume') or ($blob['rang'] == 'règne')) {
+          // fixe le règne
+          $out['charte'] = wrms_charte($ns);
+        }
+        // si autre que 'algue' ou 'protiste' on supprime le règne/royaume
         if (($blob['rang'] != 'royaume') and ($blob['rang'] != 'règne')) {
           $out['classification'][] = $blob;
         } else {
-          // on ne traite pas ce rang mais il sert pour la charte
-          $out['charte'] = wrms_charte($ns);
+          if (($out['charte'] == 'algue') or ($out['charte'] == 'protiste')) {
+            $out['classification'][] = $blob;
+          }
         }
         $der_nom = $ns;
         $der_rang = $p2;
