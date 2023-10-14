@@ -97,7 +97,7 @@ function rendu_taxobox($struct) {
   foreach($struct['rangs'] as $r) {
     $rangN = $r['rang'];
     $nom = $r['nom'];
-    $eteint = isset($r['eteint']) && $r['eteint'] ? " |éteint=oui" : "";
+    $eteint = isset($r['eteint']) && $r['eteint'] ? " | éteint=oui" : "";
 
     // on regarde si le terme a une homonymie
     list($pageh, $hom) = cherche_homonyme($nom, $regne);
@@ -112,7 +112,7 @@ function rendu_taxobox($struct) {
     } else {
         $taxobox .= " | $hom | $nom";
     }
-    $taxobox .= " $eteint }}"; // Fermerture
+    $taxobox .= "$eteint }}"; // Fermerture
 
     $tbl[] = $taxobox;
   }
@@ -124,7 +124,7 @@ function rendu_taxobox($struct) {
   $resu .= "\n";
   
   // taxobox taxon : taxon lui-même
-  $eteint = isset($struct['taxon']['eteint']) && $struct['taxon']['eteint'] ? "|éteint=oui" : "";
+  $eteint = isset($struct['taxon']['eteint']) && $struct['taxon']['eteint'] ? "| éteint=oui" : "";
   $auteur = auteurs_traite($struct, isset($struct['taxon']['auteur'])?$struct['taxon']['auteur']:"");
   $resu .= "{{Taxobox taxon | $regne | $rang | $taxon | $auteur $eteint }}\n";
   
