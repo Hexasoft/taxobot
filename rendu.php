@@ -124,9 +124,9 @@ function rendu_taxobox($struct) {
   $resu .= "\n";
   
   // taxobox taxon : taxon lui-même
-  $eteint = isset($struct['taxon']['eteint']) && $struct['taxon']['eteint'] ? "| éteint=oui" : "";
+  $eteint = isset($struct['taxon']['eteint']) && $struct['taxon']['eteint'] ? " | éteint=oui" : "";
   $auteur = auteurs_traite($struct, isset($struct['taxon']['auteur'])?$struct['taxon']['auteur']:"");
-  $resu .= "{{Taxobox taxon | $regne | $rang | $taxon | $auteur $eteint }}\n";
+  $resu .= "{{Taxobox taxon | $regne | $rang | $taxon | $auteur$eteint }}\n";
   
   // UICN
   if (isset($struct['liens']['uicn']) and isset($struct['liens']['uicn']['risque'])) {
