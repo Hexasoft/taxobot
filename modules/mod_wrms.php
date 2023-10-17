@@ -739,9 +739,9 @@ function m_wrms_ext($struct) {
     
     $nom = $data['nom'];
     if (isset($data['eteint']) and $data['eteint']) {
-      $sup = "éteint=oui | ";
+      $eteint = "éteint=oui | ";
     } else {
-      $sup = "";
+      $eteint = "";
     }
     $nom = wp_met_italiques($data['nom'],
         isset($data['rang'])?$data['rang']:$struct['taxon']['rang'], $struct['regne']);
@@ -751,7 +751,7 @@ function m_wrms_ext($struct) {
     } else {
       $auteur = '';
     }
-    return "{{WRMS | $id | $nom | $auteur | $sup" . "consulté le=$cdate}}";
+    return "{{WRMS | $id | $nom | $auteur | $eteint" . "consulté le=$cdate}}";
   } else {
     return false;
   }
