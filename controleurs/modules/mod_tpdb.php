@@ -123,7 +123,7 @@ function m_tpdb_ext($struct) {
     $data = $struct['liens']['tpdb'];
     $cdate = dates_recupere();
     
-    $nom = $data['nom'];
+    $nom = wp_met_italiques($data['nom'], isset($data['rang'])?$data['rang']:$struct['taxon']['rang'], $struct['regne']);
     $id = $data['id'];
     if (isset($data['auteur'])) {
       $nom .= $data['auteur'];

@@ -208,6 +208,34 @@ function gbif_marqueur_rang($marker) {
   return $gbif_markers[$marker];
 }
 
+/*
+ * Tente de déterminer si le taxon (à partir de son ID) est éteint ou pas
+ */
+function gbif_is_extinct($id) {
+  // on tente de déterminer s'il s'agit d'un taxon éteint
+  $url = "https://api.gbif.org/v1/species/$id/speciesProfiles";
+  $ret = get_data($url);
+  if ($ret === false) {
+    // on re-tente une fois
+    sleep(2);
+    $ret = get_data($url);
+  }
+  if ($ret !== false) {
+    $cur = json_decode($ret);
+    if ($cur !== null) {
+      if (isset($cur->results)) {
+        foreach($cur->results as $r) {
+          if (isset($r->extinct)) {
+            return $r->extinct;
+          }
+        }
+      }
+    }
+  }
+  return null; // information non trouvée
+}
+
+
 // données dédiées à un taxon
 /**
  * Extraction des données liées à un taxon, via son identifiant GBIF ($id).
@@ -221,7 +249,7 @@ function gbif_taxon_info($id, $name="<ndef>", $deja=0) {
   // requête pour accéder aux informations sur le taxon (via son identifiant GBIF)
   $url = "https://api.gbif.org/v1/species/$id/name";
   $ret = get_data($url);
-  
+
   // Si erreur on re-tente un peu plus tard (max 3 fois)
   if ($ret === false) {
     if ($deja >= 3) {
@@ -237,7 +265,7 @@ function gbif_taxon_info($id, $name="<ndef>", $deja=0) {
     logs("GBIF: erreur de décodage des informations GBIF");
     return false;
   }
-  
+
   $result = [];
   if (isset($cur->canonicalNameWithMarker)) {
     $result['nom'] = $cur->canonicalNameWithMarker;
@@ -246,7 +274,14 @@ function gbif_taxon_info($id, $name="<ndef>", $deja=0) {
   }
   // il n'y a pas de champ 'auteur', il faut enlever le nom scientifique du
   // champ 'nom complet' pour l'obtenir
-  $tmp = $cur->canonicalNameComplete;
+  unset($tmp);
+  if (isset($cur->canonicalNameComplete)) {
+    $tmp = $cur->canonicalNameComplete;
+  }
+  if (!isset($tmp) or !isset($result['nom'])) {
+    logs("GBIF: pas de nom associé au taxon '$id'");
+    return false;
+  }
   $lng = strlen($result['nom']);
   $result['auteur'] = substr($tmp, $lng+1);
   if (isset($cur->rank)) {
@@ -256,6 +291,12 @@ function gbif_taxon_info($id, $name="<ndef>", $deja=0) {
     if ($buf != 'NOTFOUND') {
       $result['rang'] = gbif_cherche_rang($buf);
     }
+  }
+  
+  // est-il éteint ?
+  $ret = gbif_is_extinct($id);
+  if ($ret !== null) {
+    $result['eteint'] = $ret;
   }
 
   return $result;
@@ -272,7 +313,7 @@ function m_gbif_init() {
   return declare_module("gbif",   // Nom du module
                         true,     // Peut générer une classification
                         true,     // Peut générer des liens externes
-                        true,     // Peut générer des liens internes
+                        true,     // Couvre tous les domaines
                         999,      // Priorité max
                         true);    // Classification par défaut
 }
@@ -294,6 +335,7 @@ function m_gbif_infos(&$struct, $classif) {
   // on effectue une recherche sur le nom du taxon
   $url = "https://api.gbif.org/v1/species?datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&name=" .
          urlencode($taxon);
+  debugc("Requête GBIF : recherche du taxon '$taxon'");
   $ret = get_data($url);
   // erreur CURL
   if ($ret === false) {
@@ -314,6 +356,7 @@ function m_gbif_infos(&$struct, $classif) {
   
   // on parcours pour trouver le "bon" taxon
   $cur = false;
+  debugc("Recherche réponses");
   foreach($_cur->results as $r) {
     // il faut que le taxon soit 'ACCEPTED'
     if ($r->taxonomicStatus == "ACCEPTED") {
@@ -339,6 +382,7 @@ function m_gbif_infos(&$struct, $classif) {
   }
   
   // données lien externe
+  debugc("Extraction des données");
   $struct['liens']['gbif']['id'] = $cur->key;
   $tmp = gbif_taxon_info($cur->key);
   $struct['liens']['gbif']['auteur'] = $tmp['auteur'];
@@ -346,9 +390,13 @@ function m_gbif_infos(&$struct, $classif) {
   if (isset($tmp['rang'])) {
     $struct['liens']['gbif']['rang'] = $tmp['rang'];
   }
+  if (isset($tmp['eteint'])) {
+    $struct['liens']['gbif']['eteint'] = $tmp['eteint'];
+  }
   
   // si le taxon est un synonyme, et qu'on demande à suivre les synonymes,
   // on reboucle
+  debugc("Extraction des données (2)");
   if (isset($cur->acceptedKey) and ($cur->acceptedKey != $cur->key)) {
     if (!$classif) {
       // si on n'est pas classification on se contente d'indiquer la synonymie
@@ -379,8 +427,12 @@ function m_gbif_infos(&$struct, $classif) {
   }
   
   // données taxon
+  debugc("Extraction des données (3)");
   $struct['taxon']['auteur'] = $tmp['auteur'];
   $struct['taxon']['rang'] = gbif_cherche_rang($cur->rank);
+  if (isset($tmp['eteint'])) {
+    $struct['taxon']['eteint'] = $tmp['eteint'];
+  }
   // on remplace le nom par le nom retourné
   $struct['taxon']['nom'] = trim($cur->canonicalName);
   $taxon = $struct['taxon']['nom'];
@@ -389,6 +441,7 @@ function m_gbif_infos(&$struct, $classif) {
   
   // extraction de la classification
   $tbl = [];
+
   foreach($gbif_wp as $tmp => $nop) {
     $rr = strtolower($tmp);
     if (isset($cur->$rr)) {
@@ -400,6 +453,12 @@ function m_gbif_infos(&$struct, $classif) {
           $x = [];
           $x['nom'] = $cur->$rr;
           $x['rang'] = $buf;
+          if (isset($cur->{$rr . "Key"})) {
+            $ex = gbif_is_extinct($cur->{$rr . "Key"});
+            if ($ex !== null) {
+              $x['eteint'] = $ex;
+            }
+          }
           $tbl[] = $x;
         }
       }
@@ -414,6 +473,7 @@ function m_gbif_infos(&$struct, $classif) {
   }
   
   // basionyme ?
+  debugc("Extraction des données (4)");
   if (isset($cur->basionymKey) and !empty($cur->basionymKey)) {
     $url = "https://api.gbif.org/v1/species/" .
          urlencode($cur->basionymKey);
@@ -432,11 +492,19 @@ function m_gbif_infos(&$struct, $classif) {
   }
   
   // si présent, les sous-taxons
+  debugc("Extraction des données (5)");
   if (isset($cur->numDescendants) and ($cur->numDescendants > 0)) {
     $encore = true;
     $offset = 0;
     $liste = [];
+    $coupe = false;
+    $limite = get_config("limite-listes");
     while ($encore) {
+      if (($limite > 0) and (count($liste) > $limite)) {
+        $coupe = true;
+        break;
+      }
+      debugc("Sous-taxons (" . count($liste) . ")");
       $url = "https://api.gbif.org/v1/species/" . $struct['liens']['gbif']['id'] . "/children?offset=$offset";
       $ret = get_data($url);
       // erreur CURL
@@ -460,10 +528,14 @@ function m_gbif_infos(&$struct, $classif) {
         if ($x === false) {
           continue;
         }
+        debugc("-> " . $x['nom']);
         $tmp['nom'] = $x['nom'];
         $tmp['auteur'] = $x['auteur'];
         if (isset($x['rang'])) {
           $tmp['rang'] = $x['rang'];
+        }
+        if (isset($x['eteint'])) {
+          $tmp['eteint'] = $x['eteint'];
         }
         $liste[] = $tmp;
       }
@@ -476,11 +548,13 @@ function m_gbif_infos(&$struct, $classif) {
     if (!empty($liste)) {
       $struct['sous-taxons']['liste'] = $liste;
       $struct['sous-taxons']['source'] = gbif_bioref();
+      $struct['sous-taxons']['coupe'] = $coupe;
     }
   }
 nop:
 
   // si présent, les noms vernaculaires en français
+  debugc("Extraction des données (6)");
   $offset = 0;
   $encore = true;
   $liste = [];
@@ -512,10 +586,17 @@ nop:
 nop2:
 
   // synonymes
+  debugc("Extraction des données (7)");
   $offset = 0;
   $encore = true;
   $tmp = [];
+  $coupe = false;
+  $limite = get_config("limite-listes");
   while($encore) {
+    if (($limite > 0) and (count($liste) > $limite)) {
+      $coupe = true;
+      break;
+    }
     $url = "https://api.gbif.org/v1/species/" . $struct['liens']['gbif']['id'] . "/synonyms?offset=$offset";
     $ret = get_data($url);
     // erreur CURL
@@ -549,6 +630,7 @@ nop2:
   if (!empty($tmp)) {
     $struct['synonymes']['liste'] = $tmp;
     $struct['synonymes']['source'] = gbif_bioref();
+    $struct['synonymes']['coupe'] = $coupe;
   }
 nop3:
 
@@ -577,10 +659,15 @@ function m_gbif_ext($struct) {
     if (isset($data['auteur'])) {
       $cible .= " " . $data['auteur'];
     }
-    if (isset($data['synonyme']) and $data['synonyme']) {
-      return "{{GBIF | " . $data['id'] . " | " . $cible . " | nv | consulté le=$cdate }}";
+    if (isset($data['eteint']) and $data['eteint']) {
+      $sup = " | éteint=oui";
     } else {
-      return "{{GBIF | " . $data['id'] . " | " . $cible . " | consulté le=$cdate }}";
+      $sup = "";
+    }
+    if (isset($data['synonyme']) and $data['synonyme']) {
+      return "{{GBIF | " . $data['id'] . " | " . $cible . $sup . " | nv | consulté le=$cdate }}";
+    } else {
+      return "{{GBIF | " . $data['id'] . " | " . $cible . $sup . " | consulté le=$cdate }}";
     }
   } else {
     return false;

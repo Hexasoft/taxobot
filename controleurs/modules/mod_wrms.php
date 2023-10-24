@@ -59,6 +59,8 @@ $wrms_rangs = [
   'Class' => 'classe',
   'Superclass' => 'super-classe',
   'Megaclass' => 'super-classe',
+  'Gigaclass' => 'giga-classe',
+  'Parvphylum' => 'parv-embranchement',
   'Microphylum' => 'micro-embranchement',
   'Infraphylum' => 'infra-embranchement',
   'Subphylum' => 'sous-embranchement',
@@ -79,8 +81,6 @@ $wrms_rangs = [
   'Domain' => 'domaine',
   'Superdomain' => 'super-domaine',
   'Empire' => 'empire',
-  'Kingdom' => 'royaume',
-  'Subkingdom' => 'sous-royaume',
 ];
 function wrms_rang($rang) {
   global $wrms_rangs;
@@ -111,6 +111,21 @@ function wrms_charte($nom) {
   return $wrms_regnes[$nom];
 }
 
+// nettoyage des entrées ayant un † dans le nom
+function wrms_nettoie_dagger($txt) {
+  $daggerfound = false;
+  
+  $tmp = str_replace("&nbsp;&#8224;", "", $txt);
+  $tmp = str_replace("&nbsp;", "", $tmp);
+  $tmp = str_replace("&#8224;", "", $tmp);
+ 
+  if ($tmp != $txt) {
+    $daggerfound = true;
+  }
+  
+  return array('txt' => $tmp, 'eteint' => $daggerfound);
+}
+
 // extraction des infos de la page WRMS
 function wrms_extraire($page, $id) {
   $out = [];
@@ -120,7 +135,9 @@ function wrms_extraire($page, $id) {
     $ligne = trim($ligne);
     // nom complet (parfois nécessaire)
     if (strpos($ligne, '<b><i role="button" tabindex="0"') !== false) {
-      $out['nom-complet'] = trim(strip_tags($ligne));
+      $tmp = wrms_nettoie_dagger(trim(strip_tags($ligne)));
+      $out['nom-complet'] = $tmp['txt'];
+      $out['eteint'] = $tmp['eteint'];
     }
     // nom accepté (seulement présent si synonyme)
     if (strpos($ligne, '>Accepted Name<') !== false) {
@@ -128,7 +145,9 @@ function wrms_extraire($page, $id) {
       if (isset($tmp[1])) {
         $x = explode("=", $tmp[1]);
         if (isset($x[2])) {
-          $out['cible'] = $x[2];
+          $tmp = wrms_nettoie_dagger($x[2]);
+          $out['cible'] = $tmp['txt'];
+          $out['eteint'] = $tmp['eteint'];
         }
       }
       $out['rang'] = wrms_rang(trim($tbl[$idx+5]));
@@ -145,7 +164,9 @@ function wrms_extraire($page, $id) {
     }
     // statut
     if (strpos($ligne, '>Status<') !== false) {
-      $out['statut'] = trim(strip_tags($tbl[$idx+5]));
+      if (isset($tbl[$idx+5])) {
+        $out['statut'] = trim(strip_tags($tbl[$idx+5]));
+      }
     }
     // basionyme
     if (strpos($ligne, '>Orig. name<') !== false) {
@@ -156,7 +177,8 @@ function wrms_extraire($page, $id) {
           $out['basionyme'] = $y[2];
         }
       }
-      //$out['basionyme'] = trim(strip_tags($tbl[$idx+5]));
+      // pourquoi j'avais désactivé ça ?!
+      $out['basionyme'] = trim(strip_tags($tbl[$idx+5]));
     }
     // vernaculaires
     if (strpos($ligne, 'aphia_ct_vernacular_') !== false) {
@@ -195,7 +217,8 @@ function wrms_extraire($page, $id) {
             if (!isset($out['synonymes'])) {
               $out['synonymes'] = [];
             }
-            $out['synonymes'][] = $y[4];
+            $tmp = wrms_nettoie_dagger($y[4]);
+            $out['synonymes'][] = $tmp['txt'];
           }
         }
         $i++;
@@ -220,13 +243,21 @@ function wrms_extraire($page, $id) {
         $p2 = strip_tags($p2);
         $p2 = str_replace(['&nbsp;', '(', ')'], '', $p2);
         $blob = [];
-        $blob['nom'] = $ns;
+        $tmp = wrms_nettoie_dagger($ns);
+        $blob['nom'] = $tmp['txt'];
         $blob['rang'] = wrms_rang($p2);
-        if ($blob['rang'] != 'royaume') {
+        $blob['eteint'] = $tmp['eteint'];
+        if (($blob['rang'] == 'royaume') or ($blob['rang'] == 'règne')) {
+          // fixe le règne
+          $out['charte'] = wrms_charte($ns);
+        }
+        // si autre que 'algue' ou 'protiste' on supprime le règne/royaume
+        if (($blob['rang'] != 'royaume') and ($blob['rang'] != 'règne')) {
           $out['classification'][] = $blob;
         } else {
-          // on ne traite pas ce rang mais il sert pour la charte
-          $out['charte'] = wrms_charte($ns);
+          if (($out['charte'] == 'algue') or ($out['charte'] == 'protiste')) {
+            $out['classification'][] = $blob;
+          }
         }
         $der_nom = $ns;
         $der_rang = $p2;
@@ -236,6 +267,7 @@ function wrms_extraire($page, $id) {
       $tmp = array_pop($out['classification']);
       // on récupère le nom du taxon
       $out['nom'] = $tmp['nom'];
+      $out['eteint'] = $tmp['eteint'];
     }
     
     // description originale
@@ -322,7 +354,9 @@ function wrms_extraire($page, $id) {
         $blob['rang'] = wrms_rang($x);
         $p2 = preg_replace(',^.*<a ,', '<a ', $tmp);
         $x = trim(strip_tags(trim($p2)));
-        $blob['nom'] = $x;
+        $tmp = wrms_nettoie_dagger($x);
+        $blob['nom'] = $tmp['txt'];
+        $blob['eteint'] = $tmp['eteint'];
         $out['sous-taxons'][] = $blob;
         $i++;
       }
@@ -338,6 +372,7 @@ function wrms_extraire($page, $id) {
   if (isset($out['basionyme']) and ($out['basionyme'] == $id)) {
     unset($out['basionyme']);
   }
+
   return $out;
 }
 
@@ -356,9 +391,20 @@ function m_wrms_infos(&$struct, $classif) {
   $ret = get_data($url);
   // on cherche le taxon
   $url = "https://www.marinespecies.org/aphia.php?p=taxlist";
-  $post = "searchpar=0&tComp=is&tName=" . str_replace(" ", "+", $taxon) .
-	      "&action=search&rSkips=0&adv=1&vOnly=0&marine=&fresh=&terrestrial=&fossil=4" .
-	      "&brackish=&unacceptreason=&image=&basionym=&nType=";
+  $post = "searchpar=0" . // Search by scientific name
+          "&tComp=is" . // Full name
+          "&tName=" . str_replace(" ", "+", $taxon) . // Taxon name
+          "&action=search&rSkips=0&adv=1" .
+          "&vOnly=0" . // only accepted taxa : 1, all : 0
+          // Environmental parameters on "any"
+          "&marine=" .
+          "&fresh=" . 
+          "&terrestrial=" .
+          "&brackish=" .
+          "&fossil=0" . // empty = any ; 3 = recent + fossil ; 4 = extant, not fossil-only. Pas mieux en any ?
+          // cf. Demande 143. Problème de regex ? On a une sortie "charte/règne non trouvé", même en "any".
+          // others flags : any
+          "&unacceptreason=&image=&basionym=&nType=";
   $header = [ 'Referer: https://www.marinespecies.org/aphia.php?p=search',
               'Sec-Fetch-Dest: document',
               'Sec-Fetch-Mode: navigate',
@@ -394,7 +440,7 @@ function m_wrms_infos(&$struct, $classif) {
       }
     }
   }
-
+  
   if ($trouve === false) {
     // on cherche une réponse sans redirection ou autre unaccepted
     foreach($tbl as $l) {
@@ -493,6 +539,9 @@ function m_wrms_infos(&$struct, $classif) {
   $blob['id'] = $trouve;
   // on récupère la page pour avoir les autres infos
   $url = "https://www.marinespecies.org/aphia.php?p=taxdetails&id=" . $trouve;
+  // cookies pour accepter tous les types de taxon…
+  add_cookies('www.marinespecies.org	FALSE	/	FALSE	0	limit_marine	0');
+  add_cookies('www.marinespecies.org	FALSE	/	FALSE	0	limit_extant	0');
   $ret = get_data($url);
   if ($ret === false) {
     logs("WRMS: échec de récupération de la page d'informations");
@@ -515,12 +564,15 @@ function m_wrms_infos(&$struct, $classif) {
     $struct['liens']['wrms'] = $blob;
     return false;
   }
-  
+
   $tmp = [];
   if (isset($res['nom'])) {
     $tmp['nom'] = $res['nom'];
   } else {
     $tmp['nom'] = $taxon;
+  }
+  if (isset($res['eteint'])) {
+    $tmp['eteint'] = $res['eteint'];
   }
   if (isset($res['rang'])) {
     $tmp['rang'] = $res['nom'];
@@ -558,6 +610,9 @@ function m_wrms_infos(&$struct, $classif) {
   $struct['taxon']['nom'] = $res['nom'];
   $struct['taxon']['auteur'] = wrms_etal($res['auteur']);
   $struct['taxon']['rang'] = $res['rang'];
+  if (isset($res['eteint'])) {
+    $struct['taxon']['eteint'] = $res['eteint'];
+  }
   
   // classification : si synonyme on fait le suivi
   if (isset($res['cible']) and get_config("suivre-synonymes")) {
@@ -663,6 +718,9 @@ function m_wrms_infos(&$struct, $classif) {
           $x['nom'] = $tmp['nom'];
           $x['auteur'] = wrms_etal($tmp['auteur']);
           $x['rang'] = $tmp['rang'];
+          if (isset($tmp['eteint'])) {
+            $x['eteint'] = $tmp['eteint'];
+          }
           $lst[] = $x;
         }
       }
@@ -680,17 +738,20 @@ function m_wrms_ext($struct) {
     $cdate = dates_recupere();
     
     $nom = $data['nom'];
-    /*  // WRMS (le modèle) met tout en italique
+    if (isset($data['eteint']) and $data['eteint']) {
+      $eteint = "éteint=oui | ";
+    } else {
+      $eteint = "";
+    }
     $nom = wp_met_italiques($data['nom'],
         isset($data['rang'])?$data['rang']:$struct['taxon']['rang'], $struct['regne']);
-    */
     $id = $data['id'];
     if (isset($data['auteur'])) {
       $auteur = $data['auteur'];
     } else {
       $auteur = '';
     }
-    return "{{WRMS | $id | $nom | $auteur | consulté le=$cdate}}";
+    return "{{WRMS | $id | $nom | $auteur | $eteint" . "consulté le=$cdate}}";
   } else {
     return false;
   }

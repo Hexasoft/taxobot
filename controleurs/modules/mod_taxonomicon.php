@@ -24,6 +24,15 @@ curl 'http://taxonomicon.taxonomy.nl/TaxonList.aspx?subject=Entity&by=Scientific
 // gérer la classification également
 function m_taxonomicon_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
+  $valide = [ 'Clade', 'Domain', 'Superkingdom', 'Kingdom',
+    'Subkingdom', 'Infrakingdom', 'Superphylum', 'Phylum',
+    'Subphylum', 'Infraphylum', 'Superclass', 'Class',
+    'Infraclass', 'Class', 'Subclass', 'Infraclass',
+    'Superorder', 'Order', 'Suborder', 'Infraorder',
+    'Superfamily', 'Family', 'Subfamily', 'Genus',
+    'Subgenus', 'Species', 'Subspecies',
+  ];
+  
   
   $ret = get_data("http://taxonomicon.taxonomy.nl");
   $url = "http://taxonomicon.taxonomy.nl/TaxonList.aspx?subject=Entity&by=ScientificName&search=" . str_replace(" ", "+", $taxon);
@@ -45,6 +54,25 @@ function m_taxonomicon_infos(&$struct, $classif) {
       return false;
     }
     if (strpos($ligne, '<a class="Valid" href="TaxonTree') !== false) {
+      // sans élément "Authorship" c'est pas bon
+      if (strpos($ligne, 'class="Authorship') === false) {
+        continue;
+      }
+      // on regarde si 1. aucune précision ou 2. une précision dans la liste
+      $ok = false;
+      if (strpos($ligne, '</b> (') === false) {
+        $ok = true;
+      } else {
+        foreach($valide as $v) {
+          if (strpos($ligne, '</b> (' . $v) !== false) {
+            $ok = true;
+            break;
+          }
+        }
+      }
+      if (!$ok) {
+        continue;
+      }
       $struct['liens']['taxonomicon']['nom'] = $taxon;
       // extraction id
       $x = explode("=", $ligne);
@@ -76,7 +104,6 @@ function m_taxonomicon_infos(&$struct, $classif) {
       break;
     }
   }
-  
 
   if (!$trouve) {
     logs("Taxonomicon: taxon non trouvé (2)");

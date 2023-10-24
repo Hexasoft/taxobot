@@ -78,7 +78,7 @@ function m_cites_infos(&$struct, $classif) {
     }
   }
   if (!empty($lst)) {
-    $struct['vernaculaire']['CITES'] = $lst;
+    $struct['vernaculaire']['CITES espèce'] = $lst;
   }
 
   if (!$classif) {

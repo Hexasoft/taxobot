@@ -7,13 +7,92 @@
 # fichier de sélection fine des portails. Si rien ne correspond les portails par défaut sont utilisées
 # doit retourner FALSE (rien) ou un tableau de portails (même si un seul portail)
 
+# Anélides
+if (/rangs.embranchement/ == 'Annelida') { return ['Biologie marine','Annélides']; } else { return FALSE; }
+
+# Arachnologie : ["acarien", "amblypyge", "opilion", "araignée", "palpigrade", "pseudoscorpion", "ricinule", "schizomide", "scorpion", "uropyge"]
+if (/rangs.infra-classe/ == 'Arachnida') { return ['Arachnologie']; } else { return FALSE; }
+## Éteints
+if (/rangs.infra-classe/ == 'Haptopoda') { return ['Arachnologie', 'Paléontologie']; } else { return FALSE; }
+if (/rangs.infra-classe/ == 'Phalangiotarbida') { return ['Arachnologie', 'Paléontologie']; } else { return FALSE; }
+if (/rangs.infra-classe/ == 'Trigonotarbida') { return ['Arachnologie', 'Paléontologie']; } else { return FALSE; }
+if (/rangs.infra-classe/ == 'Uraraneida') { return ['Arachnologie', 'Paléontologie']; } else { return FALSE; }
+
+# Botanique : trop large sur Plantae (règne) ?
+## if (/rangs.règne/ == 'Plantae') { return ['Botanique']; } else { return FALSE; }
+
+# Carcinologie (crustacés)
+if (/rangs.sous-embranchement/ == 'Crustacea') { return ['Carcinologie', 'Biologie marine']; } else { return FALSE; }
+
+## Éteints
+if (/rangs.famille/ == 'Waptiidae') { return ['Carcinologie', 'Paléontologie']; } else { return FALSE; }
+if (/rangs.famille/ == 'Erymidae') { return ['Carcinologie', 'Paléontologie']; } else { return FALSE; }
+
+
+# Cétacés : parfois il y a aussi "Biologie marine"" & "Maritime : à clarifier
+if (/rangs.infra-ordre/ == 'Cetacea') { return ['Cétacés','Mammifères']; } else { return FALSE; }
+
 # Cnidaires
 if (/rangs.embranchement/ == 'Cnidaria') { return ['Biologie marine','Cnidaires']; } else { return FALSE; }
+
+# Entomologie (insectes) : parfois "Protection des cultures" pour les 'invasifs' voire "Agriculture et l’agronomie"
+if (/rangs.classe/ == 'Insecta') { return ['Entomologie']; } else { return FALSE; }
+
+# Herpétologie (Amphibiens, Crocodiliens(?), Reptiles)
+## Amphibiens
+if (/rangs.classe/ == 'Amphibia') { return ['Herpétologie']; } else { return FALSE; }
+
+## Crocodiliens : à confirmer
+# if (/rangs.classe/ == 'Crocodilia') { return ['Herpétologie']; } else { return FALSE; }
+
+## Reptiles (classe)
+if (/rangs.classe/ == 'Reptilia') { return ['Herpétologie']; } else { return FALSE; }
 
 ## Geckos
 # spécifique
 if (/rangs.genre/ == 'Uroplatus') { return ['Herpétologie','Madagascar']; } else { return FALSE; }
 
-# reptiles
-if (/rangs.classe/ == 'Reptilia') { return ['Herpétologie']; } else { return FALSE; }
+# Ichtyologie (poissons) : complexe, à confirmer
+## Osteichthyes (super-classe)
+# if (/rangs.super-classe/ == 'Osteichthyes') { return ['Biologie marine','Ichtyologie']; } else { return FALSE; }
+
+## Chondrichthyes (classe)
+# if (/rangs.classe/ == 'Chondrichthyes') { return ['Biologie marine','Ichtyologie']; } else { return FALSE; }
+
+### Elasmobranchii (sous-classe)
+# idem Chondrichthyes
+
+### Chimaeroidei (ordre)
+# if (/rangs.ordre/ == 'Chimaeroidei') { return ['Abysses', 'Biologie marine','Ichtyologie']; } else { return FALSE; }
+
+## Ichtyologie : autres spécificités ?
+
+# Malacologie (mollusques)
+if (/rangs.embranchement/ == 'Mollusca') { return ['Biologie marine','Malacologie']; } else { return FALSE; }
+
+# mammifères
+# microbiologie
+# mycologie
+# ornithologie
+# paléontologie 
+# parasitologie
+# phycologie
+
+# Primates
+if (/rangs.ordre/ == 'Primates') { return ['Mammifères', 'Primates']; } else { return FALSE; }
+
+## Homo (genre) : cas par cas
+if (/rangs.genre/ == 'Homo') { return FALSE; }
+
+# Roses et rosiers
+## Rosa (genre)
+if (/rangs.genre/ == 'Rosa') { return ['Roses et rosiers']; } else { return FALSE; }
+
+# Sipuncula à confirmer (ex. Sipunculidea est dans annélides : erreur, reclassification ?)
+# if (/rangs.embranchement/ == 'Sipuncula') { return ['Biologie marine', 'Zoologie']; } else { return FALSE; }
+
+# Ursidés
+if (/rangs.famille/ == 'Ursidae') { return ['Mammifères', 'Ursidés']; } else { return FALSE; }
+
+
 

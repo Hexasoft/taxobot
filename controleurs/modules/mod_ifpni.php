@@ -175,6 +175,13 @@ suite:
 
 // génération des liens externes (modèles dans Voir aussi)
 function m_ifpni_ext($struct) {
+  $mapping = [
+    'infra-espèce' => [ 'sous-espèce', 'variété', 'sous-variété', 'forme', 'sous-forme' ],
+    'espèce' => [ 'espèce' ],
+    'genre' => [ 'genre' ],
+    'infra-genre' => [ 'sous-genre', 'section', 'sous-section' ],
+  ];
+
   if (isset($struct['liens']['ifpni']['id'])) {
     $data = $struct['liens']['ifpni'];
     $cdate = dates_recupere();
@@ -182,7 +189,14 @@ function m_ifpni_ext($struct) {
     if (isset($data['auteur'])) {
       $cible .= " " . $data['auteur'];
     }
-    return "{{IFPNI | " . $data['rang'] . " | " . $data['id'] . " | " . $cible . " | consulté le=$cdate }}";
+    $target = 'supra-genre'; // si pas dans la liste
+    foreach($mapping as $tg => $blob) {
+      if (in_array($data['rang'], $blob)) {
+        $target = $tg;
+        break;
+      }
+    } 
+    return "{{IFPNI | " . $target . " | " . $data['id'] . " | " . $cible . " | consulté le=$cdate }}";
   } else {
     return false;
   }

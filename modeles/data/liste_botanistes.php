@@ -1,5 +1,12 @@
 <?php
-
+/**
+ * Table d'équivalence des auteurs en botanique.
+ *
+ * Format : <abréviation>, <lien interne>, <date de naissance>, <actif vers>, <date de mort>
+ * 
+ * Exemple : A.A.Fisch.Waldh. → [[Alexandre Alexandrovitch Fischer von Waldheim]] (1839,-,1920)
+ * 
+ */
 $aut_botanistes = [
 ["A.A.Fisch.Waldh.","Alexandre Alexandrovitch Fischer von Waldheim",1839,false,1920],
 ["A.A.Weber","A. Alois Weber",false,false,false],

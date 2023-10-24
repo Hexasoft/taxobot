@@ -113,8 +113,9 @@ function m_msw_infos(&$struct, $classif) {
   $blob = [];
   $blob['nom'] = $taxon;
   $blob['id'] = $id;
-  $blob['auteur'] = utf8_encode ($ch[16]) . ", " . $ch[17];
-  
+  // utf8_encode() is deprecated
+  $chaine_source = $ch[16] . ", " . $ch[17];
+  $blob['auteur'] = mb_convert_encoding($chaine_source, 'UTF-8', 'ISO-8859-1'); // msw3 header = ISO-8859-1
   $struct['liens']['msw'] = $blob;
 
   if (!$classif) {

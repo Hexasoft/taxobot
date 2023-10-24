@@ -9,15 +9,63 @@ function m_col_init() {
   return declare_module("col", false, true, true);
 }
 
+// table des rangs (à compléter)
+$m_col_ranks = [
+  "family" => "famille",
+  "superfamily" => "super-famille",
+  "subfamily" => "sous-famille",
+  "superclass" => "super-classe",
+  "class" => "classe",
+  "subclass" => "sous-classe",
+  "genus" => "genre",
+  "subgenus" => "sous-genre",
+  "species" => "espèce",
+  "superclass" => "super-classe",
+  "megaclass" => "super-classe",
+  "gigaclass" => "super-classe",
+  "parvphylum" => "micro-embranchement",
+  "infraphylum" => "infra-embranchement",
+  "subphylum" => "sous-embranchement",
+  "phylum" => "embranchement",
+  "kingdom" => "règne",
+];
 
-// curl 'https://api.checklistbank.org/dataset/9880/nameusage/suggest?fuzzy=false&limit=25&q=Ecliptopera' -H 'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/110.0' -H 'Accept: application/json, text/plain, */*' -H 'Accept-Language: fr-FR,fr;q=0.8,en-US;q=0.5,en;q=0.3' -H 'Accept-Encoding: gzip, deflate, br' -H 'Origin: https://www.catalogueoflife.org' -H 'Connection: keep-alive' -H 'Referer: https://www.catalogueoflife.org/' -H 'Sec-Fetch-Dest: empty' -H 'Sec-Fetch-Mode: cors' -H 'Sec-Fetch-Site: cross-site'
+// détermine le règne
+function m_col_regne($classif) {
+  foreach($classif as $el) {
+    if (isset($el->name)) {
+      if ($el->name == "Animalia") {
+        return "animal";
+      } else if ($el->name == "Plantae") {
+        return "végétal";
+      } else if ($el->name == "Fungi") {
+        return "champignon";
+      } else if ($el->name == "Archaea") {
+        return "archaea";
+      } else if ($el->name == "Chromista") {
+        return "protiste";
+      } else if ($el->name == "Protozoa") {
+        return "protiste";
+      } else if ($el->name == "Bacteria") {
+        return "bactérie";
+      }
+    }
+  }
+
+  return null;
+}
 
 
+// conversion de rang CoL → WP
+function m_col_rang($rang) {
+  global $m_col_ranks;
+  
+  if (isset($m_col_ranks[$rang])) {
+    return $m_col_ranks[$rang];
+  }
+  return "non classé";
+}
 
-/*
-  TODO : il faut récupérer le numéro du "dataset" qui visiblement évolue au cours du temps
-         et ne contient pas les mêmes identifiants
-*/
 
 
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
@@ -67,59 +115,146 @@ function m_col_infos(&$struct, $classif) {
     logs("CoL: taxon non trouvé");
     return false;
   }
-  
-  $struct['liens']['col']['id'] = $res->result[0]->id;
-  $struct['liens']['col']['nom'] = $res->result[0]->usage->name->scientificName;
-  if (isset($res->result[0]->usage->name->authorship)) {
-    $struct['liens']['col']['auteur'] = $res->result[0]->usage->name->authorship;
-  }
+
+  $trouve = false;
+  $rbundle = [];
+  $classif = false;
+  // si on trouve directement (le bon nom, 'accepted')
   foreach($res->result as $r) {
-    if (!isset($r->usage->accepted)) {
-      $struct['liens']['col']['id'] = $r->id;
-      $struct['liens']['col']['nom'] = $r->usage->name->scientificName;
+    if (($r->usage->status == 'accepted') and ($r->usage->name->scientificName == $taxon)) {
+      $bundle = [];
+      $bundle['id'] = $r->id;
+      $bundle['nom'] = $r->usage->name->scientificName;
       if (isset($r->usage->name->authorship)) {
-        $struct['liens']['col']['auteur'] = $r->usage->name->authorship;
+        $bundle['auteur'] = $r->usage->name->authorship;
       }
+      if (isset($r->usage->name->rank)) {
+        $bundle['rang'] = m_col_rang($r->usage->name->rank);
+      }
+      $trouve = true;
+      $rbundle[] = $bundle;
+      $classif = $r->classification;
       break;
     }
+  }
   
-    if (isset($r->usage->name->status) and ($r->usage->name->status == "accepted")) {
-      $struct['liens']['col']['id'] = $r->id;
-      $struct['liens']['col']['nom'] = $r->usage->name->scientificName;
-      if (isset($r->usage->name->authorship)) {
-        $struct['liens']['col']['auteur'] = $r->usage->name->authorship;
+  // si non trouvé on tente de suivre les synonymes
+  if (!$trouve) {
+    foreach($res->result as $r) {
+      if (($r->usage->name->scientificName == $taxon) and isset($r->usage->accepted) and
+          ($r->usage->accepted->status == 'accepted')) {
+        $bundle = [];
+        $bundle['id'] = $r->usage->accepted->id;
+        $bundle['nom'] = $r->usage->accepted->name->scientificName;
+        if (isset($r->usage->accepted->name->authorship)) {
+          $bundle['auteur'] = $r->usage->accepted->name->authorship;
+        }
+        if (isset($r->usage->name->rank)) {
+          $bundle['rang'] = m_col_rang($r->usage->name->rank);
+        }
+        $bundle['syn'] = true;
+        $trouve = true;
+        $rbundle[] = $bundle;
+        $classif = $r->classification;
       }
     }
   }
   
+  // si rien trouvé et que 'inclure-invalides' on prend le premier qui a le bon nom scientifique
+  if (!$trouve and get_config('inclure-invalides')) {
+    foreach($res->result as $r) {
+      if ($r->usage->name->scientificName == $taxon) {
+        $bundle = [];
+        $bundle['id'] = $r->id;
+        $bundle['nom'] = $r->usage->name->scientificName;
+        if (isset($r->usage->name->authorship)) {
+          $bundle['auteur'] = $r->usage->name->authorship;
+        }
+        if (isset($r->usage->name->rank)) {
+          $bundle['rang'] = m_col_rang($r->usage->name->rank);
+        }
+        $trouve = true;
+        $rbundle[] = $bundle;
+        $classif = $r->classification;
+        break;
+      }
+    }
+  }
+  
+  // si 'juste-ext' et qu'on a un un règne on le force
+  if (isset($struct['juste-ext']) and $struct['juste-ext'] and ($classif !== false)) {
+    $tmp = m_col_regne($classif);
+    if ($tmp) {
+      $struct['regne'] = $tmp;
+    }
+  }
+  
+  // retour
+  if (!$trouve) {
+    return false;
+  }
+  $struct['liens']['col'] = $rbundle;
+
   if (!$classif) {
     return true;
   }
+  // on ne fait pas la classification
   return false;
 }
 
 // génération des liens externes (modèles dans Voir aussi)
 function m_col_ext($struct) {
   $cdate = dates_recupere();
-  if (isset($struct['liens']['col']['id'])) {
-    $data = $struct['liens']['col'];
-    $cible = wp_met_italiques($data['nom'], $struct['taxon']['rang'], $struct['regne']);
+  if (!isset($struct['liens']['col'])) {
+    return false;
+  }
+  if (!isset($struct['liens']['col'][0])) {
+    // ce n'est pas une liste, on la met sous forme de liste
+    $struct['liens']['col'][0] = $struct['liens']['col'];
+  }
+
+  $res = [];
+  foreach($struct['liens']['col'] as $data) {
+    if (!isset($data['id'])) {
+      continue;
+    }
+    $cible = wp_met_italiques($data['nom'],
+         isset($data['rang'])?$data['rang']:$struct['taxon']['rang'],
+         $struct['regne']);
     if (isset($data['auteur'])) {
       $cible .= " " . $data['auteur'];
     }
-    return "{{CatalogueofLife | " . $data['id'] . " | " . $cible . " | " . "consulté le=$cdate }}";
-  } else {
+    if (isset($data['syn']) and $data['syn']) {
+      $cible .= " <small>(synonymie)</small>";
+    }
+    $res[] = "{{CatalogueofLife | " . $data['id'] . " | " . $cible . " | " . "consulté le=$cdate }}";
+  }
+  if (empty($res)) {
     return false;
   }
+  return $res;
 }
 
 // génération de liens vers les éléments (pour partie aide/debug de l'interface)
 function m_col_liens($struct) {
-  if (isset($struct['liens']['col']['id'])) {
-    return "<a href='https://www.catalogueoflife.org/data/taxon/" . $struct['liens']['col']['id'] .
-           "'>CoL</a>";
-  } else {
+  if (!isset($struct['liens']['col'])) {
     return false;
   }
+  if (isset($struct['liens']['col']['id'])) {
+    // ce n'est pas une liste, on la met sous forme de liste
+    $struct['liens']['col'][0] = $struct['liens']['col'];
+  }
+  $res = [];
+  foreach($struct['liens']['col'] as $data) {
+    if (!isset($data['id'])) {
+      continue;
+    }
+    $res[] = "<a href='https://www.catalogueoflife.org/data/taxon/" . $data['id'] .
+             "'>CoL</a>";
+  }
+  if (empty($res)) {
+    return false;
+  }
+  return $res;
 }
 

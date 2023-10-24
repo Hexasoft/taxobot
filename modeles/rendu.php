@@ -6,6 +6,8 @@
 
 // pour la mise en forme des liens auteur
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'auteurs.php'));
+// pour la gestion des homonymes
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'liste_homonymes.php'));
 
 // retourne TRUE si la section concernée doit être rendue même vide,
 // selon la section et l'état de l'option "plan"
@@ -24,12 +26,9 @@ function rendu_vide($section) {
   ];
 
   if (isset($cas[$section])) {
-    if ($plan) {
-      return $cas[$section][1];
-    } else {
-      return $cas[$section][0];
-    }
-  }
+    return $plan ? $cas[$section][1] : $cas[$section][0];
+}
+
   return false;
 }
 
@@ -54,6 +53,9 @@ function rendu_intro($struct) {
   } else {
     $tmp = "Les '''$tnom''' forment $lien" . $nom . " ";
   }
+  if (isset($struct['taxon']['eteint']) and $struct['taxon']['eteint']) {
+    $tmp .= wp_eteint_rang($struct['taxon']['rang']) . " ";
+  }
   if ($fam) {
     $tmp .= 'de la [[Famille (biologie)|famille]] des ';
     $tmp .= $fam . ".\n";
@@ -63,16 +65,11 @@ function rendu_intro($struct) {
   return $tmp;
 }
 
-
 // rendu de la taxobox
 function rendu_taxobox($struct) {
   $resu = "";
   $tmp = wp_ebauche($struct);
-  if (!empty($tmp) and is_array($tmp)) {
-    $resu .= "{{ébauche|" . implode("|", $tmp) . "}}\n";
-  } else {
-    $resu .= "{{ébauche}}\n";
-  }
+  $resu .= !empty($tmp) && is_array($tmp) ? "{{ébauche|" . implode("|", $tmp) . "}}\n" : "{{ébauche}}\n";
   
   // si charte = algue on supprime l'empire
   if ($struct['regne'] == 'algue') {
@@ -82,80 +79,68 @@ function rendu_taxobox($struct) {
   // données taxobox début
   $taxon = $struct['taxon']['nom'];
   $rang = $struct['taxon']['rang'];
-  if (isset($struct['classification-taxobox'])) {
-    $classif = $struct['classification-taxobox'];
-  } else {
-    $classif = "";
-  }
-  if (isset($struct['image']['image'])) {
-    $image = $struct['image']['image'];
-    if (isset($struct['image']['legende'])) {
-      $legende = $struct['image']['legende'];
-    } else {
-      $legende = "<!-- insérez légende descriptive de l'image -->";
-    }
-  } else {
-    $image = "<!-- insérez une image -->";
-    $legende = "<!-- légende si image -->";
-  }
   $regne = $struct['regne'];
+
   $afftaxon = wp_met_italiques($taxon, $rang, $regne);
+  $image = isset($struct['image']['image']) ? $struct['image']['image'] : "<!-- insérez une image -->";
+  $legende = isset($struct['image']['legende']) ? $struct['image']['legende'] : "<!-- insérez légende descriptive de l'image -->";
+  $classifN = isset($struct['classification-taxobox']) ? $struct['classification-taxobox'] : "";
+  $classification = "classification=$classifN";
+  $cache = isset($struct['cacher-regne']) && $struct['cacher-regne'] ? " |règne=cacher " : "";
 
-  if (isset($struct['regne-cache']) and $struct['regne-cache']) {
-    $sup = "| règne=cacher ";
-  } else {
-    $sup = "";
-  }
-
-  // demande à cacher le règne
-  if (isset($struct['cacher-regne']) and $struct['cacher-regne']) {
-    $cache = "| règne=cacher ";
-  } else {
-    $cache = "";
-  }
   // affichage
-  $resu .= "{{Taxobox début | $regne | $afftaxon | $image | $legende $cache| classification=$classif $sup}}\n"; 
+  $resu .= "{{Taxobox début | $regne | $afftaxon | $image | $legende | $classification $cache}}\n"; 
 
   // données de classification
   $tbl = [];
   foreach($struct['rangs'] as $r) {
     $rangN = $r['rang'];
     $nom = $r['nom'];
-    $tbl[] = "{{Taxobox | $rangN | $nom }}";
+    $eteint = isset($r['eteint']) && $r['eteint'] ? " | éteint=oui" : "";
+
+    // on regarde si le terme a une homonymie
+    list($pageh, $hom) = cherche_homonyme($nom, $regne);
+    
+    // construction de Taxobox
+    $taxobox = "{{Taxobox | $rangN"; // Ouverture
+    
+    if ($hom === false) {
+        $taxobox .= " | $nom";
+    } elseif ($pageh === true) {
+        $taxobox .= " | {{Lien vers une page d'homonymie|$hom}}";
+    } else {
+        $taxobox .= " | $hom | $nom";
+    }
+    $taxobox .= "$eteint }}"; // Fermerture
+
+    $tbl[] = $taxobox;
   }
+
   $tbl = array_reverse($tbl);
+
   // affichage
   $resu .= implode("\n", $tbl);
   $resu .= "\n";
   
-  // le taxon lui-même
+  // taxobox taxon : taxon lui-même
+  $eteint = isset($struct['taxon']['eteint']) && $struct['taxon']['eteint'] ? " | éteint=oui" : "";
   $auteur = auteurs_traite($struct, isset($struct['taxon']['auteur'])?$struct['taxon']['auteur']:"");
-  $resu .= "{{Taxobox taxon | $regne | $rang | $taxon | $auteur }}\n";
+  $resu .= "{{Taxobox taxon | $regne | $rang | $taxon | $auteur$eteint }}\n";
   
   // UICN
   if (isset($struct['liens']['uicn']) and isset($struct['liens']['uicn']['risque'])) {
     $risque = $struct['liens']['uicn']['risque'];
-    if (isset($struct['liens']['uicn']['critere'])) {
-      $critere = $struct['liens']['uicn']['critere'];
-    } else {
-      $critere = "";
-    }
+    $critere = $struct['liens']['uicn']['critere'] ?? "";
+    
     $resu .= "{{Taxobox UICN | $risque | $critere }}\n";
   }
 
   // CITES
   if (isset($struct['liens']['cites']) and isset($struct['liens']['cites']['annexe'])) {
     $annexe = $struct['liens']['cites']['annexe'];
-    if (isset($struct['liens']['cites']['date'])) {
-      $date = $struct['liens']['cites']['date'];
-    } else {
-      $date = "";
-    }
-    if (isset($struct['liens']['cites']['precision'])) {
-      $prec = $struct['liens']['cites']['precision'];
-    } else {
-      $prec = "";
-    }
+    $date = $struct['liens']['cites']['date'] ?? "";
+    $prec = $struct['liens']['cites']['precision'] ?? "";
+
     $resu .= "{{Taxobox CITES | $annexe | $date | $prec }}\n";
   }
   
@@ -234,12 +219,18 @@ function rendu_inf($struct) {
       $auteur = "";
     }
     $cible = wp_met_italiques($l['nom'], $x, $struct['regne'], true);
+    if (isset($l['eteint']) and $l['eteint']) {
+      $cible = "† " . $cible;
+    }
     $ret0 .= "* $cible" . $auteur . "\n";
   }
   if (est_colonnes(count($struct['sous-taxons']['liste']))) {
     $ret .= colonnes_contenu($ret0);
   } else {
     $ret .= $ret0;
+  }
+  if (isset($struct['sous-taxons']['coupe']) and $struct['sous-taxons']['coupe']) {
+    $ret .= "ATTENTION : liste des sous-taxons tronquée car trop longue. Utilisez '-limite-listes' pour modifier ce comportement.\n";
   }
   return "\n" . $ret;
 }
@@ -360,6 +351,9 @@ function rendu_supp($struct) {
       } else {
         $ret .= $ret0;
       }
+      if (isset($struct['synonymes']['coupe']) and $struct['synonymes']['coupe']) {
+        $ret .= "ATTENTION : liste des synonymes tronquée car trop longue. Utilisez '-limite-listes' pour modifier ce comportement.\n";
+      }
     }
   }
 
@@ -388,9 +382,10 @@ function rendu_description($struct) {
   return $resu . "\n";
 }
 
-// rendu de la zone "Distribution"
+// rendu de la zone de répartition ("Distribution")
 function rendu_distribution($struct) {
-  $resu = "\n== Distribution ==\n";
+  $cdate = dates_recupere();
+  $resu = "\n== Répartition ==\n";
   if (!isset($struct['distribution'])) {
     if (rendu_vide('distribution')) {
       $resu .= "{{Section vide ou incomplète}}\n";
@@ -429,9 +424,9 @@ function rendu_distribution($struct) {
   if (count($struct['distribution']) == 1) {
     if (!empty($certain)) {
       if (count($certain) > 1) {
-        $resu .= "Ce taxon se rencontre dans les pays suivants{{Bioref|$source|ref}} : ";
+        $resu .= "Ce taxon se rencontre dans les pays suivants{{Bioref|$source|$cdate|ref}} : ";
       } else {
-        $resu .= "Ce taxon se rencontre dans le pays suivant{{Bioref|$source|ref}} : ";
+        $resu .= "Ce taxon se rencontre dans le pays suivant{{Bioref|$source|$cdate|ref}} : ";
       }
       $resu .= implode(", ", $certain);
       $resu .= ".\n";
@@ -441,9 +436,9 @@ function rendu_distribution($struct) {
         $resu .= "\n";
       }
       if (count($uncertain) > 1) {
-        $resu .= "La présence de ce taxon est incertaine dans les pays suivants{{Bioref|$source|ref}} : ";
+        $resu .= "La présence de ce taxon est incertaine dans les pays suivants{{Bioref|$source|$cdate|ref}} : ";
       } else {
-        $resu .= "La présence de ce taxon est incertaine dans le pays suivant{{Bioref|$source|ref}} : ";
+        $resu .= "La présence de ce taxon est incertaine dans le pays suivant{{Bioref|$source|$cdate|ref}} : ";
       }
       $resu .= implode(", ", $uncertain);
       $resu .= ".\n";
@@ -456,6 +451,7 @@ function rendu_distribution($struct) {
 
 // rendu étymologie
 function rendu_etymologie($struct) {
+  $cdate = dates_recupere();
   $resu = "\n== Étymologie ==\n";
   if (!isset($struct['etymologie'])) {
     if (rendu_vide('etymologie')) {
@@ -465,7 +461,7 @@ function rendu_etymologie($struct) {
       return "";
     }
   }
-  $resu .= $struct['etymologie']['texte'] . "{{Bioref|" . $struct['etymologie']['source'] . "|ref}}.\n";
+  $resu .= $struct['etymologie']['texte'] . "{{Bioref|" . $struct['etymologie']['source'] . "|$cdate|ref}}.\n";
   return $resu;
 }
 

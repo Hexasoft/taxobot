@@ -1,4 +1,11 @@
 <?php
+/**
+ * Table d'équivalence des liens internes par code du pays
+ *
+ * Format : <code> => <texte affiché> ([$code][0]), <nom réel> ([$code][1])
+ *
+ * Rendu : [[<nom réel>]] ou [[<nom réel>|<texte affiché>]]
+ */
 
 $data_pays = [
  "AF" => [ "Afghanistan", "Afghanistan" ],
@@ -225,7 +232,7 @@ $data_pays = [
  "SZ" => [ "Eswatini", "Eswatini" ],
  "SY" => [ "Syrie", "Syrie" ],
  "TJ" => [ "Tadjikistan", "Tadjikistan" ],
- "TW" => [ "République de Chine (Taïwan)", "mw-redirect" ],
+ "TW" => [ "Taïwan", "République de Chine (Taïwan)" ],
  "TZ" => [ "Tanzanie", "Tanzanie" ],
  "TD" => [ "Tchad", "Tchad" ],
  "CZ" => [ "Tchéquie", "Tchéquie" ],
@@ -252,19 +259,31 @@ $data_pays = [
  "ZW" => [ "Zimbabwe", "Zimbabwe" ],
 ];
 
-// retourne le wikilien d'un pays à partir de son code (si $nom=true retourne le nom affichable)
+/**
+ * Retourne le lien interne d'un pays à partir de son code.
+ *
+ * @param string $code Le code du pays.
+ * @param bool $nom Détermine si on retourne <texte affiché>.
+ * @return string Formation du lien interne selon la valeur de $nom.
+ */
 function data_pays_code($code, $nom=false) {
   global $data_pays;
   
+  // Vérifie si le code du pays existe dans le tableau des données
   if (!isset($data_pays[$code])) {
-    return "$code";
+    return "$code"; // Retourne le code lui-même si le code n'existe pas
   }
+  
+  // Si $nom est true, retourne <texte affiché>
   if ($nom) {
     return $data_pays[$code][0];
   } else {
+    // Vérifie si <nom réel> de l'article diffère de <texte affiché>
     if ($data_pays[$code][1] != $data_pays[$code][0]) {
+      // True: Retourne [[<nom réel>|<texte affiché>]]
       return "[[" . $data_pays[$code][1] . "|" . $data_pays[$code][0] . "]]";
     } else {
+      // Else: Retourne [[<nom réel>]]
       return "[[" . $data_pays[$code][1] . "]]";
     }
   }

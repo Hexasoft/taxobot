@@ -16,6 +16,7 @@ $configuration = [
   "juste-ext" => false,
   "inclure-invalides" => false,
   "classification" => '',
+  "timeout" => 0,
   "taxon" => '',
   "domaine" => '*',
   "off" => false,
@@ -28,6 +29,9 @@ $configuration = [
   "article" => false,
   "auteurs" => 'n',
   "plan" => false,
+  "limite-listes" => -1,
+  "force-regne" => '',
+  "force-rang" => '',
 ];
 
 // liste des éléments configurables
@@ -48,12 +52,16 @@ $liste_configuration = [
   "debugc" => ['flag', 'Activer ou pas le mode debug pour le module de classification'],
   "liste" => ['flag', 'Afficher la liste des modules'],
   "help" => ['flag', 'Afficher ce message d\'aide'],
+  "timeout" => ['int', 'Durée max de fonctionnement d\'un module. 0=pas de timeout'],
   "version" => ['flag', 'Afficher la version de Taxobot'],
   "off" => ['string', 'Liste de modules à désactiver (noms séparés par des virgules)'],
   "selecteurs" => [ 'bool', 'Autorise l\'utilisation des fichiers de définition des ébauches/catégories/auteurs/…'],
   "article" => ['flag', 'Ne générer que la sortie de l\'article et rien d\'autre'],
   "auteurs" => ['string', 'Mode de traitement des auteurs. s→standard, n→nouveau*, n1→nouveau+ajout réponse unique'],
   "plan" => [ 'flag', 'Générer un plan-type, même quand il n\'y a pas d\'information'],
+  "limite-listes" => [ 'int', "Nombre maximum d'éléments dans les listes (sous-taxons, synonymes). <=0 : pas de limite [256]"],
+  "force-regne" => [ 'string', "Permet d'indiquer le règne (charte). Utile uniquement avec l'option 'juste-ext' où la classification n'est pas utilisée"],
+  "force-rang" => [ 'string', "Permet d'indiquer le rang. Utile uniquement avec l'option 'juste-ext' où la classification n'est pas utilisée"],
 ];
 
 // retourne la configuration
