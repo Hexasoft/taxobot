@@ -52,7 +52,7 @@ function rendu_intro($struct) {
   if (wp_inf_rang($struct['taxon']['rang'])) {
     $tmp = "'''$tnom''' est $lien" . $nom . " ";
   } else {
-    $tmp = "Les '''$tnom''' forment $lien" . $nom . " ";
+    $tmp = "Les '''$tnom''' sont $lien" . $nom . " ";
   }
   if (isset($struct['taxon']['eteint']) and $struct['taxon']['eteint']) {
     $tmp .= wp_eteint_rang($struct['taxon']['rang']) . " ";
