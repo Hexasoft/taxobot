@@ -52,7 +52,7 @@ $liste_configuration = [
   "debugc" => ['flag', 'Activer ou pas le mode debug pour le module de classification'],
   "liste" => ['flag', 'Afficher la liste des modules'],
   "help" => ['flag', 'Afficher ce message d\'aide'],
-  "timeout" => ['int', 'Durée max de fonctionnement d\'un module, exprimée en secondes. Min : 30'],
+  "timeout" => ['int', 'Durée max de fonctionnement d\'un module. 0=pas de timeout'],
   "version" => ['flag', 'Afficher la version de Taxobot'],
   "off" => ['string', 'Liste de modules à désactiver (noms séparés par des virgules)'],
   "selecteurs" => [ 'bool', 'Autorise l\'utilisation des fichiers de définition des ébauches/catégories/auteurs/…'],
