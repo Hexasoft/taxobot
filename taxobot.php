@@ -354,7 +354,7 @@ if (!$justext) { // si juste-ext → rien coté classification
 $timeout = get_config('timeout');
 $timed = false;
 
-if ($timeout > 0) {
+if (is_int($timeout) && $timeout > 30) {
   debug("Initialisation 'timer' ($timeout)");
   pcntl_async_signals(true);
   pcntl_signal(SIGALRM, function($signal) use (&$timed) {
