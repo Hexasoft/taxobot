@@ -13,9 +13,9 @@ function m_photoark_init() {
 // gérer la classification également
 function m_photoark_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-  
+
   return false; // désactivé pour le moment
-  
+
   // ne s'applique qu'aux espèces
   if ($struct['taxon']['rang'] != "espèce") {
     return false;
@@ -40,16 +40,16 @@ function m_photoark_infos(&$struct, $classif) {
     logs("ARK: taxon non trouvé");
     return false;
   }
-  
+
   // pas de gestion d'auteurs, ou même de nom
   $struct['liens']['photoark']['id'] = $t;
   $struct['liens']['photoark']['nom'] = $taxon;
-  
+
   // si pas plus loin, retour
   if (!$classif) {
     return true;
   }
-  
+
   // pas de classification
   return false;
 }
@@ -75,5 +75,3 @@ function m_photoark_liens($struct) {
     return false;
   }
 }
-
-

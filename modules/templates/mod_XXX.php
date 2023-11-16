@@ -27,4 +27,3 @@ function m_XXX_ext($struct) {
 function m_XXX_liens($struct) {
   return false;
 }
-

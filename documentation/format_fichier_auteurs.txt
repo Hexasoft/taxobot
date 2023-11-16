@@ -1,5 +1,0 @@
-Il est possible de fournir une liste d'auteurs (avec contraintes) qui peuvent être résolus directement
-sans passer par l'utilisation du modèle {{auteur}}.
-L'exemple type est 'Linné', qui ne souffre aucune ambiguité. D'une façon générale toutes les abréviations
-botaniques entrent dans ce cadre aussi puisqu'elles sont normalisées et (normalement) uniques.
-

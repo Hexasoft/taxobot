@@ -1,6 +1,5 @@
 <?php
 
-
 // traduction des rangs LPSN (pour WP et pour le modèle externe)
 $lpsn_rangs = [
   "species" => "espèce", "genus" => "genre", "family" => "famille",
@@ -206,7 +205,7 @@ function m_lpsn_analyse($type, $lien, $full=true) {
     $m_lpsn_contenu = $tbl; // pour les appels suivants (recherche des taxons sup)
     return $blob;
   }
-  
+
   // infos de taxons inférieurs
   $debut = false;
   foreach($tbl as $idx => $_ligne) {
@@ -262,7 +261,7 @@ function m_lpsn_analyse($type, $lien, $full=true) {
       $blob['sous-taxons'] = $liste;
     }
   }
-  
+
   // infos de synonymes
   $debut = false;
   foreach($tbl as $idx => $_ligne) {
@@ -326,7 +325,7 @@ function m_lpsn_analyse($type, $lien, $full=true) {
 
 function m_lpsn_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-  
+
   // appel à vide pour les cookies
   debugc("LPSN: requête à vide");
   $url = "https://lpsn.dsmz.de/advanced_search";
@@ -335,7 +334,7 @@ function m_lpsn_infos(&$struct, $classif) {
     logs("LPSN: échec de connexion au site");
     return false;
   }
-  
+
   // on fait la requête de recherche
   $ntaxon = str_replace(" ", "+", $taxon);
   $url = "https://lpsn.dsmz.de/advanced_search?adv[taxon-name]=$ntaxon&adv[category]=" .
@@ -350,7 +349,7 @@ function m_lpsn_infos(&$struct, $classif) {
     logs("LPSN: échec de connexion au site (2)");
     return false;
   }
-  
+
   $tbl = explode("\n", $ret);
   $in = false;
   $trouve = false;
@@ -399,13 +398,13 @@ function m_lpsn_infos(&$struct, $classif) {
       }
     }
   }
-  
+
   // pas trouvé du tout
   if (!$trouve and ($syn === false)) {
     logs("LPSN: taxon non trouvé");
     return false;
   }
-  
+
   // si synonyme
   if ($syn !== false) {
     // si pas classification : on retourne l'info directe
@@ -449,14 +448,14 @@ function m_lpsn_infos(&$struct, $classif) {
   if (!$classif) {
     return true; // travail terminé
   }
-  
+
   // classification : il nous faut les autres infos
   $struct['classification'] = 'LPSN';
   $struct['classification-taxobox'] = 'LPSN';
   $struct['taxon']['nom'] = $ret['nom'];
   $struct['taxon']['rang'] = $ret['rang'];
   $struct['taxon']['auteur'] = $ret['auteur'];
-  
+
   // rangs supérieurs
   if (!isset($ret['classification']) or empty($ret['classification'])) {
     logs("LPSN: classification non trouvée");
@@ -465,13 +464,13 @@ function m_lpsn_infos(&$struct, $classif) {
   $struct['rangs'] = $ret['classification'];
   // on détermine le "règne"
   $struct['regne'] = m_lpsn_regne($struct['rangs']);
-  
+
   // taxons inférieurs
   if (isset($ret['sous-taxons']) and !empty($ret['sous-taxons'])) {
     $struct['sous-taxons']['liste'] = $ret['sous-taxons'];
     $struct['sous-taxons']['source'] = 'LPSN';
   }
-  
+
   // synonymes
   if (isset($ret['synonymes']) and !empty($ret['synonymes'])) {
     $tmp = [];
@@ -479,7 +478,7 @@ function m_lpsn_infos(&$struct, $classif) {
     $tmp['source'] = 'LPSN';
     $struct['synonymes'] = $tmp;
   }
-  
+
   // autres infos
   if (isset($ret['publication'])) {
     $struct['originale'] = $ret['publication'];
@@ -500,7 +499,7 @@ function m_lpsn_ext($struct) {
   if (isset($struct['liens']['lpsn']['lien'])) {
     $data = $struct['liens']['lpsn'];
     $cdate = dates_recupere();
-    
+
     $rang = isset($data['rang'])?$data['rang']:$struct['taxon']['rang'];
     $rangL = $data['rang-lpsn'];
     $nom = wp_met_italiques($data['nom'], $rang, $struct['regne']);
@@ -524,4 +523,3 @@ function m_lpsn_liens($struct) {
     return false;
   }
 }
-

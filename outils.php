@@ -76,7 +76,7 @@ function define_user_agent() {
           return $userAgent;
       }
   } catch (Exception $e) {}
-  
+
   // Construction d'UAs prédéfinis en fonction de la famille du système d'exploitation
   try {
       $osFamily = strtoupper(PHP_OS_FAMILY);
@@ -92,7 +92,7 @@ function define_user_agent() {
         return $userAgent;
       }
   } catch (Exception $e) {}
-  
+
   // Construction d'un UA minimaliste via les informations système PHP
   try { 
       $unameS = php_uname('s'); // system name
@@ -117,7 +117,7 @@ function user_agent($ua = null, $duree = 86400) {
   } else {
       // Permet de renseigner un UA, sinon il est défini.
       $userAgent = !empty($ua) ? $ua : define_user_agent();
-    
+
       // Encodage
       $userAgent = mb_convert_encoding($userAgent, 'UTF-8', 'auto');
 
@@ -195,7 +195,7 @@ function curl_request($url, $method, $post = null, $header = false, $head = fals
   if (isset($header) && $header !== false) {
     curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
   }
-  
+
   // Exécution de la requête cURL
   $data = curl_exec($ch);
 
@@ -246,7 +246,6 @@ function get_xml($t) {
   }
   return $x;
 }
-
 
 /// fonctions de génération de code HTML (pour "affichage")
 
@@ -315,14 +314,13 @@ function debugc($msg) {
 $o_logs = "";
 function logs($msg) {
   global $o_logs;
-  
+
   $o_logs .= "$msg\n";
 }
 function get_logs() {
   global $o_logs;
   return $o_logs;
 }
-
 
 /// fonctions de gestion des paramètres : regarde la ligne de commande puis les paramètres GET
 
@@ -354,7 +352,6 @@ function valide_parametre($val, $type) {
 
   return $val; // on n'arrive jamais là, mais par précaution…
 }
-
 
 // vérifie s'il y a des paramètres inconnus sur la ligne de commande
 function parametre_inconnu() {
@@ -393,7 +390,6 @@ function parametre_inconnu() {
   }
   return $bad;
 }
-
 
 // retourne la valeur d'un paramètre ou NULL si non présent
 // $type est le type attendu : int, bool, string
@@ -562,7 +558,7 @@ function conditionne_noms($struct, &$cnt) {
     }
   }
   $cnt = count($liste);
-  
+
   // on parcours le résultat pour mettre en forme (refs)
   $out = [];
   foreach($liste as $nom => $refs) {
@@ -575,7 +571,7 @@ function conditionne_noms($struct, &$cnt) {
     $out[] = $tmp;
   }
   $str = implode(", ", $out);
-  
+
   return $str;
 }
 

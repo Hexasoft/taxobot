@@ -26,7 +26,7 @@ function wfo_donnees_entree($tbl, $idx) {
   $l = trim($tbl[$idx+4]);
   $statut = preg_replace(',^.*entryStatus">([^<]*).*$,', '$1', $l);
   $statut = preg_replace(',#.*$,', '', $statut);
-  
+
   $res['nom'] = $nom;
   $res['id'] = $code;
   $res['auteur'] = $auteur;
@@ -34,12 +34,11 @@ function wfo_donnees_entree($tbl, $idx) {
   return $res;
 }
 
-
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
 // gérer la classification également
 function m_wfo_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-  
+
   $url = "http://www.worldfloraonline.org/search?query=" .
          urlencode(str_replace(" ", "+", $taxon)) .
          "&limit=99&start=0&sort=&view=list";
@@ -49,7 +48,7 @@ function m_wfo_infos(&$struct, $classif) {
     logs("WFO: erreur réseau");
     return false;
   }
-  
+
   // parcours des lignes pour trouver les propositions
   $tbl = explode("\n", $ret);
   $ok = false;
@@ -76,16 +75,16 @@ function m_wfo_infos(&$struct, $classif) {
     logs("WFO: taxon non trouvé");
     return false;
   }
-  
+
   // on met le lien externe
   $struct['liens']['wfo']['nom'] = $blob['nom'];
   $struct['liens']['wfo']['id'] = $blob['id'];
   $struct['liens']['wfo']['auteur'] = $blob['auteur'];
-  
+
   if (!$classif) {
     return true;
   }
-  
+
   // TODO : partie classification
   return false;
 }
@@ -93,7 +92,7 @@ function m_wfo_infos(&$struct, $classif) {
 // génération des liens externes (modèles dans Voir aussi)
 function m_wfo_ext($struct) {
   $cdate = dates_recupere();
-  
+
   if (isset($struct['liens']['wfo']['id'])) {
     $data = $struct['liens']['wfo'];
     $cible = wp_met_italiques($data['nom'], $struct['taxon']['rang'], $struct['regne'], false, false);
@@ -116,4 +115,3 @@ function m_wfo_liens($struct) {
     return false;
   }
 }
-

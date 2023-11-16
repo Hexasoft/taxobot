@@ -5,19 +5,19 @@
   et retournant des valeurs.
   permet de créer des séries de conditions pour spécifier certains éléments
   (portails, catégories, ébauche, auteurs)
-  
+
   Format d'une valeur :
     regne / classification / rang / rangs.{espèce|genre|famille|…}
-  
+
   Une ligne d'expression est un code PHP valide. Il peut utiliser if, les opérateurs
   de comparaison, les parenthèses.
   Il *doit* retourner la valeur voulue ou FALSE.
-  
+
   Les valeurs (cf plus haut) doivent être encadrées par le caractère "/".
-  
+
   Exemple, qui test si l'Embranchement=Cnidaria pour les ébauches
   if (/rangs.embranchement/ == 'Cnidaria') { return 'cnidaire'; } else { return FALSE; }
-  
+
   Toutes les entrées d'un fichier sont évaluées. Dès qu'il y a une réponse l'évaluation s'arrête
 
 */
@@ -25,7 +25,7 @@
 // remplace les entrées de valeurs dans le texte indiqué
 function sel_remplace($struct, $txt) {
   global $rangs;
-  
+
   if (!isset($struct['rangs'])) {
     return $txt;
   }
@@ -48,7 +48,7 @@ function sel_remplace($struct, $txt) {
   // maintenant on remplace tout ce qui reste entre "/" par un texte impossible
   // pour éviter des messages d'erreur si un élément n'existe pas
   $txt = preg_replace(",/[^|]*/,", "'TexteNonPossible'", $txt);
-  
+
   return $txt;
 }
 
@@ -75,7 +75,7 @@ function sel_evalue($fichier, $struct) {
     $l = trim($ligne);
     if ($l == "") { continue; }
     if ($l[0] == "#") { continue; }
-    
+
     $ret = sel_remplace($struct, $l);
     try {
       $res = eval($ret);
@@ -91,4 +91,3 @@ function sel_evalue($fichier, $struct) {
   // rien trouvé
   return false;
 }
-

@@ -13,7 +13,7 @@ function m_oepp_init() {
 // gérer la classification également
 function m_oepp_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-  
+
   $url = "https://gd.eppo.int/ajax/search?k=" . urlencode($taxon) . 
          "&s=1&m=1&t=0&l=";
   $ret = get_data($url);
@@ -22,13 +22,13 @@ function m_oepp_infos(&$struct, $classif) {
     logs("OEPP: erreur réseau");
     return false;
   }
-  
+
   $res = json_decode($ret);
   if ($res === null) {
     logs("OEPP: erreur d'accès aux données ou non trouvé");
     return false;
   }
-  
+
   // on cherche l'identifiant de l'espèce
   $id = false;
   foreach($res as $r) {
@@ -41,12 +41,12 @@ function m_oepp_infos(&$struct, $classif) {
     logs("OEPP: taxon non trouvé");
     return false;
   }
-  
+
   // on met les infos externes
   $struct['liens']['oepp']['id'] = $id;
   $struct['liens']['oepp']['nom'] = $taxon;
   $struct['liens']['oepp']['rang'] = $struct['taxon']['rang'];
-  
+
   // on récupère la page du taxon
   $ret = file_get_contents("https://gd.eppo.int/taxon/" . $id);
   if ($ret === false) {
@@ -75,11 +75,11 @@ function m_oepp_infos(&$struct, $classif) {
   if (!empty($noms)) {
     $struct['vernaculaire']['OEPP'] = $noms;
   }
-  
+
   if (!$classif) {
     return true;
   }
-  
+
   // TODO : partie classification
   return false;
 }
@@ -87,7 +87,7 @@ function m_oepp_infos(&$struct, $classif) {
 // génération des liens externes (modèles dans Voir aussi)
 function m_oepp_ext($struct) {
   $cdate = dates_recupere();
-  
+
   if (isset($struct['liens']['oepp']['id'])) {
     $data = $struct['liens']['oepp'];
     $cible = wp_met_italiques($data['nom'], $struct['taxon']['rang'], $struct['regne']);
@@ -110,5 +110,3 @@ function m_oepp_liens($struct) {
     return false;
   }
 }
-
-

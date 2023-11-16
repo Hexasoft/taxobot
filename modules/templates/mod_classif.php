@@ -30,11 +30,11 @@ function m_XXX_infos(&$struct, $classif) {
   $struct['liens']['XXX']['nom'] = $nom_du_taxon;
   $struct['liens']['XXX']['auteur'] = $auteur_du_taxon;
   $struct['liens']['XXX']['non-valide'] = $non_validite_du_taxon;
-  
+
   /* le cas échéant, on ajoute des noms vernaculaires
      note : l'index XXX correspond au nom du modèle Bioref associé */
   $struct['vernaculaire']['XXX'] = $liste_noms_vernaculaires;
-  
+
   /* si on est appelé sans classification, on s'arrête là et c'est ok */
   if (!$classif) {
     return true;
@@ -102,5 +102,3 @@ function m_XXX_liens($struct) {
     return false;
   }
 }
-
-

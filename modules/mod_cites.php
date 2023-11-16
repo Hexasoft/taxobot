@@ -4,14 +4,13 @@
   Recherche des infos CITES
 */
 
-
 function m_cites_init() {
   return declare_module("cites", false, true, true);
 }
 
 function m_cites_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-  
+
   $url = "https://www.speciesplus.net/api/v1/auto_complete_taxon_concepts?taxonomy=cites&taxon_concept_query=" .
          urlencode($taxon);
   $ret = get_data($url);
@@ -40,7 +39,7 @@ function m_cites_infos(&$struct, $classif) {
     logs("CITES: taxon non trouvé (possible synonyme)");
     return false;
   }
-  
+
   // maintenant on récupère les infos pour cet ID
   $url = "https://www.speciesplus.net/api/v1/taxon_concepts/$id";
   $ret = get_data($url);
@@ -58,13 +57,13 @@ function m_cites_infos(&$struct, $classif) {
     logs("CITES: taxon sans classement ?");
     return false; // pas de classement ?!
   }
-  
+
   $struct['liens']['cites']['nom'] = $tmp->taxon_concept->full_name;
   $struct['liens']['cites']['auteur'] = $tmp->taxon_concept->author_year;
   $struct['liens']['cites']['annexe'] = $tmp->taxon_concept->cites_listings[0]->species_listing_name;
   $struct['liens']['cites']['date'] = $tmp->taxon_concept->cites_listings[0]->effective_at_formatted;
   $struct['liens']['cites']['lien'] = $id;
-  
+
   // noms en français
   $lst = [];
   if (isset($tmp->taxon_concept->common_names)) {
@@ -84,15 +83,14 @@ function m_cites_infos(&$struct, $classif) {
   if (!$classif) {
     return true;
   }
-  
+
   // TODO : partie classification
   return false;
 }
 
-
 function m_cites_ext($struct) {
   $cdate = dates_recupere();
-  
+
   if (isset($struct['liens']['cites']['lien'])) {
     $data = $struct['liens']['cites'];
     $cible = wp_met_italiques($data['nom'], $struct['taxon']['rang'], $struct['regne'], false, false);
@@ -115,4 +113,3 @@ function m_cites_liens($struct) {
     return false;
   }
 }
-

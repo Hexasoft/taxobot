@@ -135,7 +135,7 @@ function m_mycobank_recurs($res) {
 
 function m_mycobank_insert_valeur($val, $fk, $tk, $rc, $cat, $idx) {
   global $m_mb_results, $m_mb_mapping, $m_mb_items;
-  
+
   // entrées "spéciales"
   if ($cat == "BasionymRecord") {
     $m_mb_results['basionyme'] = $val;
@@ -159,7 +159,7 @@ function m_mycobank_insert_valeur($val, $fk, $tk, $rc, $cat, $idx) {
     $m_mb_results['actuel'][] = $val;
     return;
   }
-  
+
   // on cherche si on match une entrée
   $trouve = false;
   $ntrouve = false;
@@ -257,7 +257,7 @@ function m_mycobank_recurs20($el, $fk, $tk, $rc, $cat, $idx, $parent) {
     m_mycobank_insert_valeur($el->RecordId, $fk, $tk, $rc, $parent, $idx);
     return;
   }
-  
+
   // sinon on boucle
   if (is_array($el)) {
     foreach($el as $i => $e) {
@@ -310,8 +310,6 @@ function m_mycobank_recurs2($res, $full=true) {
   }
   m_mycobank_recurs20($res->Data->RecordDetails, "0", "0", "0", "?", "-1", "x");
 }
-
-
 
 // récupère les données JSON sur un taxon
 function m_mycobank_get($id) {
@@ -403,7 +401,6 @@ function m_mycobank_get_id($id) {
   return $res;
 }
 
-
 // récupère une valeur dans le JSON de la publication
 function m_mycobank_pub_field($index, $res) {
   if (!isset($res->Data->RecordDetails->{$index})) {
@@ -420,7 +417,6 @@ function m_mycobank_pub_field($index, $res) {
   }
   return $res->Data->RecordDetails->{$index}->Value;
 }
-
 
 function m_mycobank_get_pub($id) {
   $url = "https://webservices.bio-aware.com/cbsdatabase/api/Details/GetTemplateByIdAndRecordDetails?p_TemplateId=19&p_RecordId=$id&p_DesignMode=1";
@@ -493,10 +489,9 @@ function m_mycobank_get_pub($id) {
     $out .= "|périodique=$xjournal\n";
     $out = "{{Article\n$out}}";
   }
-  
+
   return $out;
 }
-
 
 // analyse les données d'un taxon
 function m_mycobank_analyse_taxon($res, $full=true) {
@@ -535,7 +530,7 @@ function m_mycobank_analyse_taxon($res, $full=true) {
       $taxon['rang'] = $x;
     }
   }
-  
+
   // si présence d'une publication
   if (isset($m_mb_results['litterature'])) {
     $out['litterature'] = $m_mb_results['litterature'][0]['id'];
@@ -592,7 +587,7 @@ function m_mycobank_analyse_taxon($res, $full=true) {
   if (!empty($taxon)) {
     $out['taxon'] = $taxon;
   }
-  
+
   // sous-taxons
     // $struct['sous-taxons']['liste'] = $liste;
     // $struct['sous-taxons']['source'] = gbif_bioref();
@@ -624,12 +619,12 @@ function m_mycobank_analyse_taxon($res, $full=true) {
     }
     $out['rangs'] = $tbl;
   }
-  
+
   // basionyme
   if (isset($m_mb_results['basionyme'])) {
     $out['basionyme']['id'] = $m_mb_results['basionyme'];
   }
-  
+
   // synonymes
   if (isset($m_mb_results['synonymes'])) {
     $out['synonymes'] = $m_mb_results['synonymes'];
@@ -638,11 +633,11 @@ function m_mycobank_analyse_taxon($res, $full=true) {
       array_unshift($out['synonymes'], $out['basionyme']['id']);
     }
   }
-  
+
   if (isset($m_mb_results['actuel'])) {
     $out['actuel'] = $m_mb_results['actuel'];
   }
-  
+
   if (isset($m_mb_results['citation'])) {
     $out['taxon']['citation'] = $m_mb_results['citation'][-1]['valeur'];
   }
@@ -661,12 +656,11 @@ function m_mycobank_analyse_taxon($res, $full=true) {
   }
 
     // $struct['rangs']
-    
+
     // mycobank_cherche_regne($nom_regne)
 
   return $out;
 }
-
 
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
 // gérer la classification également
@@ -699,7 +693,7 @@ function m_mycobank_infos(&$struct, $classif) {
     logs("MycoBank: échec de décodage des données");
     return false;
   }
-  
+
   if (!isset($res->Data->RecordEntityList)) {
     logs("MycoBank: pas de réponse pour ce taxon");
     return false;
@@ -747,13 +741,13 @@ function m_mycobank_infos(&$struct, $classif) {
       $struct['liens']['mycobank'] = $tmp;
     }
   }
-  
+
   if (empty($struct['liens']['mycobank'])) {
     unset($struct['liens']['mycobank']);
     logs("MycoBank: taxons trouvés mais non concordants (non légitime ?)");
     return false;
   }
-  
+
   // on récupère l'enregistrement
   $res = m_mycobank_get($struct['liens']['mycobank']['id']);
   if ($res === false) {
@@ -804,12 +798,12 @@ function m_mycobank_infos(&$struct, $classif) {
       // sinon on va traiter celui-ci
     }
   }
-  
+
   // si pas plus loin, retour : on a fait le job
   if (!$classif) {
     return true;
   }
-  
+
   // classification : il nous faut au moins les taxons supérieurs
   $id = $struct['liens']['mycobank']['id'];
 
@@ -826,7 +820,7 @@ function m_mycobank_infos(&$struct, $classif) {
     logs("MycoBank: données de classification manquantes");
     return false;
   }
-  
+
   // on affine les infos présentes (données classif et sous-taxons : rang, auteur…)
   foreach($out['rangs'] as $idx => $rang) {
     $res = m_mycobank_get_rec($rang['id']);
@@ -855,7 +849,7 @@ function m_mycobank_infos(&$struct, $classif) {
       $out['rangs'][$idx]['auteur'] = $bla['taxon']['auteur'];
     }
   }
-  
+
   // le taxon
   $struct['taxon'] = $out['taxon'];
   // on enregistre la classification dans le retour, en ordre inverse
@@ -909,7 +903,7 @@ function m_mycobank_infos(&$struct, $classif) {
       $struct['sous-taxons']['source'] = mycobank_bioref();
     }
   }
-  
+
   // basionyme
   if (isset($out['basionyme']['id'])) {
     $res = m_mycobank_get_rec($out['basionyme']['id']);
@@ -922,7 +916,7 @@ function m_mycobank_infos(&$struct, $classif) {
       }
     }
   }
-  
+
   // synonymes
   if (isset($out['synonymes'])) {
     $tbl = [];
@@ -942,7 +936,7 @@ function m_mycobank_infos(&$struct, $classif) {
       $struct['synonymes']['source'] = mycobank_bioref();
     }
   }
-  
+
   $struct['classification'] = 'MycoBank';
   $struct['classification-taxobox'] = mycobank_classif();
 
@@ -1000,5 +994,3 @@ function m_mycobank_liens($struct) {
     return false;
   }
 }
-
-

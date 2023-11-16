@@ -13,7 +13,7 @@ function m_ncbi_init() {
 // gérer la classification également
 function m_ncbi_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-  
+
   // on récupère la page de recherche
   $nom = str_replace(" ", "%20", $taxon);
   $url = "https://www.ncbi.nlm.nih.gov/taxonomy?term=" . $nom . "%5BScientific%20Name%5D";
@@ -33,7 +33,7 @@ function m_ncbi_infos(&$struct, $classif) {
       break;
     }
   }
-  
+
   if ($id !== false) {
     $el = [];
     $el['nom'] = $taxon;
@@ -44,7 +44,7 @@ function m_ncbi_infos(&$struct, $classif) {
     logs("NCBI: taxon non trouvé");
     return false;
   }
-  
+
   if (!$classif) {
     return true;
   }
@@ -74,4 +74,3 @@ function m_ncbi_liens($struct) {
     return false;
   }
 }
-

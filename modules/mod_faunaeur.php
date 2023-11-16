@@ -13,7 +13,7 @@ function m_faunaeur_init() {
 // gérer la classification également
 function m_faunaeur_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-  
+
   $url = "https://fauna-eu.org/cdm_dataportal/search/results/taxon?" .
          "ws=portal%2Ftaxon%2Ffind&query=" . str_replace(" ", "+", $taxon) .
          "&form_build_id=form-BQugWFJYRPGve8Fvc2jXOMpTh7kmZSU6PrTPchsHjOk" .
@@ -41,7 +41,7 @@ function m_faunaeur_infos(&$struct, $classif) {
     logs("Faunaeur: taxon non trouvé");
     return false;
   }
-  
+
   // on éclate la réponse, qui peut contenir plusieurs taxons
   $tmp = preg_replace("/cdm:Taxon/", "\n", $ok);
   $tbl = explode("\n", $tmp);
@@ -63,19 +63,19 @@ function m_faunaeur_infos(&$struct, $classif) {
     if ($id == "") {
       continue;
     }
-    
+
     // extraction de l'auteur
     $auteur = preg_replace("/^.*authors\">/", "", $ligne);
     $auteur = preg_replace(",</span>.*$,", "", $auteur);
     $auteur = preg_replace("/^.*>/", "", $auteur);
-    
+
     // construction
     $blob['nom'] = $nom;
     $blob['auteur'] = $auteur;
     $blob['id'] = $id;
     break; // trouvé, on arrête
   }
-  
+
   if (empty($blob)) {
     logs("Faunaeur: taxon non trouvé (2)");
     return false;
@@ -84,11 +84,11 @@ function m_faunaeur_infos(&$struct, $classif) {
   $struct['liens']['faunaeur']['nom'] = $blob['nom'];
   $struct['liens']['faunaeur']['id'] = $blob['id'];
   $struct['liens']['faunaeur']['auteur'] = $blob['auteur'];
-  
+
   if (!$classif) {
     return true;
   }
-  
+
   // pas de gestion de la classification
   return false;
 }
@@ -96,7 +96,7 @@ function m_faunaeur_infos(&$struct, $classif) {
 // génération des liens externes (modèles dans Voir aussi)
 function m_faunaeur_ext($struct) {
   $cdate = dates_recupere();
-  
+
   if (isset($struct['liens']['faunaeur']['id'])) {
     $data = $struct['liens']['faunaeur'];
     $cible = wp_met_italiques($data['nom'], $struct['taxon']['rang'], $struct['regne']);
@@ -118,4 +118,3 @@ function m_faunaeur_liens($struct) {
     return false;
   }
 }
-

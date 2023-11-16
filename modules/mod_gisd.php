@@ -30,12 +30,12 @@ function m_gisd_infos(&$struct, $classif) {
   // pas de gestion d'auteurs, ou même de nom
   $struct['liens']['gsid']['code'] = $t;
   $struct['liens']['gsid']['nom'] = $taxon;
-  
+
   // si pas plus loin, retour
   if (!$classif) {
     return true;
   }
-  
+
   // pas de classification
   return false;
 }
@@ -67,4 +67,3 @@ function m_gisd_liens($struct) {
     return false;
   }
 }
-

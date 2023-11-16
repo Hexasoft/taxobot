@@ -4,7 +4,6 @@
   Traitements de la zone « auteurs » (et données associées)
 */
 
-
 ////// nouvelle partie : en test
 require "liste_botanistes.php"; // $aut_botanistes[]
 require "liste_zoologistes.php"; // $aut_zoologistes[]
@@ -93,12 +92,12 @@ function identifie_auteur($struct, $nom, $date, &$suggestions) {
     }
     return false;
   }
-  
+
   if ($struct['regne'] == 'virus') {
     // pas de gestion des auteurs pour les virus
     return false;
   }
-  
+
   // zoologiste, on parcours la liste
   $possibles = [];
   foreach($aut_zoologistes as $el) {
@@ -116,7 +115,7 @@ function identifie_auteur($struct, $nom, $date, &$suggestions) {
     }
     return false;
   }
-  
+
   // dates : on teste avec un encadrement
   foreach($possibles as $p) {
     $d = $p[2];
@@ -155,7 +154,7 @@ function identifie_auteur($struct, $nom, $date, &$suggestions) {
     $suggestions = [];
     return "[[" . $tmp[1] . "|" . $tmp[0] . "]]";
   }
-  
+
   // de toute façon on ne retourne rien
   return false;
 }
@@ -275,7 +274,7 @@ function aut_analyse($struct, $el, &$suggestions, &$dt, &$mdla) {
       $resu[] = $out;
     }
   }
-  
+
   $resu2 = $resu;
   $resu = [];
   $date = false;
@@ -315,7 +314,7 @@ function aut_analyse($struct, $el, &$suggestions, &$dt, &$mdla) {
       $resu[] = $out;
     }
   }
-  
+
   // ce qui reste est indiqué avec le modèle {{auteur}}
   $resu2 = $resu;
   $resu = [];
@@ -342,7 +341,7 @@ function aut_analyse($struct, $el, &$suggestions, &$dt, &$mdla) {
     }
     $resu[] = $out;
   }
-  
+
   return $resu;
 }
 
@@ -357,7 +356,7 @@ function aut_vers_texte($arbre) {
             ['nom. cons.',false,true,false],['corrig.',true,true,true],
           ];
   $resu = "";
-  
+
   foreach($arbre as $el) {
     if ($el['type'] == 'sep') {
       if ($el['texte'] == '') {
@@ -396,7 +395,6 @@ function aut_vers_texte($arbre) {
   return trim($resu);
 }
 
-
 // traitement de la liste des auteurs ($auteurs) : retourne le texte à intégrer dans {{taxobox taxon}}
 function new_auteurs_traite(&$struct, $auteurs) {
   // précaution
@@ -420,7 +418,7 @@ function new_auteurs_traite(&$struct, $auteurs) {
       logs("Suggestions d'auteurs (abréviation, lien, date naissance, activité vers, date mort) :");
     foreach($sug as $s) {
       logs($s[0] . " → [[" . $s[1] . "]] (" . ($s[2]?$s[2]:"-") . "," . ($s[3]?$s[3]:"-") . "," . ($s[4]?$s[4]:"-") . ")");
-    
+
     }
   } else {
     if ($mdla) {
@@ -430,9 +428,6 @@ function new_auteurs_traite(&$struct, $auteurs) {
   }
   return $texte;
 }
-
-
-
 
 // mots à ignorer (même si certains sont généralement collés)
 $auteurs_ignore = [ "ex.", "ex", "in", "in.", "and", "&", "[", "]", ",", "(", ")" ];
@@ -480,7 +475,6 @@ $auteurs_espace = [
    'et al.',
 ];
 
-
 // fonction de préparation (éventuelle) de données pour les auteurs (chargement de fichier, etc.), pour
 // éviter de le faire à chaque auteur. N'est appelée qu'une seule fois. Reçoit $struct pour éventuellement
 // initialiser/compléter spécifiquement les données
@@ -515,7 +509,7 @@ function auteurs_resoudre($cur, $date, $struct) {
   foreach($aut_data as $aut) {
     foreach($aut['noms'] as $n) {
       if ($n == $cur) {
-      
+
       }
     }
   }
@@ -548,7 +542,7 @@ function auteurs_traite(&$struct, $auteurs) {
   // on explode par espaces
   $tmp = explode(" ", $auteurs);
   $out = [];
-  
+
   // premier passage pour trouver une date éventuellement
   $date = false;
   foreach($tmp as $t) {
@@ -595,7 +589,7 @@ function auteurs_traite(&$struct, $auteurs) {
       $post .= $x;
       $cur = mb_substr($cur, 0, mb_strlen($cur)-1);
     }
-    
+
     // on appelle la fonction de traitement spécifique, qui peut décider de remplacer
     // un auteur par sa cible si connue
     $valid = auteurs_resoudre($cur, $date, $struct);
@@ -604,15 +598,14 @@ function auteurs_traite(&$struct, $auteurs) {
       $out[] = "$pre$valid$post";
       continue;
     }
-    
-    
+
     // on ajoute le modèle auteur
     $cur = "{{auteur|[[" . $cur . "]]}}";
-    
+
     // on l'insert
     $out[] = "$pre$cur$post";
   }
-  
+
   // reconstruction de la sortie
   $auteurs = implode(" ", $out);
 
@@ -629,4 +622,3 @@ function auteurs_traite(&$struct, $auteurs) {
 
   return $auteurs;
 }
-

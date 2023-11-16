@@ -5,7 +5,6 @@
   Note : ne fait aucun rendu. Uniquement utilisé par rendu() et les fonctions associées
 */
 
-
 function m_fin_init() {
   return declare_module("fin", false, false, true);
 }
@@ -13,7 +12,7 @@ function m_fin_init() {
 function m_fin_infos(&$struct, $classif) {
   // partie portails
   $portail = "biologie";  // par défaut
-  
+
   // on affine par "règne"
   if ($struct['regne'] == 'animal') {
     $portail = "zoologie";
@@ -38,14 +37,14 @@ function m_fin_infos(&$struct, $classif) {
   } elseif ($struct['regne'] == 'champignon') {
     $portail = "mycologie";
   }
-  
+
   $tmp = lien_pour_portail($portail, $struct);
   if (!empty($tmp) and is_array($tmp)) {
     $struct['liens']['fin']['portails'] = $tmp;
   } else {
     $struct['liens']['fin']['portails'] = [ $portail ];
   }
-  
+
   // partie catégories (catégorie de famille, ici c'est tout)
   $cats = [];
   if (isset($struct['rangs'])) {
@@ -65,7 +64,6 @@ function m_fin_infos(&$struct, $classif) {
   return true;
 }
 
-
 function m_fin_ext($struct) {
   return false;
 }
@@ -73,4 +71,3 @@ function m_fin_ext($struct) {
 function m_fin_liens($struct) {
   return false;
 }
-

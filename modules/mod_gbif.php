@@ -8,7 +8,6 @@
  *
  */
 
-
 /**
   Tableau d'équivalences des rangs dans GBIF (ils utilisent plusieurs notations).
 */
@@ -190,7 +189,7 @@ function gbif_cherche_regne($regne) {
  */
 function gbif_cherche_rang($rang) {
   global $gbif_wp;
-  
+
   if (!isset($gbif_wp[$rang])) {
     return 'NOTFOUND';
   }
@@ -234,7 +233,6 @@ function gbif_is_extinct($id) {
   }
   return null; // information non trouvée
 }
-
 
 // données dédiées à un taxon
 /**
@@ -292,7 +290,7 @@ function gbif_taxon_info($id, $name="<ndef>", $deja=0) {
       $result['rang'] = gbif_cherche_rang($buf);
     }
   }
-  
+
   // est-il éteint ?
   $ret = gbif_is_extinct($id);
   if ($ret !== null) {
@@ -301,8 +299,6 @@ function gbif_taxon_info($id, $name="<ndef>", $deja=0) {
 
   return $result;
 }
-
-
 
 /**
  * Déclare le module GBIF.
@@ -331,7 +327,7 @@ function m_gbif_infos(&$struct, $classif) {
   // les options dont on a besoin
   $suivre_synonymes = get_config("suivre-synonymes");
   $taxon = $struct['taxon']['nom'];
-  
+
   // on effectue une recherche sur le nom du taxon
   $url = "https://api.gbif.org/v1/species?datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&name=" .
          urlencode($taxon);
@@ -342,7 +338,7 @@ function m_gbif_infos(&$struct, $classif) {
     logs("Erreur réseau pour GBIF");
     return false;
   }
-  
+
   $_cur = json_decode($ret);
   if ($_cur === null) {
     logs("Erreur de décodage des informations GBIF");
@@ -353,7 +349,7 @@ function m_gbif_infos(&$struct, $classif) {
     logs("Taxon non trouvé chez GBIF");
     return false;
   }
-  
+
   // on parcours pour trouver le "bon" taxon
   $cur = false;
   debugc("Recherche réponses");
@@ -371,7 +367,7 @@ function m_gbif_infos(&$struct, $classif) {
       return false;
     }
   }
-  
+
   // si false on cherche l'entrée cible (suivre_synonyme)
   if ($cur === false) {
     foreach($_cur->results as $r) {
@@ -380,7 +376,7 @@ function m_gbif_infos(&$struct, $classif) {
       break;
     }
   }
-  
+
   // données lien externe
   debugc("Extraction des données");
   $struct['liens']['gbif']['id'] = $cur->key;
@@ -393,7 +389,7 @@ function m_gbif_infos(&$struct, $classif) {
   if (isset($tmp['eteint'])) {
     $struct['liens']['gbif']['eteint'] = $tmp['eteint'];
   }
-  
+
   // si le taxon est un synonyme, et qu'on demande à suivre les synonymes,
   // on reboucle
   debugc("Extraction des données (2)");
@@ -425,7 +421,7 @@ function m_gbif_infos(&$struct, $classif) {
   if (!$classif) {
     return true;
   }
-  
+
   // données taxon
   debugc("Extraction des données (3)");
   $struct['taxon']['auteur'] = $tmp['auteur'];
@@ -438,7 +434,7 @@ function m_gbif_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
   $struct['classification'] = 'GBIF';
   $struct['classification-taxobox'] = gbif_classif();
-  
+
   // extraction de la classification
   $tbl = [];
 
@@ -465,13 +461,13 @@ function m_gbif_infos(&$struct, $classif) {
     }
   }
   $struct['rangs'] = $tbl;
-  
+
   // si pas de "règne" trouvé : erreur
   if (!isset($struct['regne'])) {
     logs("GBIF: charte non trouvée");
     return false;
   }
-  
+
   // basionyme ?
   debugc("Extraction des données (4)");
   if (isset($cur->basionymKey) and !empty($cur->basionymKey)) {
@@ -490,7 +486,7 @@ function m_gbif_infos(&$struct, $classif) {
       }
     }
   }
-  
+
   // si présent, les sous-taxons
   debugc("Extraction des données (5)");
   if (isset($cur->numDescendants) and ($cur->numDescendants > 0)) {
@@ -626,7 +622,7 @@ nop2:
       $offset += 20;
     }
   }
-  
+
   if (!empty($tmp)) {
     $struct['synonymes']['liste'] = $tmp;
     $struct['synonymes']['source'] = gbif_bioref();
@@ -648,7 +644,7 @@ function m_gbif_ext($struct) {
   if (!($cdate = dates_recupere())) { // Assignation $cdate = dates_recupere(); cf. outils.php
     return false; // sauf si $cdate non récupérée (input validation)
   }
-  
+
   if (!is_array($struct) || !isset($struct['liens']['gbif']['id'])) {
     return false; // Input validation : si format $struct incorrect ou clé introuvable
   }
@@ -687,4 +683,3 @@ function m_gbif_liens($struct) {
     return false;
   }
 }
-

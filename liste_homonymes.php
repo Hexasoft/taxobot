@@ -31,7 +31,7 @@ $homonymes = [
 
   // P
   'Pilumnus' => [ '*' => 'Pilumnus (crabe)' ],
-  
+
 ];
 
 /**
@@ -51,11 +51,11 @@ function cherche_homonyme($terme, $classifieur) {
 
     $pageh = false; // Par défaut, on ne renvoie pas une page d'homonymie
     $el = false;    // Par défaut, on ne renvoie aucun texte
-  
+
     if (!isset($homonymes[$terme])) { // Terme spécifié absent du dictionnaire
         return [$pageh, $el]; 
     }
-    
+
     if (isset($homonymes[$terme][$classifieur])) { // Recherche sur un classifieur
       $el = $homonymes[$terme][$classifieur];
     } elseif ($classifieur != "*" && isset($homonymes[$terme]['*'])) { // Recherche générique (sauf si déjà effectuée)
@@ -66,6 +66,3 @@ function cherche_homonyme($terme, $classifieur) {
     } 
     return [$pageh, $el]; // Résultats de la recherche. Par défaut, aucun résultat.
   }
-
-
-

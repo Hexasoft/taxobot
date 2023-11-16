@@ -13,7 +13,7 @@ function m_msw_init() {
 // gérer la classification également
 function m_msw_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-  
+
   // on accède au site pour avoir un cookie
   clean_data();
   $url = "https://www.departments.bucknell.edu/biology/resources/msw3/";
@@ -104,7 +104,7 @@ function m_msw_infos(&$struct, $classif) {
       break;
     }
   }
-  
+
   if ($id === false) {
     logs("MSW: taxon non trouvé (2)");
     return false;
@@ -146,4 +146,3 @@ function m_msw_liens($struct) {
   }
   return false;
 }
-

@@ -31,7 +31,7 @@ function m_wcvp_infos(&$struct, $classif) {
     logs("WCVP: Pas de réponse pour ce taxon");
     return false;
   }
-  
+
   // parcours
   $ok = false;
   foreach($res->results as $r) {
@@ -97,7 +97,7 @@ function m_wcvp_infos(&$struct, $classif) {
   if (!$classif) {
     return true;
   }
-  
+
   // pas de classification
   return false;
 }
@@ -154,5 +154,3 @@ function m_wcvp_liens($struct) {
     return false;
   }
 }
-
-

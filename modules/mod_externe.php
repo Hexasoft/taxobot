@@ -4,7 +4,6 @@
   Récupère des liens externes (WD, commons, species…)
 */
 
-
 function m_externe_init() {
   return declare_module("externe", false, false, true);
 }
@@ -22,7 +21,7 @@ function m_externe_infos(&$struct, $classif) {
     logs("Externe/WD: echec de récupération réseau");
     goto catcommons;
   }
-  
+
   // on tente d'extraire le résultat
   $tbl = explode("\n", $ret);
   $ok = false;
@@ -44,9 +43,9 @@ function m_externe_infos(&$struct, $classif) {
     logs("Externe/WD: taxon non trouvé (2)");
     goto catcommons;
   }
-  
+
   $struct['liens']['externe']['wikidata']['id'] = $id;
-  
+
   /// catégorie commons
 catcommons:
   $url = "https://commons.wikimedia.org/w/index.php?title=Category:" .
@@ -99,11 +98,10 @@ suite:
   if (!$classif) {
     return true;
   }
-  
+
   // pas de classif ici
   return false;
 }
-
 
 function m_externe_ext($struct) {
   return false;
@@ -133,4 +131,3 @@ function m_externe_liens($struct) {
     return false;
   }
 }
-

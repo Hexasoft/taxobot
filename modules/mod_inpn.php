@@ -9,7 +9,6 @@ function m_inpn_init() {
   return declare_module("inpn", false, true, true);
 }
 
-
 /*
 Changement :
 
@@ -26,7 +25,6 @@ _embedded
     scientificName (str : bName + auth)
     rank (str = SPECIES / ?)
     valid (bool)
-
 
 pour les noms en français : https://taxref.mnhn.fr/api/taxa/98921/vernacularNames
 
@@ -92,7 +90,7 @@ function m_inpn_infos(&$struct, $classif) {
     logs("INPN: taxon non trouvé");
     return false;
   }
-  
+
   // recherche noms vernaculaires
   $url = "https://taxref.mnhn.fr/api/taxa/$id/vernacularNames";
   $ret = get_data($url);
@@ -120,17 +118,16 @@ function m_inpn_infos(&$struct, $classif) {
 
   // on l'ajoute
   $struct['liens']['inpn'] = $blob;
-  
+
 suite:
   // si pas plus loin, retour
   if (!$classif) {
     return true;
   }
-  
+
   // pas de classification
   return false;
 }
-
 
 // génération des liens externes (modèles dans Voir aussi)
 function m_inpn_ext($struct) {
@@ -155,4 +152,3 @@ function m_inpn_liens($struct) {
     return false;
   }
 }
-

@@ -13,7 +13,7 @@ function m_ebird_init() {
 // gérer la classification également
 function m_ebird_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-  
+
   $url = "https://ebird.org/explore";
   $ret = get_data($url);
   if ($ret === false) {
@@ -71,7 +71,7 @@ function m_ebird_infos(&$struct, $classif) {
     logs("eBird: taxon non trouvé");
     return false;
   }
-  
+
   $blob = [];
   $blob['id'] = $code;
   $blob['nom'] = $nom;
@@ -101,5 +101,3 @@ function m_ebird_ext($struct) {
 function m_ebird_liens($struct) {
   return false;
 }
-
-

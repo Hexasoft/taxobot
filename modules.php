@@ -152,7 +152,6 @@ $domaines_false = [
 // noms de tous les domaines rencontrés
 $tous_domaines = [];
 
-
 // insert récursivement la valeur $val pour l'entrée $nom et ses descendants dans le $domaine
 function rec_domaines(&$domaine, $nom, $val) {
   global $tous_domaines;
@@ -177,7 +176,7 @@ function rec_domaines(&$domaine, $nom, $val) {
 // si $def vaut FALSE tous les domaines sont refusés, sauf ceux listés
 function creer_domaines($def, $liste) {
   global $domaines_true, $domaines_false;
-  
+
   if ($def) {
     $domaines = $domaines_true;
     $val = false;
@@ -206,14 +205,14 @@ function mod_trie($a, $b) {
 // indique une liste de modules (séparés par une virgule) à désactiver
 function desactive_modules($liste) {
   global $m_off;
-  
+
   if (empty($liste)) {
     return true;
   }
   $tbl = explode(",", $liste);
   $m_off = $tbl;
   logs("Désactivation de modules : $liste");
-  
+
   return true;
 }
 
@@ -238,17 +237,17 @@ function declare_module($nom, $classif, $ext, $domaines, $niveau=0, $default=fal
     logs("declare_module: le module '$nom' est déjà déclaré");
     return false;
   }
-  
+
   // Vérification : si le module est désactivé, on ignore son enregistrement
   if (in_array($nom, $m_off)) {
     return true; // on l'ignore silencieusement
   }
-  
+
   // Si le module est marqué comme étant le module par défaut, la variable globale $m_default est mise à jour avec le nom du nouveau module
   if ($default) {
     $m_default = $nom;
   }
-  
+
   // Initialisation : tableau contenant les propriétés du module est créé avec les paramètres fournis
   $blob = [];
   $blob['nom'] = $nom;
@@ -266,9 +265,9 @@ function declare_module($nom, $classif, $ext, $domaines, $niveau=0, $default=fal
     $blob['domaines'] = creer_domaines(false, $domaines);
     $blob['domaines-raw'] = $domaines;
   }
-  
+
   $m_modules[$nom] = $blob;
-  
+
   // Tri des modules présents par ordre de priorité à l'aide de la fonction "mod_trie"
   uasort($m_modules, "mod_trie");
 
@@ -280,7 +279,7 @@ function declare_module($nom, $classif, $ext, $domaines, $niveau=0, $default=fal
 function affiche_modules() {
   global $m_modules;
   $out = [];
-  
+
   foreach($m_modules as $nom => $cont) {
     $txt = "$nom : ";
     if ($cont['classification']) {
@@ -296,7 +295,7 @@ function affiche_modules() {
     $txt .= implode(", ", $cont['domaines-raw']);
     $out[] = $txt;
   }
-  
+
   return $out;
 }
 
@@ -402,7 +401,7 @@ function modules_possibles($domaine) {
       return false;
     }
   }
-  
+
   $tbl = [];
   // si domaine=* on ajoute tout
   if ($domaine == "*") {
@@ -465,10 +464,10 @@ function rec_prof_classification($def, $domaine, $prof) {
 // retourne à quelle profondeur la classification indiquée correspond au domaine
 function profondeur_classification($nom, $domaine) {
   global $m_modules;
-  
+
   $classif = $m_modules[$nom]['domaines'];
   $prof = rec_prof_classification($classif, $domaine, 0);
-  
+
   return $prof;
 }
 
@@ -494,7 +493,7 @@ function profondeur_domaine($def, $domaine, $prof) {
 function meilleure_classification($domaine) {
   global $m_modules, $m_default;
   global $domaines_true;
-  
+
   // si le domaine est "*" on retourne celui par défaut
   if ($domaine == "*") {
     return $m_default;
@@ -512,12 +511,12 @@ function meilleure_classification($domaine) {
     logs("meilleure_classification: aucune classification !");
     return false; // ne devrait pas se produire
   }
-  
+
   // si un seul trouvé, on le retourne
   if (count($tbl) == 1) {
     return $tbl[0]; // ne devrait pas arriver
   }
-  
+
   // on cherche la profondeur du domaine
   $prof = profondeur_domaine($domaines_true, $domaine, 0);
   // on cherche la (ou les) classification la plus précise qui gère ce domaine
@@ -529,7 +528,7 @@ function meilleure_classification($domaine) {
       $tbl2[$c] = $val;
     }
   }
-  
+
   // si pas trouvé on retourne la classification par défault
   if (empty($tbl2)) {
     return $m_default;
@@ -575,4 +574,3 @@ function meilleure_classification($domaine) {
   // on retourne le premier (celui qui est le plus "haut")
   return reset($p);
 }
-

@@ -16,9 +16,7 @@ curl 'http://taxonomicon.taxonomy.nl/TaxonList.aspx?subject=Taxon&by=ScientificN
 
 curl 'http://taxonomicon.taxonomy.nl/TaxonList.aspx?subject=Entity&by=ScientificName&search=Pimplinae' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp;q=0.8' -H 'Accept-Language: fr-FR,fr;q=0.8,en-US;q=0.5,en;q=0.3' -H 'Accept-Encoding: gzip, deflate' -H 'Referer: http://taxonomicon.taxonomy.nl/TaxonList.aspx?subject=Taxon&by=ScientificName&search=' -H 'Connection: keep-alive' -H 'Cookie: ASP.NET_SessionId=mkmg20rieofxlmh2tv2j1vhh' -H 'Upgrade-Insecure-Requests: 1'
 
-
 */
-
 
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
 // gérer la classification également
@@ -32,8 +30,7 @@ function m_taxonomicon_infos(&$struct, $classif) {
     'Superfamily', 'Family', 'Subfamily', 'Genus',
     'Subgenus', 'Species', 'Subspecies',
   ];
-  
-  
+
   $ret = get_data("http://taxonomicon.taxonomy.nl");
   $url = "http://taxonomicon.taxonomy.nl/TaxonList.aspx?subject=Entity&by=ScientificName&search=" . str_replace(" ", "+", $taxon);
   $header = [
@@ -45,7 +42,7 @@ function m_taxonomicon_infos(&$struct, $classif) {
     logs("Taxonomicon: échec de la recherche");
     return false;
   }
-  
+
   $tbl = explode("\n", $ret);
   $trouve = false;
   foreach($tbl as $idx => $ligne) {
@@ -109,7 +106,7 @@ function m_taxonomicon_infos(&$struct, $classif) {
     logs("Taxonomicon: taxon non trouvé (2)");
     return false;
   }
-  
+
   if (!$classif) {
     return true;
   }
@@ -121,7 +118,7 @@ function m_taxonomicon_ext($struct) {
   if (isset($struct['liens']['taxonomicon']['id'])) {
     $data = $struct['liens']['taxonomicon'];
     $cdate = dates_recupere();
-    
+
     $nom = wp_met_italiques($data['nom'],
         isset($data['rang'])?$data['rang']:$struct['taxon']['rang'], $struct['regne']);
     $id = $data['id'];
@@ -143,4 +140,3 @@ function m_taxonomicon_liens($struct) {
     return false;
   }
 }
-

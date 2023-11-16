@@ -32,7 +32,7 @@ function m_adw_init() {
  */
 function m_adw_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-  
+
   $url = "https://animaldiversity.org/accounts/";
   $cible = str_replace(" ", "_", $taxon);
   $url .= $cible . "/";
@@ -44,14 +44,14 @@ function m_adw_infos(&$struct, $classif) {
     logs("ADW: échec de récupération réseau");
     return false;
   }
-  
+
   // Taxon non trouvé
   $tmp = strpos($ret, ": Not Found<");
   if ($tmp !== false) {
     logs("ADW: taxon non trouvé");
     return false;
   }
-  
+
   $lines = explode("\n", $ret);
   $citation = '';
   $nom = '';
@@ -100,7 +100,7 @@ function m_adw_infos(&$struct, $classif) {
         break;
     }  
   }
-  
+
   // Stockage des données extraites
   if (!empty($citation)) {
     $struct['liens']['adw']['citation'] = $auteurs;
@@ -141,24 +141,24 @@ function m_adw_ext($struct) {
 
   $auteur = isset($data['citation']) ? $data['citation'] : '';
   $date = isset($data['date']) ? $data['date'] : '';
-  
+
   $adw = "{{ADW | $nomPageTaxon | $description | consulté le=$cdate"; // Construction du modèle ADW et de ses paramètres, si non vides.
-  
+
   /**
   * Fonctionnalité qui pourrait être proposée (cmd/web), générée par outils.php (par défaut ~ le nom du module, "adw")
   * ou correspondre à une concaténation "ADW" + nom[x] issu de $pamatches (premier auteur) ou "ADW" + $cdate
   */
   // if (!empty($ancre)) { $adw .= " | ancre=$ancre"; }
- 
+
   if (!empty($auteur)) {
     $adw .= " | auteur=$auteur";
   }
   if (!empty($date)) {
     $adw .= " | date=$date";
   }
-  
+
   $adw .= " }}"; // Fermeture du modèle ADW
-  
+
   return $adw; // Retourne le modèle ADW généré
 } 
 

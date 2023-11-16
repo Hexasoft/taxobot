@@ -55,18 +55,15 @@ function m_col_regne($classif) {
   return null;
 }
 
-
 // conversion de rang CoL → WP
 function m_col_rang($rang) {
   global $m_col_ranks;
-  
+
   if (isset($m_col_ranks[$rang])) {
     return $m_col_ranks[$rang];
   }
   return "non classé";
 }
-
-
 
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
 // gérer la classification également
@@ -78,7 +75,7 @@ function m_col_infos(&$struct, $classif) {
     logs("CoL: Échec de récupération de la page d'accueil");
     return false;
   }
-  
+
   // il faut récupérer le numéro du dataset
   $tbl = explode("\n", $ret);
   $dataset = false;
@@ -137,7 +134,7 @@ function m_col_infos(&$struct, $classif) {
       break;
     }
   }
-  
+
   // si non trouvé on tente de suivre les synonymes
   if (!$trouve) {
     foreach($res->result as $r) {
@@ -159,7 +156,7 @@ function m_col_infos(&$struct, $classif) {
       }
     }
   }
-  
+
   // si rien trouvé et que 'inclure-invalides' on prend le premier qui a le bon nom scientifique
   if (!$trouve and get_config('inclure-invalides')) {
     foreach($res->result as $r) {
@@ -180,7 +177,7 @@ function m_col_infos(&$struct, $classif) {
       }
     }
   }
-  
+
   // si 'juste-ext' et qu'on a un un règne on le force
   if (isset($struct['juste-ext']) and $struct['juste-ext'] and ($classif !== false)) {
     $tmp = m_col_regne($classif);
@@ -188,7 +185,7 @@ function m_col_infos(&$struct, $classif) {
       $struct['regne'] = $tmp;
     }
   }
-  
+
   // retour
   if (!$trouve) {
     return false;
@@ -257,4 +254,3 @@ function m_col_liens($struct) {
   }
   return $res;
 }
-

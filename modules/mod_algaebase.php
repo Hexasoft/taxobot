@@ -73,9 +73,9 @@ $alg_rangs = [
 
 function alg_rang($_rang) {
   global $alg_rangs;
-  
+
   $rang = mb_strtolower($_rang);
-  
+
   if (isset($alg_rangs[$rang])) {
     return $alg_rangs[$rang];
   }
@@ -166,12 +166,11 @@ function m_algaebase_init() {
         ['champignon','algue','végétal','algue','archaea','bactérie','protiste'], 990);
 }
 
-
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
 // gérer la classification également
 function m_algaebase_infos_genre(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-  
+
   $key = alg_apikey();
   if ($key === false) {
     logs("AlgaeBase: échec de récupération d'une clé API (espèce)");
@@ -203,7 +202,7 @@ function m_algaebase_infos_genre(&$struct, $classif) {
     logs("AlgaeBase: taxon non trouvé (pas de résultat) (genre)");
     return false;
   }
-  
+
   // on parcours les résultats
   $found = false;
   foreach($res->result as $r) {
@@ -236,7 +235,7 @@ function m_algaebase_infos_genre(&$struct, $classif) {
     logs("AlgaeBase: taxon non trouvé (genre)");
     return false;
   }
-  
+
   // on prépare les infos de base
   $blob = [];
   $blob['auteur'] = $found->{"dwc:scientificNameAuthorship"};
@@ -259,13 +258,13 @@ function m_algaebase_infos_genre(&$struct, $classif) {
   }
 
   $taxonID = $found->{"dwc:acceptedNameUsageID"};
-  
+
   // pour classification on met en place les infos
   $struct['taxon'] = $struct['liens']['algaebase'];
   // charge de la classif
   $struct['classification'] = 'AlgaeBASE';
   $struct['classification-taxobox'] = 'AlgaeBASE';
-  
+
   // extraction de données
   if (isset($found->{"nameOrigin"}) and $found->{"nameOrigin"}) {
     $struct['etymologie'] = [ "source" => "AlgaeBASE",
@@ -304,7 +303,7 @@ function m_algaebase_infos_genre(&$struct, $classif) {
     logs("AlgaeBase: échec de décodage de la classification (genre)");
     return false;
   }
-  
+
   if (!isset($res->classification)) {
     logs("AlgaeBase: échec de d'extraction de la classification (genre)");
     return false;
@@ -322,7 +321,7 @@ function m_algaebase_infos_genre(&$struct, $classif) {
       unset($struct['rangs'][$idx]);
     }
   }
-  
+
   if ($cID !== false) {
     $url = "https://api2.algaebase.org/v1.3/taxonomy/$cID";
     $ret = get_data($url, $header);
@@ -346,7 +345,7 @@ function m_algaebase_infos_genre(&$struct, $classif) {
     $struct['sous-taxons']['liste'] = $tbl;
     $struct['sous-taxons']['source'] = "AlgaeBASE";
   }
-  
+
   // la charte
   $struct['regne'] = alg_charte($phylum, $kingdom);
   if ($struct['regne'] != 'algue') {
@@ -380,7 +379,7 @@ function m_algaebase_infos_genre(&$struct, $classif) {
     $struct['originale'] = str_replace(['<i>','</i>'], "''", $struct['originale']);
     // cas où le PDF est disponible ?
   }
-  
+
 suitegenre:
   return true;
 }
@@ -389,7 +388,7 @@ suitegenre:
 // gérer la classification également
 function m_algaebase_infos_espece(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-  
+
   $key = alg_apikey();
   if ($key === false) {
     logs("AlgaeBase: échec de récupération d'une clé API (espèce)");
@@ -450,7 +449,7 @@ function m_algaebase_infos_espece(&$struct, $classif) {
     logs("AlgaeBase: taxon non trouvé");
     return false;
   }
-  
+
   // on charge la page d'info de l'espèce
   $url = "https://api2.algaebase.org/v1.3/species/" . $found->{"dwc:acceptedNameUsageID"};
   $ret = get_data($url, $header);
@@ -460,7 +459,7 @@ function m_algaebase_infos_espece(&$struct, $classif) {
       $found = $res->details;
     }
   }
-  
+
   // on prépare les infos de base
   $blob = [];
   $blob['auteur'] = $found->{"dwc:scientificNameAuthorship"};
@@ -482,13 +481,13 @@ function m_algaebase_infos_espece(&$struct, $classif) {
     return true;
   }
   $taxonID = $found->{"dwc:acceptedNameUsageID"};
-  
+
   // pour classification on met en place les infos
   $struct['taxon'] = $struct['liens']['algaebase'];
   // charge de la classif
   $struct['classification'] = 'AlgaeBASE';
   $struct['classification-taxobox'] = 'AlgaeBASE';
-  
+
   // publication originale
   if (isset($found->{"dcterms:bibliographicCitation"}) and !empty($found->{"dcterms:bibliographicCitation"})) {
     $struct['originale'] = $found->{"dcterms:bibliographicCitation"};
@@ -516,7 +515,7 @@ function m_algaebase_infos_espece(&$struct, $classif) {
   if (!empty($tbl)) {
     $struct['description']['AlgaeBASE'] = $tbl;
   }
-  
+
   // on récupère la classification
   $idgenre = $found->genusID;
   $url = "https://api2.algaebase.org/v1.3/genus/$idgenre";
@@ -541,7 +540,7 @@ function m_algaebase_infos_espece(&$struct, $classif) {
     logs("AlgaeBase: échec de décodage de la classification");
     return false;
   }
-  
+
   if (!isset($res->classification)) {
     logs("AlgaeBase: échec de d'extraction de la classification");
     return false;
@@ -551,18 +550,18 @@ function m_algaebase_infos_espece(&$struct, $classif) {
   $kingdom = "";
   $tbl = alg_extrait_classif($res->classification, $der, $phylum, $kingdom);
   $struct['rangs'] = array_reverse($tbl);
-  
+
   // taxons de rang inférieur
   if ($der !== false) {
-    
+
   }
-  
+
   // la charte
   $struct['regne'] = alg_charte($phylum, $kingdom);
   if ($struct['regne'] != 'algue') {
     $struct['cacher-regne'] = true;
   }
-  
+
   // on charge la page pour obtenir quelques informations
   $id = $struct['taxon']['id'];
   $url = "https://api2.algaebase.org/v1.3/taxonomy/$id/detail";
@@ -591,22 +590,21 @@ function m_algaebase_infos_espece(&$struct, $classif) {
     $struct['originale'] = str_replace(['<i>','</i>'], "''", $struct['originale']);
     // cas où le PDF est disponible ?
   }
-  
+
 suiteespece:
   return true;
 }
 
-
 // taxon supérieur au genre
 function m_algaebase_info_sup(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-  
+
   $key = alg_apikey();
   if ($key === false) {
     logs("AlgaeBase: échec de récupération d'une clé API (> genre)");
     return false;
   }
-  
+
   $url = "https://api2.algaebase.org/v1.3/taxonomy?searchTerm=$taxon&offset=0";
   $header = [
     "Accept: application/json",
@@ -645,7 +643,7 @@ function m_algaebase_info_sup(&$struct, $classif) {
     logs("AlgaeBase: taxon non trouvé");
     return false;
   }
-  
+
   // on prépare les infos de base
   $blob = [];
   $blob['auteur'] = $found->{"dwc:scientificNameAuthorship"};
@@ -666,15 +664,15 @@ function m_algaebase_info_sup(&$struct, $classif) {
   if (!$classif) {
     return true;
   }
-  
+
   $taxonID = $found->{"dwc:taxonID"};
-  
+
   // pour classification on met en place les infos
   $struct['taxon'] = $struct['liens']['algaebase'];
   // charge de la classif
   $struct['classification'] = 'AlgaeBASE';
   $struct['classification-taxobox'] = 'AlgaeBASE';
-  
+
   // extraction de données
   if (isset($found->{"nameOrigin"}) and $found->{"nameOrigin"}) {
     $struct['etymologie'] = [ "source" => "AlgaeBASE",
@@ -714,7 +712,7 @@ function m_algaebase_info_sup(&$struct, $classif) {
     logs("AlgaeBase: échec de décodage de la classification (> genre)");
     return false;
   }
-  
+
   if (!isset($res->higherTaxa)) {
     logs("AlgaeBase: échec d'extraction de la classification (> genre)");
     return false;
@@ -730,7 +728,7 @@ function m_algaebase_info_sup(&$struct, $classif) {
       unset($struct['rangs'][$idx]);
     }
   }
-  
+
   // les sous-taxons
   if (!isset($res->lowerTaxa)) {
     unset($tbl);
@@ -741,7 +739,7 @@ function m_algaebase_info_sup(&$struct, $classif) {
     $struct['sous-taxons']['liste'] = $tbl;
     $struct['sous-taxons']['source'] = "AlgaeBASE";
   }
-  
+
   // la charte
   $struct['regne'] = alg_charte($phylum, $kingdom);
   if ($struct['regne'] != 'algue') {
@@ -760,7 +758,7 @@ function m_algaebase_info_sup(&$struct, $classif) {
     logs("AlgaeBases: échec d'analyse des infos détaillées sur le taxon (> genre)");
     goto suitesup;
   }
-  
+
   // description ?
   if (isset($res->details->description) and !empty($res->details->description)) {
     $val = $res->details->description;
@@ -776,7 +774,7 @@ function m_algaebase_info_sup(&$struct, $classif) {
     $struct['originale'] = str_replace(['<i>','</i>'], "''", $struct['originale']);
     // cas où le PDF est disponible ?
   }
-  
+
 suitesup:
   return true;
 }
@@ -793,13 +791,13 @@ function m_algaebase_infos(&$struct, $classif) {
     // recherche sur une espèce
     return m_algaebase_infos_espece($struct, $classif);
   }
-  
+
   // test : genre
   if (m_algaebase_infos_genre($struct, $classif)) {
     // trouvé comme genre
     return true;
   }
-  
+
   // il faut faire une recherche spécifique pour taxons de rang supérieur
   return m_algaebase_info_sup($struct, $classif);
 
@@ -810,7 +808,7 @@ function m_algaebase_ext($struct) {
   if (isset($struct['liens']['algaebase']['id'])) {
     $data = $struct['liens']['algaebase'];
     $cdate = dates_recupere();
-    
+
     $nom = $data['nom'];
     if (isset($data['eteint']) and $data['eteint']) {
       $eteint = " éteint=oui |";
@@ -849,4 +847,3 @@ function m_algaebase_liens($struct) {
     return false;
   }
 }
-

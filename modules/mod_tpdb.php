@@ -46,16 +46,13 @@ curl 'https://paleobiodb.org/data1.2/combined/auto.json?show=countries&name=Cyti
 	]
 }
 
-
-
 */
-
 
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
 // gérer la classification également
 function m_tpdb_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-  
+
   // on récupère la page de recherche (cookie)
   $url = "https://paleobiodb.org/classic/beginTaxonInfo";
   $ret = get_data($url);
@@ -81,7 +78,7 @@ function m_tpdb_infos(&$struct, $classif) {
     logs("TPDB: taxon non trouvé");
     return false;
   }
-  
+
   $id = false;
   $valid = true;
   foreach($res->records as $rec) {
@@ -96,12 +93,12 @@ function m_tpdb_infos(&$struct, $classif) {
       }
     }
   }
-  
+
   if (!$id) {
     logs("TPDB: taxon non trouvé");
     return false;
   }
-  
+
   // on enregistre l'identifiant
   $struct['liens']['tpdb']['id'] = $id;
   // utilisation du nom de la classification : le format de leur page est trop pourri pour
@@ -122,7 +119,7 @@ function m_tpdb_ext($struct) {
   if (isset($struct['liens']['tpdb']['id'])) {
     $data = $struct['liens']['tpdb'];
     $cdate = dates_recupere();
-    
+
     $nom = wp_met_italiques($data['nom'], isset($data['rang'])?$data['rang']:$struct['taxon']['rang'], $struct['regne']);
     $id = $data['id'];
     if (isset($data['auteur'])) {
@@ -143,4 +140,3 @@ function m_tpdb_liens($struct) {
     return false;
   }
 }
-

@@ -14,14 +14,14 @@ function m_eflora_init() {
 function m_eflora_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
   $url = 'http://www.efloras.org/browse.aspx?flora_id=0&name_str=' . str_replace(" ", "+", $taxon);
-  
+
   $ret = get_data($url);
   // erreur CURL
   if ($ret === false) {
     logs("eFlora: erreur réseau");
     return false;
   }
-  
+
   $ret = str_replace("\r", " ", $ret);
   $tbl = explode("\n", $ret);
   foreach($tbl as $ligne) {
@@ -52,7 +52,7 @@ function m_eflora_infos(&$struct, $classif) {
     $struct['liens']['eflora']['nom'] = $taxon;
     $struct['liens']['eflora']['id'][] = [ $fid, $tid ];
   }
-  
+
   if (!$classif) {
     return true;
   }
@@ -62,7 +62,7 @@ function m_eflora_infos(&$struct, $classif) {
 // génération des liens externes (modèles dans Voir aussi)
 function m_eflora_ext($struct) {
   $cdate = dates_recupere();
-  
+
   if (isset($struct['liens']['eflora']['id'])) {
     $nom = $struct['liens']['eflora']['nom'];
     $out = [];
@@ -78,7 +78,7 @@ function m_eflora_ext($struct) {
 // génération de liens vers les éléments (pour partie aide/debug de l'interface)
 function m_eflora_liens($struct) {
   $cdate = dates_recupere();
-  
+
   if (isset($struct['liens']['eflora']['id'])) {
     $nom = $struct['liens']['eflora']['nom'];
     $out = [];
@@ -90,4 +90,3 @@ function m_eflora_liens($struct) {
     return false;
   }
 }
-

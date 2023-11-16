@@ -9,7 +9,6 @@ function m_ifpni_init() {
   return declare_module("ifpni", false, true, true); // adapter la liste des cibles
 }
 
-
 // commun
 function m_ifpni_infos_generique($url, $taxon) {
   $ret = get_data($url);
@@ -69,7 +68,7 @@ function m_ifpni_infos_espece($struct) {
   $taxon = $struct['taxon']['nom'];
   $_taxon = $taxon;
   $taxon = str_replace(" ", "+", $taxon);
-  
+
   $url = 'http://www.ifpni.org/species.htm?formIndex=def&name=' . $taxon .
          '&isExtended=&author=&originalSpelling=&yearFrom=&yearTo=&paleoID=&submitForm=Search';
 
@@ -85,10 +84,10 @@ function m_ifpni_infos_subespece($struct) {
   $taxon = $struct['taxon']['nom'];
   $_taxon = $taxon;
   $taxon = str_replace(" ", "+", $taxon);
-  
+
   $url = 'http://www.ifpni.org/infraspecies.htm?formIndex=def&name=' . $taxon .
          '&isExtended=&author=&originalSpelling=&yearFrom=&yearTo=&paleoID=&submitForm=Search';
-  
+
   $el = m_ifpni_infos_generique($url, $_taxon);
   if ($el !== false) {
     $el['rang'] = $struct['taxon']['rang'];
@@ -99,7 +98,7 @@ function m_ifpni_infos_subespece($struct) {
 // spécifique au dessus du genre
 function m_ifpni_infos_supgenre($struct) {
   $taxon = $struct['taxon']['nom'];
-  
+
   $url = 'http://www.ifpni.org/supragenus.htm?formIndex=def&name=' . $taxon . 
          '&isExtended=&author=&originalSpelling=&yearFrom=&yearTo=&submitForm=Search';
 
@@ -113,7 +112,7 @@ function m_ifpni_infos_supgenre($struct) {
 // spécifique genres
 function m_ifpni_infos_genre($struct) {
   $taxon = $struct['taxon']['nom'];
-  
+
   $url='http://www.ifpni.org/genus.htm?formIndex=def&name=' . $taxon .
        '&isExtended=1&author=&originalSpelling=&yearFrom=&yearTo=&submitForm=Search&submitForm=Search';
 
@@ -123,7 +122,6 @@ function m_ifpni_infos_genre($struct) {
   }
   return $el;
 }
-
 
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
 // gérer la classification également
@@ -158,18 +156,18 @@ function m_ifpni_infos(&$struct, $classif) {
     logs("IFPNI: rang non géré");
     return false;
   }
-  
+
   // autres rangs
   // TODO
   logs("IFPNI: taxon non trouvé");
   return false;
-  
+
   // pour passer les divers rangs
 suite:
   if (!$classif) {
     return true;
   }
-  
+
   return false;
 }
 
@@ -215,4 +213,3 @@ function m_ifpni_liens($struct) {
     return false;
   }
 }
-

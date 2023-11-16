@@ -1,6 +1,5 @@
 <?php
 
-
 /*
   point d'entrée de Taxobot
 */
@@ -30,7 +29,6 @@ Au final la fonction de rendu utilise toutes ces informations pour construire un
 ébauche d'article, en adaptant les différents textes et liens aux conventions biologiques.
 
 EOT;
-
 
 // les éléments nécessaires
 require_once "outils.php";
@@ -129,7 +127,6 @@ function sortie_resultat($article, $liens, $taxon) {
     }
   }
 }
-
 
 // on récupère les éléments de configuration
 $liste = list_config();
@@ -232,7 +229,6 @@ if (empty($taxon)) {
   die(1);
 }
 
-
 // on récupère les modules, et on les initialise
 $modules = cherche_modules();
 if (($modules === false) or (empty($modules))) {
@@ -315,7 +311,7 @@ if (!$justext) { // si juste-ext → rien coté classification
   $elaps1 = microtime(true);
   $ret = $class($struct, true);
   $elaps2 = microtime(true);
-  
+
   debug("Temps d'exécution du module (classification) $classification : " . number_format($elaps2-$elaps1, 2) . "s");
   logs("Temps d'exécution du module (classification) $classification : " . number_format($elaps2-$elaps1, 2) . "s");
 
@@ -400,7 +396,7 @@ foreach($possibles as $id) {
     debug("Module '$id' : timeout ($timeout sec.)");
     $ret = false; // le module n'a pas fonctionné normalement
   }
-  
+
   logs("Temps d'exécution du module (externe) $id : " . number_format($elaps2-$elaps1, 2) . "s");
   if ($ret == false) {
     logs("Échec de récupération d'informations du module « $id » (non classification)");
@@ -446,4 +442,3 @@ sortie_resultat($resu, $aide, $struct['taxon']['nom']);
 // terminaison
 fini_outils();
 die(0);
-

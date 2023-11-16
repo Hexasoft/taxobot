@@ -50,7 +50,7 @@ function m_fishbase_infos(&$struct, $classif) {
   $struct['liens']['fishbase']['espece'] = $id;
   $struct['liens']['fishbase']['nom'] = $struct['taxon']['nom'];
   // TODO : recherche par genre
-  
+
   if (!$classif) {
     return true;
   }
@@ -75,7 +75,7 @@ function m_fishbase_ext($struct) {
   }
   // genre
   // famille
-  
+
   if (empty($ret)) {
     return false;
   } else {
@@ -98,4 +98,3 @@ function m_fishbase_liens($struct) {
     return $ret;
   }
 }
-

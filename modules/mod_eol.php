@@ -67,7 +67,6 @@ $eol_wp = [
   'subkingdom' => 'sous-royaume',
 ];
 
-
 // déclaration du module
 function m_eol_init() {
   return declare_module("eol", false, true, true);
@@ -106,10 +105,10 @@ function m_eol_infos(&$struct, $classif) {
     logs("EoL: taxon non trouvé");
     return false;
   }
-  
+
   $struct['liens']['eol']['id'] = $found->id;
   $struct['liens']['eol']['nom'] = $found->name;
-  
+
   // on tente de récupérer le rang et l'auteur
   $url = "https://eol.org/fr/pages/" . $found->id;
   $ret = get_data($url);
@@ -185,4 +184,3 @@ function m_eol_liens($struct) {
     return false;
   }
 }
-

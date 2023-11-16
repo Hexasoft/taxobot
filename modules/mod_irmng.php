@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Module - Interim Register of Marine and Nonmarine Genera (IRMNG)
  *
@@ -22,7 +21,6 @@ function m_irmng_init() {
                         true      // liens internes
                        );
 }
-
 
 /**
  * Extrait les informations et les stocke dans une structure de données.
@@ -69,7 +67,7 @@ function m_irmng_infos(&$struct, $classif) {
     logs("IRMNG: echec de récupération réseau (2)");
     return false;
   }
-  
+
   $tbl =explode("\n", $ret);
   $ok = false;
   foreach($tbl as $ligne) {
@@ -84,7 +82,7 @@ function m_irmng_infos(&$struct, $classif) {
     logs("IRMNG: taxon non trouvé");
     return false;
   }
-  
+
   // trouvé, on note l'ID et on voit pour d'autres infos
   $blob = [];
   $blob['id'] = $ok;
@@ -144,7 +142,7 @@ function m_irmng_infos(&$struct, $classif) {
   if (!$classif) {
     return true;
   }
-  
+
   // pas de classification
   return false;
 }
@@ -166,7 +164,7 @@ function m_irmng_ext($struct) {
     if (isset($data['eteint']) and $data['eteint']) {
       $cible = "† " . $cible;
     }
-    
+
     if (isset($data['synonyme']) and $data['synonyme']) {
       $post = " </small>(non valide";
       if (isset($data['cible']) and !empty($data['cible'])) {
@@ -196,5 +194,3 @@ function m_irmng_liens($struct) {
     return false;
   }
 }
-
-

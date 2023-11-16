@@ -117,14 +117,14 @@ function m_coi_infos(&$struct, $classif) {
     logs("COI: taxon non trouvé");
     return false;
   }
-  
+
   // on a trouvé le taxon chez COI
   if (($type == "sous-espèce") || ($type == "espece") || ($type == "genre")) {
     $auteur = $data[4];
   } else {
     $auteur = "";
   }
-  
+
   $blob = [];
   $blob['nom'] = $courant;
   if (!empty($auteur)) {
@@ -164,4 +164,3 @@ function m_coi_liens($struct) {
     return false;
   }
 }
-

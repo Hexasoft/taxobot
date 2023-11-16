@@ -4,11 +4,9 @@
   Données ReptileDB
 */
 
-
 function m_reptiledb_init() {
   return declare_module("reptiledb", false, true, ['reptile']);
 }
-
 
 function m_reptiledb_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
@@ -38,7 +36,7 @@ function m_reptiledb_infos(&$struct, $classif) {
 
   // récupération données
   $ret = get_data($url);
-  
+
   // erreur CURL
   if ($ret === false) {
     logs("ReptileDB: erreur réseau");
@@ -55,14 +53,14 @@ function m_reptiledb_infos(&$struct, $classif) {
     logs("ReptileDB: taxon non trouvé chez ReptileDB");
     return false;
   }
-  
+
   // on vérifie que c'est une page correcte
   $tmp = strpos($ret, "Subspecies");
   if ($tmp === false) {
     logs("ReptileDB: résultat erroné chez ReptileDB");
     return false;
   }
-    
+
   // extraction du nom scientifique et de l'auteur
   if ($espece) {
     preg_match_all(',^.*<h1>(.*)</h1>$,mi', $ret, $matches);
@@ -93,18 +91,17 @@ function m_reptiledb_infos(&$struct, $classif) {
   if (!$classif) {
     return true;
   }
-  
+
   // si classification et autre chose qu'espèce → non
   if (!$espece) {
     logs("ReptileDB: ne peut être utilisé que pour les espèces");
     return false;
   }
-  
+
   // TODO
-  
+
   return false;
 }
-
 
 function m_reptiledb_ext($struct) {
   $cdate = dates_recupere();
@@ -112,7 +109,7 @@ function m_reptiledb_ext($struct) {
     return false;
   }
   $data = $struct['liens']['reptiledb'];
-  
+
   if ($data['type'] == "espèce") {
     return "{{ReptileDB espèce | " . $data['nom1'] . " | " . $data['nom2'] . " | " . $data['auteur'] .
             " | consulté le=$cdate }}";
@@ -134,4 +131,3 @@ function m_reptiledb_liens($struct) {
     return false;
   }
 }
-

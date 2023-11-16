@@ -114,15 +114,15 @@ function wrms_charte($nom) {
 // nettoyage des entrées ayant un † dans le nom
 function wrms_nettoie_dagger($txt) {
   $daggerfound = false;
-  
+
   $tmp = str_replace("&nbsp;&#8224;", "", $txt);
   $tmp = str_replace("&nbsp;", "", $tmp);
   $tmp = str_replace("&#8224;", "", $tmp);
- 
+
   if ($tmp != $txt) {
     $daggerfound = true;
   }
-  
+
   return array('txt' => $tmp, 'eteint' => $daggerfound);
 }
 
@@ -269,7 +269,7 @@ function wrms_extraire($page, $id) {
       $out['nom'] = $tmp['nom'];
       $out['eteint'] = $tmp['eteint'];
     }
-    
+
     // description originale
     if (strpos($ligne, 'id="OriginalDescription') !== false) {
       $i = $idx + 2;
@@ -385,7 +385,7 @@ function wrms_etal($nom) {
 // gérer la classification également
 function m_wrms_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-  
+
   // on récupère la page de recherche (cookie)
   $url = "https://www.marinespecies.org/aphia.php?p=search";
   $ret = get_data($url);
@@ -440,7 +440,7 @@ function m_wrms_infos(&$struct, $classif) {
       }
     }
   }
-  
+
   if ($trouve === false) {
     // on cherche une réponse sans redirection ou autre unaccepted
     foreach($tbl as $l) {
@@ -605,7 +605,7 @@ function m_wrms_infos(&$struct, $classif) {
     return false;
   }
   $struct['regne'] = $res['charte'];
-  
+
   // partie taxon
   $struct['taxon']['nom'] = $res['nom'];
   $struct['taxon']['auteur'] = wrms_etal($res['auteur']);
@@ -613,7 +613,7 @@ function m_wrms_infos(&$struct, $classif) {
   if (isset($res['eteint'])) {
     $struct['taxon']['eteint'] = $res['eteint'];
   }
-  
+
   // classification : si synonyme on fait le suivi
   if (isset($res['cible']) and get_config("suivre-synonymes")) {
     // on récupère le nom du synonyme
@@ -636,11 +636,11 @@ function m_wrms_infos(&$struct, $classif) {
     // on se ré-appelle sur la cible
     return(m_wrms_infos($struct, $classif));
   }
-  
+
   // infos générales
   $struct['classification'] = 'WRMS';
   $struct['classification-taxobox'] = wrms_classif();
-  
+
   if (isset($res['classification'])) {
     $struct['rangs'] = array_reverse($res['classification']);
   } else {
@@ -651,7 +651,7 @@ function m_wrms_infos(&$struct, $classif) {
   if (isset($res['vernaculaire'])) {
     $struct['vernaculaire'][wrms_bioref()] = $res['vernaculaire'];
   }
-  
+
   // publication originale
   if (isset($res['description'])) {
     $struct['originale'] = $res['description'];
@@ -674,7 +674,7 @@ function m_wrms_infos(&$struct, $classif) {
       }
     }
   }
-  
+
   // synonymes
   if (isset($res['synonymes'])) {
     $lst = [];
@@ -699,7 +699,7 @@ function m_wrms_infos(&$struct, $classif) {
     $struct['synonymes']['liste'] = $lst;
     $struct['synonymes']['source'] = wrms_bioref();
   }
-  
+
   // sous-taxons
   if (isset($res['sous-taxons'])) {
     $lst = [];
@@ -736,7 +736,7 @@ function m_wrms_ext($struct) {
   if (isset($struct['liens']['wrms']['id'])) {
     $data = $struct['liens']['wrms'];
     $cdate = dates_recupere();
-    
+
     $nom = $data['nom'];
     if (isset($data['eteint']) and $data['eteint']) {
       $eteint = "éteint=oui | ";
@@ -766,4 +766,3 @@ function m_wrms_liens($struct) {
     return false;
   }
 }
-

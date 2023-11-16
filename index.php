@@ -5,14 +5,12 @@
  *   pour appeler le programme taxobot.php
  */
 
-
 // les éléments nécessaires
 require_once "outils.php";
 require_once "configuration.php";
 require_once "modules.php";
 require_once "wikipedia.php";
 require_once "rendu.php";
-
 
 // on initialise la page
 html_head("Taxobot - v" . $version);
@@ -28,7 +26,6 @@ le comportement peut être curieux</li>
 <hr>
 <p>Sélectionnez une classification (liste déroulante) et indiquez un taxon (nom scientifique uniquement) puis validez. Vous pouvez également sélectionner (optionnellement) un domaine. ATTENTION : changer la classification ou le domaine peut conduire à des situations incompatibles.</p>
 EOL;
-
 
 // il faut charger les modules, pour connaître les classifications
 init_outils();
@@ -63,7 +60,6 @@ foreach($id_modules as $id) {
 $liste = classif_modules();
 // classification par défaut
 $cdef = meilleure_classification("*");
-
 
 // on prépare la FORM
 echo "<form action='taxobot.php' method='GET'>\n";
@@ -131,4 +127,3 @@ echo "<p>Remarque : la classification ITIS est encore expérimentale (et beaucou
 
 // terminaison de la page
 html_end();
-

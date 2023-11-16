@@ -65,7 +65,6 @@ function m_biolib_recupere($id) {
   return $out;
 }
 
-
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
 // gérer la classification également
 function m_biolib_infos(&$struct, $classif) {
@@ -93,7 +92,7 @@ function m_biolib_infos(&$struct, $classif) {
     $id = str_replace("/", "", $id);
     // on récupère la page pour trouver le nom, auteur, autre
     $ret = m_biolib_recupere($id);
-    
+
     if ($ret === false) {
       // éléments non trouvés
       logs("Biolib: taxon identifié mais échec de récupération des informations (2)");
@@ -145,7 +144,7 @@ function m_biolib_infos(&$struct, $classif) {
     }
     // récupération données taxon
     $ret = m_biolib_recupere($id);
-    
+
     if ($ret === false) {
       // éléments non trouvés
       logs("Biolib: taxon identifié mais échec de récupération des informations (3)");
@@ -164,7 +163,7 @@ function m_biolib_infos(&$struct, $classif) {
 // génération des liens externes (modèles dans Voir aussi)
 function m_biolib_ext($struct) {
   $cdate = dates_recupere();
-  
+
   if (isset($struct['liens']['biolib']['id'])) {
     $data = $struct['liens']['biolib'];
     $cible = wp_met_italiques($data['nom'], $struct['taxon']['rang'], $struct['regne']);
@@ -181,4 +180,3 @@ function m_biolib_ext($struct) {
 function m_biolib_liens($struct) {
   return false;
 }
-

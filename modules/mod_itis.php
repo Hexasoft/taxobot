@@ -94,7 +94,7 @@ $itis_wp = [
 // retourne le rang de ITIS
 function itis_cherche_rang($rang) {
   global $itis_wp;
-  
+
   if (!isset($itis_wp[$rang])) {
     return 'NOTFOUND';
   }
@@ -104,7 +104,7 @@ function itis_cherche_rang($rang) {
 // récupère et retourne les données sur un taxon
 function itis_data_taxon($tsn, $auteur=false) {
   $result = [];
-  
+
   // le rang
   $url = "https://www.itis.gov/ITISWebService/services/ITISService/getTaxonomicRankNameFromTSN?tsn=" .
        $tsn;
@@ -162,7 +162,6 @@ function itis_data_taxon($tsn, $auteur=false) {
   return $result;
 }
 
-
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
 // gérer la classification également
 function m_itis_infos(&$struct, $classif) {
@@ -175,7 +174,7 @@ function m_itis_infos(&$struct, $classif) {
        urlencode($taxon);
   $ret = get_data($url);
   $_res = get_xml($ret);
-  
+
   if ($_res === null) {
     logs("ITIS: echec de récupération ou réponse invalide");
     return false;
@@ -188,7 +187,7 @@ function m_itis_infos(&$struct, $classif) {
       logs("ITIS: taxon non trouvé");
       return false;
   }
-  
+
   if (count($r) > 1) {
     // Si scientificNames contient plusieurs éléments, on choisit le taxon renseigné
     foreach ($r as $sn) {
@@ -198,7 +197,7 @@ function m_itis_infos(&$struct, $classif) {
       }
     }
   }
- 
+
   // Règne si classif
   if ($classif && isset($r['kingdom'])) {
     $kingdom = $r['kingdom'];
@@ -292,7 +291,7 @@ function m_itis_infos(&$struct, $classif) {
       // on l'ajoute (mais pas le règne)
       $liste[] = $cur;
     }
-    
+
     // on monte
     $curTsn = $res->return->parentTsn;
   }
@@ -331,7 +330,7 @@ function m_itis_infos(&$struct, $classif) {
       $struct['sous-taxons']['source'] = 'ITIS';
     }
   }
-  
+
   // synonymes
   $url = "https://www.itis.gov/ITISWebService/services/ITISService/getSynonymNamesFromTSN?tsn=" .
        $struct['liens']['itis']['id'];
@@ -361,7 +360,7 @@ function m_itis_infos(&$struct, $classif) {
       $struct['synonymes']['source'] = 'ITIS';
     }
   }
-  
+
   // noms en français
   $url = "https://www.itis.gov/ITISWebService/services/ITISService/getCommonNamesFromTSN?tsn=" .
        $struct['liens']['itis']['id'];
@@ -392,7 +391,7 @@ function m_itis_infos(&$struct, $classif) {
 // génération des liens externes (modèles dans Voir aussi)
 function m_itis_ext($struct) {
   $cdate = dates_recupere();
-  
+
   if (isset($struct['liens']['itis']['id'])) {
     $data = $struct['liens']['itis'];
     $cible = wp_met_italiques($data['nom'], $struct['taxon']['rang'], $struct['regne']);
@@ -418,4 +417,3 @@ function m_itis_liens($struct) {
     return false;
   }
 }
-

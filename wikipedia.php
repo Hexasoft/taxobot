@@ -1,6 +1,5 @@
 <?php
 
-
 /*
  Fonctions et données liées à wikipédia
 */
@@ -297,7 +296,7 @@ function est_inf_espece($rang) {
 // retourne l'ébauche la plus adaptée (ne supporte qu'une seule ébauche, pas de tableau en sortie)
 function wp_ebauche($struct) {
   global $ebauches;
-  
+
   if (get_config("selecteurs")) {
     $ret = sel_evalue("selecteurs/ebauches.lst.local", $struct);
     if ($ret !== false) {
@@ -320,7 +319,7 @@ function wp_ebauche($struct) {
 // indique si un rang est connu
 function wp_rang_valide($rang) {
   global $rangs;
-  
+
   if (isset($rangs[$rang])) {
     return true;
   }
@@ -340,7 +339,7 @@ function wp_eteint_rang($rang) {
 // retourne le "un" du rang
 function wp_un_rang($rang) {
   global $rangs;
-  
+
   if (!wp_rang_valide($rang)) {
     return "NOTFOUND";
   }
@@ -349,7 +348,7 @@ function wp_un_rang($rang) {
 // retourne le "le" du rang
 function wp_le_rang($rang) {
   global $rangs;
-  
+
   if (!wp_rang_valide($rang)) {
     return "NOTFOUND";
   }
@@ -358,7 +357,7 @@ function wp_le_rang($rang) {
 // retourne si le rang est inférieur au genre
 function wp_inf_rang($rang) {
   global $rangs;
-  
+
   if (!wp_rang_valide($rang)) {
     return "NOTFOUND";
   }
@@ -377,7 +376,7 @@ function wp_supprime_rang(&$struct, $rang) {
 // retourne TRUE si le rang de ce "règne" doit être en italique
 function wp_est_italique($rang, $regne) {
   global $italiques;
-  
+
   if ($italiques[$regne]) {
     return true;
   }
@@ -389,7 +388,7 @@ function wp_est_italique($rang, $regne) {
 // avec ou sans wikilien / avec ou sans majuscule sur la première lettre / au pluriel ou au singulier
 function wp_nom_rang($rang, $lien, $maj, $plur) {
   global $rangs;
-  
+
   if (!wp_rang_valide($rang)) {
     return "NOTFOUND";
   }
@@ -444,7 +443,7 @@ $exclusions = [
 // génère en wikicode un nom scientifique avec la gestion des italiques
 function wp_met_italiques($taxon, $rang, $regne, $lien=false, $souslien=true) {
   global $exclusions;
-  
+
   $ref = $taxon;
 
   // italique nécessaire ?
@@ -458,7 +457,7 @@ function wp_met_italiques($taxon, $rang, $regne, $lien=false, $souslien=true) {
   foreach($exclusions as $e) {
     $taxon = preg_replace("/\b" . $e[0] . "\b/", $e[1], $taxon);
   }
-  
+
   if ($taxon == $ref) {
     if ($lien) {
       return "''[[" . $taxon . "]]''";
@@ -500,7 +499,7 @@ $lien_auteurs = [
 ];
 function lien_pour_auteur($regne) {
   global $lien_auteurs;
-  
+
   if (isset($lien_auteurs[$regne])) {
     return $lien_auteurs[$regne];
   } else {
@@ -526,7 +525,7 @@ $lien_basio = [
 ];
 function lien_pour_basionyme($regne) {
   global $lien_basio;
-  
+
   if (isset($lien_basio[$regne])) {
     return $lien_basio[$regne];
   } else {
@@ -553,7 +552,7 @@ $categories = [
 function lien_pour_categorie($struct) {
   global $categories;
   $regne = $struct['regne'];
-  
+
   if (get_config("selecteurs")) {
     $ret = sel_evalue("selecteurs/categories.lst.local", $struct);
     if ($ret !== false) {
@@ -607,11 +606,10 @@ $synonymes = [
 ];
 function lien_pour_synonyme($regne) {
   global $synonymes;
-  
+
   if (isset($synonymes[$regne])) {
     return $synonymes[$regne];
   } else {
     return 'Synonyme (taxinomie)';
   }
 }
-

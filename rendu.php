@@ -9,7 +9,6 @@ require_once "auteurs.php";
 // pour la gestion des homonymes
 require_once "liste_homonymes.php";
 
-
 // retourne TRUE si la section concernée doit être rendue même vide,
 // selon la section et l'état de l'option "plan"
 function rendu_vide($section) {
@@ -71,7 +70,7 @@ function rendu_taxobox($struct) {
   $resu = "";
   $tmp = wp_ebauche($struct);
   $resu .= !empty($tmp) && is_array($tmp) ? "{{ébauche|" . implode("|", $tmp) . "}}\n" : "{{ébauche}}\n";
-  
+
   // si charte = algue on supprime l'empire
   if ($struct['regne'] == 'algue') {
     wp_supprime_rang($struct, 'empire');
@@ -101,10 +100,10 @@ function rendu_taxobox($struct) {
 
     // on regarde si le terme a une homonymie
     list($pageh, $hom) = cherche_homonyme($nom, $regne);
-    
+
     // construction de Taxobox
     $taxobox = "{{Taxobox | $rangN"; // Ouverture
-    
+
     if ($hom === false) {
         $taxobox .= " | $nom";
     } elseif ($pageh === true) {
@@ -122,17 +121,17 @@ function rendu_taxobox($struct) {
   // affichage
   $resu .= implode("\n", $tbl);
   $resu .= "\n";
-  
+
   // taxobox taxon : taxon lui-même
   $eteint = isset($struct['taxon']['eteint']) && $struct['taxon']['eteint'] ? " | éteint=oui" : "";
   $auteur = auteurs_traite($struct, isset($struct['taxon']['auteur'])?$struct['taxon']['auteur']:"");
   $resu .= "{{Taxobox taxon | $regne | $rang | $taxon | $auteur$eteint }}\n";
-  
+
   // UICN
   if (isset($struct['liens']['uicn']) and isset($struct['liens']['uicn']['risque'])) {
     $risque = $struct['liens']['uicn']['risque'];
     $critere = $struct['liens']['uicn']['critere'] ?? "";
-    
+
     $resu .= "{{Taxobox UICN | $risque | $critere }}\n";
   }
 
@@ -144,10 +143,10 @@ function rendu_taxobox($struct) {
 
     $resu .= "{{Taxobox CITES | $annexe | $date | $prec }}\n";
   }
-  
+
   // fin
   $resu .= "{{Taxobox fin}}\n";
-  
+
   return $resu;
 }
 
@@ -203,7 +202,7 @@ function rendu_inf($struct) {
     $_rang = $lst[0];
   }
   $mdl = $struct['sous-taxons']['source'];
-  
+
   //$ret = "\n== Liste des taxons de rang inférieur ==\nListe des $rang selon {{Bioref|$mdl|$cdate}} :\n";
   $ret = "\n== Liste des $rang ==\nSelon {{Bioref|$mdl|$cdate}} :\n";
 
@@ -262,7 +261,7 @@ function rendu_supp($struct) {
       $ret .= $auteur;
     }
     $ret .= "{{Bioref|$REF|$cdate|ref}}.\n\n";
-    
+
     if (isset($struct['basionyme'])) {
       $basio = lien_pour_basionyme($struct['regne']);
       $cible = wp_met_italiques($struct['basionyme']['nom'], $struct['taxon']['rang'], $struct['regne']);
@@ -283,7 +282,7 @@ function rendu_supp($struct) {
               "|$cdate|ref}}\n\n";
       }
     }
-    
+
     if (isset($struct['type'])) {
       $tmp = $struct['type'];
       $cible = wp_met_italiques($tmp['nom'], $tmp['rang'], $struct['regne'], true);
@@ -298,7 +297,7 @@ function rendu_supp($struct) {
       $ret .= $txt . " [[Type (biologie)|type]] est : " . $cible .
               "{{Bioref|" . $tmp['source'] . "|$cdate|ref}}.\n\n";
     }
-    
+
     if (isset($struct['vernaculaire'])) {
       // appel à vide (juste un test)
       $cnt = 0;
@@ -475,7 +474,7 @@ function rendu_originale($struct) {
       return "";
     }
   }
-  
+
   if (is_array($struct['originale']) and (count($struct['originale']) > 1)) {
     $resu = "\n== Publications originales ==\n";
   } else {
@@ -499,7 +498,7 @@ function rendu_voir_aussi($struct) {
   $ext = [];
   $ref = [];
   $autres = [];
-  
+
   // autres projets
   if (isset($struct['liens']['externe']['commons']) or isset($struct['liens']['externe']['species']) or
       isset($struct['liens']['externe']['ccommons'])) {
@@ -524,7 +523,7 @@ function rendu_voir_aussi($struct) {
     }
     $autres = $tmp;
   }
-  
+
   // traitement liens externes
   if (isset($struct['liens'])) {
     foreach($struct['liens'] as $mod => $data) {
@@ -546,7 +545,7 @@ function rendu_voir_aussi($struct) {
       }
     }
   }
-  
+
   // TODO: différencier $ext de $ref (ou alors supprimer $ref et ses traitements)
 
   if (!empty($ext) or !empty($ref) or ! empty($autres)) {
@@ -582,7 +581,7 @@ function rendu_voir_aussi($struct) {
       }
     }
   }
-  
+
   if (!empty($resu)) {
     return "\n$resu";
   } else {
@@ -612,7 +611,7 @@ function rendu_fin($struct) {
 // fonction de rendu global ($est → ne générer que les liens externes)
 function rendu($struct, $ext=false) {
   $ret = "";
-  
+
   if (!$ext) {
     // taxobox
     $ret .= rendu_taxobox($struct);
@@ -641,7 +640,6 @@ function rendu($struct, $ext=false) {
   // nettoyage : suppression des doubles-sauts
   $ret = str_replace("\n\n\n", "\n\n", $ret);
   $ret = str_replace("\n\n\n", "\n\n", $ret);
-  
+
   return $ret;
 }
-

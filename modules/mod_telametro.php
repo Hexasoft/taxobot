@@ -13,7 +13,7 @@ function m_telametro_init() {
 // gérer la classification également
 function m_telametro_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-  
+
   // récupération des cookies
   $url = "https://www.tela-botanica.org/flore/france-metropolitaine/";
   $ret = get_data($url);
@@ -40,7 +40,7 @@ function m_telametro_infos(&$struct, $classif) {
     logs("TelaMétro: échec de recherche sur le site (2)");
     return false;
   }
-  
+
   // parcours des résultats
   if (!isset($res->results[0])) {
     logs("TelaMétro: aucun résultat");
@@ -78,7 +78,7 @@ function m_telametro_infos(&$struct, $classif) {
       break;
     }
   }
-  
+
   if (!$ok) {
     logs("TelaMétro: recherche non concordante");
     return false;
@@ -117,4 +117,3 @@ function m_telametro_liens($struct) {
   }
   return false;
 }
-

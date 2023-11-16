@@ -42,7 +42,7 @@ function m_mdd_infos(&$struct, $classif) {
       break;
     }
   }
-  
+
   if ($trouve) {
     $el = [];
     $el['nom'] = $taxon;
@@ -53,7 +53,7 @@ function m_mdd_infos(&$struct, $classif) {
     logs("MDD: taxon non trouvé");
     return false;
   }
-  
+
   if (!$classif) {
     return true;
   }
@@ -84,4 +84,3 @@ function m_mdd_liens($struct) {
     return false;
   }
 }
-

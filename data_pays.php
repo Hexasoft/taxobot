@@ -268,12 +268,12 @@ $data_pays = [
  */
 function data_pays_code($code, $nom=false) {
   global $data_pays;
-  
+
   // Vérifie si le code du pays existe dans le tableau des données
   if (!isset($data_pays[$code])) {
     return "$code"; // Retourne le code lui-même si le code n'existe pas
   }
-  
+
   // Si $nom est true, retourne <texte affiché>
   if ($nom) {
     return $data_pays[$code][0];
@@ -288,4 +288,3 @@ function data_pays_code($code, $nom=false) {
     }
   }
 }
-

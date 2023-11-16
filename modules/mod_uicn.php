@@ -4,11 +4,9 @@
   Cherche les infos liées à l'UICN
 */
 
-
 function m_uicn_init() {
   return declare_module("uicn", false, true, true);
 }
-
 
 $ch = [];
 $ch['curl'] = NULL;
@@ -17,7 +15,7 @@ $ch['cookie'] = [];
 function start_curl() {
   global $fichier_temp;
   global $ch;
-  
+
   $ch['curl'] = curl_init();
   curl_setopt($ch['curl'], CURLOPT_COOKIEJAR, $fichier_temp);
   curl_setopt($ch['curl'], CURLOPT_COOKIEFILE, $fichier_temp);
@@ -79,7 +77,7 @@ function get_curl($url, $ref=null) {
   }
 
   $data = curl_exec($ch['curl']);
-  
+
   return $data;
 }
 
@@ -122,10 +120,9 @@ function get_curl_redirect($url) {
   if (preg_match('~Location: (.*)~i', $data, $match)) {
     $location = trim($match[1]);
   }
-  
+
   return $location;
 }
-
 
 function post_curl($url, $data) {
   global $ch;
@@ -204,7 +201,7 @@ function m_uicn_infos_sup(&$struct, $classif) {
   init_outils();
   // pour obtenir un token de session
   $ret = get_data("https://www.iucnredlist.org/");
-  
+
   // le CSRF
   $tmp = explode("\n", $ret);
   $code = false;
@@ -219,7 +216,7 @@ function m_uicn_infos_sup(&$struct, $classif) {
     logs("UICN: impossible de trouver le CSRF");
     return false;
   }
-  
+
   // on effectue une recherche
   $header = [
     'Accept: */*',
@@ -267,16 +264,15 @@ function m_uicn_infos_sup(&$struct, $classif) {
     }
     $struct['liens']['uicn']['liste-id'] = $id;
     $struct['liens']['uicn']['liste-nom'] = $taxon;
-    
+
     if (!$classif) {
       return true;
     }
     return false; // on ne fait pas la classification
   }
-  
+
   return false;
 }
-
 
 function m_uicn_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
@@ -319,7 +315,7 @@ function m_uicn_infos(&$struct, $classif) {
     logs("UICN: aucune information UICN trouvée (2)");
     return false;
   }
-  
+
   // on récupère la cible effective (c'est galère…)
   $url = "https://apiv3.iucnredlist.org/api/v3/taxonredirect/$id";
   $ret = get_curl_redirect($url);
@@ -334,7 +330,7 @@ function m_uicn_infos(&$struct, $classif) {
     return false;
   }
   $pageId = $z[5];
-  
+
   // on repart de zéro : accès à la page elle-même
   curl_start2();
   $url = "https://www.iucnredlist.org/species/$id/$pageId";
@@ -390,7 +386,7 @@ function m_uicn_infos(&$struct, $classif) {
     logs("UICN: impossible de trouver la catégorie");
     return false;
   }
-  
+
   // si présent on récupère les noms en français
   $lst = [];
   if (isset($res->taxon->commonNames)) {
@@ -406,7 +402,7 @@ function m_uicn_infos(&$struct, $classif) {
   if (!empty($lst)) {
     $struct['vernaculaire']['UICN'] = $lst;
   }
-  
+
   // test : récupération des informations de répartition géographique
   $lst = [];
   $ulst = [];
@@ -445,11 +441,10 @@ function m_uicn_infos(&$struct, $classif) {
   if (!$classif) {
     return true;
   }
-  
+
   // TODO : partie classification
   return false;
 }
-
 
 function m_uicn_ext($struct) {
   $cdate = dates_recupere();
@@ -481,4 +476,3 @@ function m_uicn_liens($struct) {
     return false;
   }
 }
-

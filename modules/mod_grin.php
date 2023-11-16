@@ -9,7 +9,6 @@ function m_grin_init() {
   return declare_module("grin", false, true, true);
 }
 
-
 // teste les différentes recherches
 function m_grin_cherche($nom) {
   // si plusieurs noms → espèce
@@ -42,7 +41,7 @@ function m_grin_cherche($nom) {
       "&ctl00%24MainContent%24cbfern=on&ctl00%24MainContent%24cbgymn=on&ctl00%24MainContent%24cbangi=on" .
       "&ctl00%24MainContent%24btnFamily=Search&ctl00%24MainContent%24txtGenus=&ctl00%24MainContent%24txtInfraGen=" .
       "&ctl00%24MainContent%24txtCommonG=&ctl00%24MainContent%24txtSpecies=&ctl00%24MainContent%24txtInfraSpec=&ctl00%24MainContent%24txtCommon=";
-    
+
     $res = post_date($url, $post, $header, false);
     if (!$res === false) {
       var_dump($res);
@@ -52,16 +51,15 @@ function m_grin_cherche($nom) {
 
 }
 
-
 // récupération des infos. Résultats à stocker dans $struct. Si $classif=TRUE doit
 // gérer la classification également
 function m_grin_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
-  
+
   // non implémenté pour le moment
   logs("GRIN: non implémenté");
   return false;
-  
+
   // requête pour les cookies
   $ret = get_data("https://npgsweb.ars-grin.gov/gringlobal/taxon/taxonomysearch");
 
@@ -86,4 +84,3 @@ function m_grin_ext($struct) {
 function m_grin_liens($struct) {
   return false;
 }
-
