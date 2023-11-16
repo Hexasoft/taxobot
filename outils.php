@@ -142,7 +142,7 @@ function user_agent($ua = null, $duree = 86400) {
  * @return mixed          Les données récupérées de la requête ou false en cas d'erreur.
  */
 
-function curl_request($url, $method, $head=False, $post = null, $header=false, $follow=false) {
+function curl_request($url, $method, $post = null, $header = false, $head = false, $follow = true) {
   // Configuration des paramètres de cURL
   global $fichier_temp;
   $userAgent = user_agent();
@@ -165,16 +165,21 @@ function curl_request($url, $method, $head=False, $post = null, $header=false, $
   switch ($method) {
     case 'GET':
       $follow = true;
-      $head ? curl_setopt($ch, CURLOPT_HEADER, 1) : null;
-      // $head ? curl_setopt($ch, CURLOPT_NOBODY, 1) : null; 
+      if ($head) {
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+        // curl_setopt($ch, CURLOPT_NOBODY, 1);
+      }
       break;
 
     case 'POST':
       $follow = true;
-      $head ? curl_setopt($ch, CURLOPT_HEADER, 1) : null;
-      $head ? curl_setopt($ch, CURLOPT_NOBODY, 1) : null;
-      curl_setopt($ch, CURLOPT_POST, 1);
-      if (!empty($post)) {
+      if ($head) {
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+        curl_setopt($ch, CURLOPT_NOBODY, 1);
+      }
+
+      if (isset($post) && $post !== false) {
+        curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
       }
       break;
@@ -186,8 +191,11 @@ function curl_request($url, $method, $head=False, $post = null, $header=false, $
 
   // Options supplémentaires
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $follow ? 1 : 0); // Si $follow est vrai, la valeur sera 1, sinon, la valeur sera 0.
-  $header !== false ? curl_setopt($ch, CURLOPT_HTTPHEADER, array($header)) : null; // Si $header est vrai, sinon rien.
 
+  if (isset($header) && $header !== false) {
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+  }
+  
   // Exécution de la requête cURL
   $data = curl_exec($ch);
 
@@ -205,23 +213,23 @@ function curl_request($url, $method, $head=False, $post = null, $header=false, $
 }
 
 // Effectue une requête GET pour récupérer des données.
-function get_data($url, $header = false, $follow = true) {
-  return curl_request($url, $method = 'GET', $header = false, $post = null, $head = false, $follow);
+function get_data($url, $header = false, $head = false, $follow = true) {
+  return curl_request($url, 'GET', null, $header, $head, $follow);
 }
 
 // Effectue une requête GET pour récupérer les en-têtes.
-function get_data_header($url, $header = false, $follow = true) {
-  return curl_request($url, $method = 'GET', $header = false, $post = null, $head = true, $follow);
+function get_data_header($url, $header = false, $head = true, $follow = true) {
+  return curl_request($url, 'GET', null, $header, $head, $follow);
 }
 
 // Effectue une requête POST pour envoyer des données.
-function post_data($url, $post, $header = false) {
-  return curl_request($url, $method = 'POST', $header = false, $head = false, $post = null);
+function post_data($url, $post = null, $header = false, $head = false, $follow = true) {
+  return curl_request($url, 'POST', $post, $header, $head, $follow);
 }
 
 // Effectue une requête POST pour envoyer des données et récupère les en-têtes.
-function post_data_header($url, $post = null, $header = false, $follow = true) {
-  return curl_request($url, $method = 'POST', $header = false, $post = null, $head = true, $follow);
+function post_data_header($url, $post = null, $header = false, $head = false, $follow = true) {
+  return curl_request($url, 'POST', $post, $header, true, $follow);
 }
 
 /// fonctions de gestion / mise en forme de données
