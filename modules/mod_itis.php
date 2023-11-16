@@ -86,9 +86,11 @@ $itis_wp = [
   'Domain' => 'domaine',
   'Superdomain' => 'super-domaine',
   'Empire' => 'empire',
-  'Kingdom' => 'royaume',
-  'Subkingdom' => 'sous-royaume',
 ];
+// Étaient définis deux fois (volontaire ?)
+//'Kingdom' => 'royaume',
+// 'Subkingdom' => 'sous-royaume',
+
 // retourne le rang de ITIS
 function itis_cherche_rang($rang) {
   global $itis_wp;
@@ -180,34 +182,32 @@ function m_itis_infos(&$struct, $classif) {
   }
   $res = json_decode(json_encode($_res), true);
 
-  if (!isset($res['return']['scientificNames'])) {
-    logs("ITIS: taxon non trouvé");
-    return false;
+  $r = $res['return']['scientificNames'];
+
+  if (!isset($r)) {
+      logs("ITIS: taxon non trouvé");
+      return false;
   }
   
-  // si on trouve le KINGDOM et qu'on est classification on le fixe tout de suite
-  if ($classif and isset($res['return']['scientificNames']['kingdom'])) {
-    $struct['regne'] = itis_cherche_regne($res['return']['scientificNames']['kingdom']);
-  }
-  
-  $ok = false;
-  foreach($res['return']['scientificNames'] as $r) {
-    if (isset($r['combinedName']) and $r['combinedName'] == $taxon) {
-      $ok = true;
-      break;
+  if (count($r) > 1) {
+    // Si scientificNames contient plusieurs éléments, on choisit le taxon renseigné
+    foreach ($r as $sn) {
+      if (isset($sn['combinedName']) && $sn['combinedName'] == $taxon) {
+          $r = $sn;
+          break;
+      }
     }
   }
-  if (!$ok) {
-    logs("ITIS: taxon non trouvé (2)");
-    return false;
+ 
+  // Règne si classif
+  if ($classif && isset($r['kingdom'])) {
+    $kingdom = $r['kingdom'];
+    $struct['regne'] = itis_cherche_regne($kingdom);
   }
 
+  // ID, nom, auteur
   $struct['liens']['itis']['id'] = $r['tsn'];
-  if (isset($r['combinedName'])) {
-    $struct['liens']['itis']['nom'] = $r['combinedName'];
-  } else {
-    $struct['liens']['itis']['nom'] = $taxon;
-  }
+  $struct['liens']['itis']['nom'] = isset($r['combinedName']) ? $r['combinedName'] : $taxon;
   if (isset($r['author']) and !empty($r['author'])) {
     $struct['liens']['itis']['auteur'] = $r['author'];
   }
