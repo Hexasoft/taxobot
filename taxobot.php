@@ -206,7 +206,6 @@ if (is_string($tmp) && !empty($tmp)) {
 // User Agent
 $ua = get_config('ua');
 if ($ua) {
-  echo "$ua";
   user_agent($ua);
   logs("User Agent utilisé : " . $ua);
 }
