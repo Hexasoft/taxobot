@@ -32,6 +32,7 @@ $configuration = [
   "limite-listes" => -1,
   "force-regne" => '',
   "force-rang" => '',
+  "ua" => '',
 ];
 
 // liste des éléments configurables
@@ -62,6 +63,7 @@ $liste_configuration = [
   "limite-listes" => [ 'int', "Nombre maximum d'éléments dans les listes (sous-taxons, synonymes). <=0 : pas de limite [256]"],
   "force-regne" => [ 'string', "Permet d'indiquer le règne (charte). Utile uniquement avec l'option 'juste-ext' où la classification n'est pas utilisée"],
   "force-rang" => [ 'string', "Permet d'indiquer le rang. Utile uniquement avec l'option 'juste-ext' où la classification n'est pas utilisée"],
+  "ua" => ['string', "Permet de définir un User Agent pour les requêtes HTTP."]
 ];
 
 // retourne la configuration

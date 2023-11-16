@@ -46,140 +46,183 @@ function add_cookies($txt) {
   file_put_contents($fichier_temp, "$txt\n", FILE_APPEND);
 }
 
+/**
+ * Récupère l'User Agent de l'utilisateur en utilisant différentes méthodes.
+  * @return string User Agent
+ */
 
-// wrapper pour récupérer les données
-function get_data($url, $header=false, $follow=true) {
-  global $fichier_temp;
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, $url);
-  curl_setopt($ch, CURLOPT_NOPROGRESS, false);
-  curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, function() {});
-  curl_setopt($ch, CURLOPT_USERAGENT,
-              "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0");
-  curl_setopt($ch, CURLOPT_COOKIEJAR, $fichier_temp);
-  curl_setopt($ch, CURLOPT_COOKIEFILE, $fichier_temp);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-  curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-  if ($follow) {
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+function define_user_agent() {
+  /** Gestion des erreurs
+   * Désactive le PHP warning lié à browscap.ini
+   */
+  error_reporting(E_ERROR | E_PARSE);
+  ini_set('display_errors', 'off');
+
+  // User Agent par défaut au cas où toutes les méthodes échouent
+  $defaultAgent = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0";
+
+  // Tentative de récupération de l'UA via la fonction get_browser (navigateur)
+  try { 
+      $userAgent = get_browser(null, true);
+      if ($userAgent !== false) {
+          return $userAgent;
+      }
+  } catch (Exception $e) {}
+
+  // Tentative de récupération de l'UA via la variable $_SERVER (serveur)
+  try { 
+      $userAgent = $_SERVER['HTTP_USER_AGENT'];
+      if ($userAgent !== null) {
+          return $userAgent;
+      }
+  } catch (Exception $e) {}
+  
+  // Construction d'UAs prédéfinis en fonction de la famille du système d'exploitation
+  try {
+      $osFamily = strtoupper(PHP_OS_FAMILY);
+      if ($osFamily !== 'UNKNOWN' ) {
+        $validUA = [
+            'WINDOWS' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0',
+            'DARWIN' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+            'BSD' => 'Mozilla/5.0 (X11; FreeBSD amd64; rv:109.0) Gecko/20100101 Firefox/113.0',
+            'SOLARIS' => 'Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.8.0.1) Gecko/20060206 Firefox/1.5.0.1',
+            'LINUX' => 'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/119.0',
+        ];
+        $userAgent = $validUA[$osFamily];
+        return $userAgent;
+      }
+  } catch (Exception $e) {}
+  
+  // Construction d'un UA minimaliste via les informations système PHP
+  try { 
+      $unameS = php_uname('s'); // system name
+      $unameV = php_uname('v'); // system version
+      $unameM = php_uname('m'); // machine type
+      $unameR = php_uname('r'); // release version
+      $userAgent = 'Mozilla/5.0 (s:' . $unameS . '; v:' . $unameV . '; m:' . $unameM . '; rv:' . $unameR . ')';
+      return $userAgent;
+  } catch (Exception $e) {
+    // En cas d'échec, retourner l'UA par défaut
+      $userAgent = $defaultAgent;
+      return $userAgent;
+  }
+}
+
+function user_agent($ua = null, $duree = 86400) {
+  $UA_cache = 'user_agent_cache.txt';
+  $pathUACache = join(DIRECTORY_SEPARATOR, array(__DIR__, '.cache', $UA_cache));
+
+  if (file_exists($pathUACache) && (time() - filemtime($pathUACache) < $duree && empty($ua))) {
+      return file_get_contents($pathUACache);
   } else {
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
+      // Permet de renseigner un UA, sinon il est défini.
+      $userAgent = !empty($ua) ? $ua : define_user_agent();
+    
+      // Encodage
+      $userAgent = mb_convert_encoding($userAgent, 'UTF-8', 'auto');
+
+      // Stocker le nouvel User Agent dans le cache
+      file_put_contents($pathUACache, $userAgent, LOCK_EX);
+
+      // Retourner le nouvel User Agent
+      return file_get_contents($pathUACache);
   }
-  if ($header !== false) {
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-  }
-  $data = curl_exec($ch);
-  if (curl_errno($ch)) {
-    curl_close($ch);
-    return FALSE;
-  }
-  curl_close($ch);
-  return $data;
 }
 
-// wrapper pour récupérer le header (GET)
-function get_data_header($url, $header=false, $follow=true) {
+/**
+ * Effectue une requête cURL avec des options configurables.
+ *
+ * @param string $url     L'URL de la requête.
+ * @param string $method  La méthode de la requête (GET, POST, HEAD).
+ * @param bool   $head    Indique si les en-têtes doivent être inclus dans la réponse (par défaut à false).
+ * @param mixed  $post    Les données à envoyer dans la requête en cas de méthode POST.
+ * @param mixed  $header  Les en-têtes de la requête (facultatif).
+ * @param bool   $follow  Indique si la redirection doit être suivie (par défaut à false).
+ *
+ * @return mixed          Les données récupérées de la requête ou false en cas d'erreur.
+ */
+
+function curl_request($url, $method, $head=False, $post = null, $header=false, $follow=false) {
+  // Configuration des paramètres de cURL
   global $fichier_temp;
+  $userAgent = user_agent();
   $ch = curl_init();
+
+  // Paramètres généraux
   curl_setopt($ch, CURLOPT_URL, $url);
   curl_setopt($ch, CURLOPT_NOPROGRESS, false);
-  curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, function() {});
-  curl_setopt($ch, CURLOPT_USERAGENT,
-              "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0");
-  curl_setopt($ch, CURLOPT_COOKIEJAR, $fichier_temp);
-  curl_setopt($ch, CURLOPT_COOKIEFILE, $fichier_temp);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-  curl_setopt($ch, CURLOPT_HEADER, 1);
-  //curl_setopt($ch, CURLOPT_NOBODY, 1);
-  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-  curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-  if ($header !== false) {
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-  }
-  if ($follow) {
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-  } else {
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
-  }
-  $data = curl_exec($ch);
-  if (curl_errno($ch)) {
-    curl_close($ch);
-    return FALSE;
-  }
-  curl_close($ch);
-  return $data;
-}
-
-
-// wrapper pour récupérer les données (POST)
-function post_data($url, $post, $header=false) {
-  global $fichier_temp;
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, $url);
-  curl_setopt($ch, CURLOPT_NOPROGRESS, false);
-  curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, function() {});
-  curl_setopt($ch, CURLOPT_USERAGENT,
-              "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0");
+  curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, function () {});
+  curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
   curl_setopt($ch, CURLOPT_COOKIEJAR, $fichier_temp);
   curl_setopt($ch, CURLOPT_COOKIEFILE, $fichier_temp);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
   curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
   curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
   curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-  curl_setopt($ch, CURLOPT_POST, 1);
-  curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-  if ($header !== false) {
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+
+  // Paramètres spécifiques en fonction de la méthode de la requête
+  $method = strtoupper($method);
+  switch ($method) {
+    case 'GET':
+      $follow = true;
+      $head ? curl_setopt($ch, CURLOPT_HEADER, 1) : null;
+      // $head ? curl_setopt($ch, CURLOPT_NOBODY, 1) : null; 
+      break;
+
+    case 'POST':
+      $follow = true;
+      $head ? curl_setopt($ch, CURLOPT_HEADER, 1) : null;
+      $head ? curl_setopt($ch, CURLOPT_NOBODY, 1) : null;
+      curl_setopt($ch, CURLOPT_POST, 1);
+      if (!empty($post)) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+      }
+      break;
+
+    default:
+      echo 'Erreur $method attendu pour curl_request().\n';
+      return false;
   }
+
+  // Options supplémentaires
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $follow ? 1 : 0); // Si $follow est vrai, la valeur sera 1, sinon, la valeur sera 0.
+  $header !== false ? curl_setopt($ch, CURLOPT_HTTPHEADER, array($header)) : null; // Si $header est vrai, sinon rien.
+
+  // Exécution de la requête cURL
   $data = curl_exec($ch);
+
+  // Gestion des erreurs
   if (curl_errno($ch)) {
     curl_close($ch);
     return FALSE;
   }
+
+  // Fermeture de la session cURL
   curl_close($ch);
+
+  // Retourne les données de la requête
   return $data;
 }
 
-// wrapper pour récupérer le header (POST)
-function post_data_header($url, $post, $header=false, $follow=true) {
-  global $fichier_temp;
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, $url);
-  curl_setopt($ch, CURLOPT_NOPROGRESS, false);
-  curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, function() {});
-  curl_setopt($ch, CURLOPT_USERAGENT,
-              "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0");
-  curl_setopt($ch, CURLOPT_COOKIEJAR, $fichier_temp);
-  curl_setopt($ch, CURLOPT_COOKIEFILE, $fichier_temp);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-  curl_setopt($ch, CURLOPT_HEADER, 1);
-  curl_setopt($ch, CURLOPT_NOBODY, 1);
-  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-  curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-  curl_setopt($ch, CURLOPT_POST, 1);
-  curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-  if ($header !== false) {
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-  }
-  if ($follow) {
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-  } else {
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
-  }
-  $data = curl_exec($ch);
-  if (curl_errno($ch)) {
-    curl_close($ch);
-    return FALSE;
-  }
-  curl_close($ch);
-  return $data;
+// Effectue une requête GET pour récupérer des données.
+function get_data($url, $header = false, $follow = true) {
+  return curl_request($url, $method = 'GET', $header = false, $post = null, $head = false, $follow);
 }
 
+// Effectue une requête GET pour récupérer les en-têtes.
+function get_data_header($url, $header = false, $follow = true) {
+  return curl_request($url, $method = 'GET', $header = false, $post = null, $head = true, $follow);
+}
+
+// Effectue une requête POST pour envoyer des données.
+function post_data($url, $post, $header = false) {
+  return curl_request($url, $method = 'POST', $header = false, $head = false, $post = null);
+}
+
+// Effectue une requête POST pour envoyer des données et récupère les en-têtes.
+function post_data_header($url, $post = null, $header = false, $follow = true) {
+  return curl_request($url, $method = 'POST', $header = false, $post = null, $head = true, $follow);
+}
 
 /// fonctions de gestion / mise en forme de données
 
@@ -537,4 +580,3 @@ function bioref_de_struct($struct) {
     return '???';
   }
 }
-

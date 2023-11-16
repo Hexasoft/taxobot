@@ -203,6 +203,14 @@ if (is_string($tmp) && !empty($tmp)) {
   desactive_modules($tmp);
 }
 
+// User Agent
+$ua = get_config('ua');
+if ($ua) {
+  echo "$ua";
+  user_agent($ua);
+  logs("User Agent utilisé : " . $ua);
+}
+
 // on récupère les éléments clés
 $taxon = get_config("taxon");
 $classification = get_config("classification");
