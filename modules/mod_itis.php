@@ -179,11 +179,11 @@ function m_itis_infos(&$struct, $classif) {
     logs("ITIS: echec de récupération ou réponse invalide");
     return false;
   }
-  $res = json_decode(json_encode($_res), true);
 
+  $res = json_decode(json_encode($_res), true);
   $r = $res['return']['scientificNames'];
 
-  if (!isset($r)) {
+  if (!isset($r) || count($r) == 0) {
       logs("ITIS: taxon non trouvé");
       return false;
   }
@@ -216,6 +216,7 @@ function m_itis_infos(&$struct, $classif) {
        $struct['liens']['itis']['id'];
   $ret = file_get_contents($url);
   $_res = get_xml($ret);
+  
   if ($_res === null) {
     logs("ITIS: echec de AcceptedNames");
     return !$classif; // pas grave si seulement liens externes

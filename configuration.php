@@ -57,7 +57,6 @@ $liste_configuration = [
 "liste" => ['flag', 'Afficher la liste des modules'],
 "off" => ['string', 'Liste de modules à désactiver (noms séparés par des virgules)'],
 "plan" => ['flag', 'Générer un plan-type, même quand il n\'y a pas d\'information'],
-"recherche" => ['string', 'Chaîne de recherche'],
 "suivre-synonymes" => ['bool', 'Si la classification indique que le taxon demandé est un synonyme, traiter la cible du synonyme'],
 "seuil-colonnes" => ['int', 'Nombre-seuil d\'éléments dans une liste avant mise en colonnes'],
 "selecteurs" => ['bool', 'Autorise l\'utilisation des fichiers de définition des ébauches/catégories/auteurs/…'],
