@@ -237,7 +237,7 @@ function m_col_liens($struct) {
   if (!isset($struct['liens']['col'])) {
     return false;
   }
-  if (isset($struct['liens']['col']['id'])) {
+  if (isset($struct['liens']['col']['id']) && strlen($struct['liens']['col']['id']) <= 6) {
     // ce n'est pas une liste, on la met sous forme de liste
     $struct['liens']['col'][0] = $struct['liens']['col'];
   }

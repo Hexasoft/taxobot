@@ -207,7 +207,7 @@ function m_itis_infos(&$struct, $classif) {
   // ID, nom, auteur
   $struct['liens']['itis']['id'] = $r['tsn'];
   $struct['liens']['itis']['nom'] = isset($r['combinedName']) ? $r['combinedName'] : $taxon;
-  if (isset($r['author']) and !empty($r['author'])) {
+  if (isset($r['author']) and !empty($r['author'])) { // && r['author'] ? && count(['author']) != 0 ?
     $struct['liens']['itis']['auteur'] = $r['author'];
   }
 
@@ -393,7 +393,7 @@ function m_itis_infos(&$struct, $classif) {
 function m_itis_ext($struct) {
   $cdate = dates_recupere();
 
-  if (isset($struct['liens']['itis']['id']) && strlen($struct['liens']['itis']['id']) <= 6)) {
+  if (isset($struct['liens']['itis']['id'])) {
     $data = $struct['liens']['itis'];
     $cible = wp_met_italiques($data['nom'], $struct['taxon']['rang'], $struct['regne']);
     if (isset($data['auteur'])) {
