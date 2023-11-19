@@ -393,7 +393,7 @@ function m_itis_infos(&$struct, $classif) {
 function m_itis_ext($struct) {
   $cdate = dates_recupere();
 
-  if (isset($struct['liens']['itis']['id'])) {
+  if (isset($struct['liens']['itis']['id']) && strlen($struct['liens']['itis']['id']) <= 6)) {
     $data = $struct['liens']['itis'];
     $cible = wp_met_italiques($data['nom'], $struct['taxon']['rang'], $struct['regne']);
     if (isset($data['auteur'])) {
