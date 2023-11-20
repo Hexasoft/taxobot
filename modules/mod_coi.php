@@ -14,7 +14,8 @@ function m_coi_init() {
 function m_coi_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
 
-  $data = file_get_contents("./data/coi.csv");
+  $data_file = join(DIRECTORY_SEPARATOR, array(dirname(__FILE__), 'data', 'coi.csv'));
+  $data = file_get_contents($data_file);
   if ($data === false) {
     logs("COI: échec de récupération du fichier local");
     return false;
