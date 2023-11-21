@@ -212,7 +212,7 @@ function m_col_ext($struct) {
 
   $res = [];
   foreach($struct['liens']['col'] as $data) {
-    if (!isset($data['id'])) {
+    if (!isset($data['id']) || strlen($data['id']) > 6) {
       continue;
     }
     $cible = wp_met_italiques($data['nom'],
@@ -237,13 +237,13 @@ function m_col_liens($struct) {
   if (!isset($struct['liens']['col'])) {
     return false;
   }
-  if (isset($struct['liens']['col']['id']) && strlen($struct['liens']['col']['id']) <= 6) {
+  if (isset($struct['liens']['col']['id'])) {
     // ce n'est pas une liste, on la met sous forme de liste
     $struct['liens']['col'][0] = $struct['liens']['col'];
   }
   $res = [];
   foreach($struct['liens']['col'] as $data) {
-    if (!isset($data['id'])) {
+    if (!isset($data['id']) || strlen($data['id']) > 6) {
       continue;
     }
     $res[] = "<a href='https://www.catalogueoflife.org/data/taxon/" . $data['id'] .
