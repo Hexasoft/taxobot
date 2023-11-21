@@ -290,6 +290,9 @@ function wrms_extraire($page, $id) {
         $x = preg_replace("/<\/span>.*$/", "", $x);
         $x = str_replace("&lt;em&gt;", "", $x);
         $x = str_replace("&lt;/em&gt;", "", $x);
+        $x = str_replace("&lt;i&gt;", "''", $x);
+        $x = str_replace("&lt;/i&gt;", "''", $x);
+
         // on cherche un éventuel lien vers la ressource
         $tbl = explode('href=', $tmp);
         foreach($tbl as $el) {
@@ -734,9 +737,13 @@ function m_wrms_infos(&$struct, $classif) {
 // génération des liens externes (modèles dans Voir aussi)
 function m_wrms_ext($struct) {
   if (isset($struct['liens']['wrms']['id'])) {
+    if ($struct['taxon']['rang'] == 'espèce' || $struct['taxon']['rang'] == 'sous-espèce') {
+      $wrms_template = "WRMS espèce";
+    } else {
+      $wrms_template = "WRMS";
+    }
     $data = $struct['liens']['wrms'];
     $cdate = dates_recupere();
-
     $nom = $data['nom'];
     if (isset($data['eteint']) and $data['eteint']) {
       $eteint = "éteint=oui | ";
@@ -744,14 +751,14 @@ function m_wrms_ext($struct) {
       $eteint = "";
     }
     $nom = wp_met_italiques($data['nom'],
-        isset($data['rang'])?$data['rang']:$struct['taxon']['rang'], $struct['regne']);
+        isset($data['rang']) ? $data['rang'] : $struct['taxon']['rang'], $struct['regne']);
     $id = $data['id'];
     if (isset($data['auteur'])) {
       $auteur = $data['auteur'];
     } else {
       $auteur = '';
     }
-    return "{{WRMS | $id | $nom | $auteur | $eteint" . "consulté le=$cdate}}";
+    return "{{" . "$wrms_template | $id | $nom | $auteur | $eteint" . "consulté le=$cdate}}";
   } else {
     return false;
   }
