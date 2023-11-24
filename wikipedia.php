@@ -444,6 +444,11 @@ $exclusions = [
 function wp_met_italiques($taxon, $rang, $regne, $lien=false, $souslien=true) {
   global $exclusions;
 
+  if ($taxon === null || !isset($taxon)) {
+    echo "wp_met_italiques() nécessite un paramètre 'taxon' non vide et non nul.";
+    return "Erreur:wp_met_italiques()"; // Capture d'erreur pour preg_replace().
+}
+
   $ref = $taxon;
 
   // italique nécessaire ?
