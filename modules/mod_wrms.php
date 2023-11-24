@@ -739,8 +739,11 @@ function m_wrms_ext($struct) {
   if (isset($struct['liens']['wrms']['id'])) {
     if ($struct['taxon']['rang'] == 'espèce' || $struct['taxon']['rang'] == 'sous-espèce') {
       $wrms_template = "WRMS espèce";
+      $nom = $data['nom']; // {{WRMS espèce}} gère les italiques
     } else {
       $wrms_template = "WRMS";
+      $nom = wp_met_italiques($data['nom'], 
+      isset($data['rang']) ? $data['rang'] : $struct['taxon']['rang'], $struct['regne']); // obsolète avec {{WRMS espèce}} (à confirmer)
     }
     $data = $struct['liens']['wrms'];
     $cdate = dates_recupere();
@@ -750,8 +753,6 @@ function m_wrms_ext($struct) {
     } else {
       $eteint = "";
     }
-    $nom = wp_met_italiques($data['nom'],
-        isset($data['rang']) ? $data['rang'] : $struct['taxon']['rang'], $struct['regne']);
     $id = $data['id'];
     if (isset($data['auteur'])) {
       $auteur = $data['auteur'];
