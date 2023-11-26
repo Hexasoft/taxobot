@@ -197,6 +197,11 @@ function m_itis_infos(&$struct, $classif) {
       }
     }
   }
+  
+  if (!isset($r['tsn'])) {
+    logs("ITIS: taxon non trouvé");
+    return false;
+  }
 
   // Règne si classif
   if ($classif && isset($r['kingdom'])) {
