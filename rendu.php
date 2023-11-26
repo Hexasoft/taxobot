@@ -260,7 +260,10 @@ function rendu_supp($struct) {
       $auteur = " " . preg_replace("/([^{])et al[.]/", '$1{{et al.}}', $struct['taxon']['auteur']);
       $ret .= $auteur;
     }
-    $ret .= "{{Bioref|$REF|$cdate|ref}}.\n\n";
+    $ret .= "{{Bioref|$REF|$cdate|ref}}.\n";
+    if (!isset($struct['basionyme'])) {
+      $ret .= "\n";
+    }
 
     if (isset($struct['basionyme'])) {
       $basio = lien_pour_basionyme($struct['regne']);
