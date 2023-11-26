@@ -59,28 +59,28 @@ function define_user_agent() {
   ini_set('display_errors', 'off');
 
   // User Agent par défaut au cas où toutes les méthodes échouent
-  $defaultAgent = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0";
+  $default_agent = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0";
 
   // Tentative de récupération de l'UA via la fonction get_browser (navigateur)
   try { 
-      $userAgent = get_browser(null, true);
-      if ($userAgent !== false) {
-          return $userAgent;
+      $user_agent = get_browser(null, true);
+      if ($user_agent !== false) {
+          return $user_agent;
       }
   } catch (Exception $e) {}
 
   // Tentative de récupération de l'UA via la variable $_SERVER (serveur)
   try { 
-      $userAgent = $_SERVER['HTTP_USER_AGENT'];
-      if ($userAgent !== null) {
-          return $userAgent;
+      $user_agent = $_SERVER['HTTP_USER_AGENT'];
+      if ($user_agent !== null) {
+          return $user_agent;
       }
   } catch (Exception $e) {}
 
   // Construction d'UAs prédéfinis en fonction de la famille du système d'exploitation
   try {
-      $osFamily = strtoupper(PHP_OS_FAMILY);
-      if ($osFamily !== 'UNKNOWN' ) {
+      $os_family = strtoupper(PHP_OS_FAMILY);
+      if ($os_family !== 'UNKNOWN' ) {
         $validUA = [
             'WINDOWS' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0',
             'DARWIN' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
@@ -88,44 +88,44 @@ function define_user_agent() {
             'SOLARIS' => 'Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.8.0.1) Gecko/20060206 Firefox/1.5.0.1',
             'LINUX' => 'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/119.0',
         ];
-        $userAgent = $validUA[$osFamily];
-        return $userAgent;
+        $user_agent = $validUA[$os_family];
+        return $user_agent;
       }
   } catch (Exception $e) {}
 
   // Construction d'un UA minimaliste via les informations système PHP
   try { 
-      $unameS = php_uname('s'); // system name
-      $unameV = php_uname('v'); // system version
-      $unameM = php_uname('m'); // machine type
-      $unameR = php_uname('r'); // release version
-      $userAgent = 'Mozilla/5.0 (s:' . $unameS . '; v:' . $unameV . '; m:' . $unameM . '; rv:' . $unameR . ')';
-      return $userAgent;
+      $uname_system = php_uname('s'); // system name
+      $uname_version = php_uname('v'); // system version
+      $uname_machine = php_uname('m'); // machine type
+      $uname_release = php_uname('r'); // release version
+      $user_agent = 'Mozilla/5.0 (s:' . $uname_system . '; v:' . $uname_version . '; m:' . $uname_machine . '; rv:' . $uname_release . ')';
+      return $user_agent;
   } catch (Exception $e) {
     // En cas d'échec, retourner l'UA par défaut
-      $userAgent = $defaultAgent;
-      return $userAgent;
+      $user_agent = $default_agent;
+      return $user_agent;
   }
 }
 
 function user_agent($ua = null, $duree = 86400) {
-  $UA_cache = 'user_agent_cache.txt';
-  $pathUACache = join(DIRECTORY_SEPARATOR, array(__DIR__, '.cache', $UA_cache));
+  $ua_cache = 'user_agent_cache.txt';
+  $path_ua_cache = join(DIRECTORY_SEPARATOR, array(__DIR__, '.cache', $ua_cache));
 
-  if (file_exists($pathUACache) && (time() - filemtime($pathUACache) < $duree && empty($ua))) {
-      return file_get_contents($pathUACache);
+  if (file_exists($path_ua_cache) && (time() - filemtime($path_ua_cache) < $duree && empty($ua))) {
+      return file_get_contents($path_ua_cache);
   } else {
       // Permet de renseigner un UA, sinon il est défini.
-      $userAgent = !empty($ua) ? $ua : define_user_agent();
+      $user_agent = !empty($ua) ? $ua : define_user_agent();
 
       // Encodage
-      $userAgent = mb_convert_encoding($userAgent, 'UTF-8', 'auto');
+      $user_agent = mb_convert_encoding($user_agent, 'UTF-8', 'auto');
 
       // Stocker le nouvel User Agent dans le cache
-      file_put_contents($pathUACache, $userAgent, LOCK_EX);
+      file_put_contents($path_ua_cache, $user_agent, LOCK_EX);
 
       // Retourner le nouvel User Agent
-      return file_get_contents($pathUACache);
+      return file_get_contents($path_ua_cache);
   }
 }
 
@@ -145,18 +145,18 @@ function user_agent($ua = null, $duree = 86400) {
 function curl_request($url, $method, $post = null, $header = false, $head = false, $follow = true) {
   // Configuration des paramètres de cURL
   global $fichier_temp;
-  $userAgent = user_agent();
+  $user_agent = user_agent();
   $ch = curl_init();
 
   // Paramètres généraux
   curl_setopt($ch, CURLOPT_URL, $url);
   curl_setopt($ch, CURLOPT_NOPROGRESS, false);
   curl_setopt($ch, CURLOPT_PROGRESSFUNCTION, function () {});
-  curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
+  curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
   curl_setopt($ch, CURLOPT_COOKIEJAR, $fichier_temp);
   curl_setopt($ch, CURLOPT_COOKIEFILE, $fichier_temp);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5); // config : $timeout ? $curl_timeout ? if $timeout else $curl_timeout = 5 ?
   curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
   curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 
@@ -234,17 +234,46 @@ function post_data_header($url, $post = null, $header = false, $head = false, $f
 
 /// fonctions de gestion / mise en forme de données
 
-// nettoyage du XML et convertion
-function get_xml($t) {
-  $t2 = preg_replace(",<[a-zA-Z0-9]*:,", "<", $t);
-  $t3 = preg_replace(",</[a-zA-Z0-9]*:,", "</", $t2);
-  $t4 = preg_replace(", [a-zA-Z0-9]*:,", " ", $t3);
-  try {
-    $x = new SimpleXMLElement($t3, LIBXML_NOERROR);
-  } catch (Exception $e) {
-    $x = null;
+/**
+ * Vérifie si un XML est valide en utilisant XMLReader.
+ *
+ * @param string $xml Le contenu XML.
+ * @return bool Retourne true si le XML est valide, sinon false.
+ */
+function est_xml_valide($xml) {
+  $reader = new XMLReader();
+  $reader->xml($xml, null, LIBXML_NOERROR | LIBXML_NOWARNING);
+  $reader->setParserProperty(XMLReader::VALIDATE, true);
+  return $reader->isValid();
+}
+
+/**
+* Nettoie et simplifie du XML.
+*
+* @param string $xml Le contenu XML.
+* @return SimpleXMLElement|null Retourne un objet SimpleXMLElement ou null si une erreur survient.
+*/
+function get_xml($xml) {
+  // Validation
+  if (!est_xml_valide($xml)) {
+      error('get_xml: XML non valide');
+      return null;
   }
-  return $x;
+
+  // Nettoyage du XML
+  $cleaned_xml = $xml;
+  $cleaned_xml = preg_replace(",<[a-zA-Z0-9]*:,", "<", $cleaned_xml);
+  $cleaned_xml = preg_replace(",</[a-zA-Z0-9]*:,", "</", $cleaned_xml);
+  $cleaned_xml = preg_replace(", [a-zA-Z0-9]*:,", " ", $cleaned_xml);
+  
+  // SimpleXMLElement à partir du XML nettoyé
+  try {
+      $simple_xml = new SimpleXMLElement($cleaned_xml, LIBXML_NOERROR);
+  } catch (Exception $e) {
+      $simple_xml = null;
+  }
+
+  return $simple_xml;
 }
 
 /// fonctions de génération de code HTML (pour "affichage")
@@ -324,33 +353,63 @@ function get_logs() {
 
 /// fonctions de gestion des paramètres : regarde la ligne de commande puis les paramètres GET
 
-// valide la valeur d'un paramètre en fonction de son type. Retourne NULL si invalide
-function valide_parametre($val, $type) {
-  if ($type == 'string') {
-    return $val; // c'est déjà une chaîne
-  }
-  if ($type == 'int') {
-    if (!is_numeric($val)) {
-      error("valide_parametre: la valeur '$val' n'est pas de type '$type'");
-      return null;
-    }
-    return (int)$val;
-  }
-  if ($type == 'bool') {
-    if (($val == "oui") or ($val == "yes") or ($val == "1") or ($val == "vrai") or ($val == "true")) {
-      return true;
-    }
-    if (($val == "non") or ($val == "no") or ($val == "0") or ($val == "faux") or ($val == "false")) {
-      return false;
-    }
-    error("valide_parametre: la valeur '$val' n'est pas de type '$type'");
+
+/**
+ * Valide voire convertit une valeur en fonction du type spécifié.
+ *
+ * @param mixed $valeur La valeur à valider ou convertir ('int', 'bool').
+ * @param string $type Le type attendu ('string', 'int', 'bool', 'flag', 'array').
+ * @return mixed|null Retourne la valeur validée ou null en cas d'erreur.
+ */
+function valide_parametre($valeur, $type) {
+  // Vérification si la valeur est définie et non nulle
+  if (!isset($valeur) || $valeur === null) {
+    error("valide_parametre: la valeur n'est pas définie ou est null");
     return null;
   }
-  if ($type == 'flag') {
-    return true;
-  }
 
-  return $val; // on n'arrive jamais là, mais par précaution…
+  switch ($type) {
+    case 'string':
+      // Pas de conversion nécessaire, c'est déjà une chaîne
+      return $valeur;
+
+    case 'int':
+      // Conversion en entier si la valeur est numérique
+      if (!is_numeric($valeur)) {
+        error("valide_parametre: la valeur '$valeur' n'est pas de type '$type'");
+        return null;
+      }
+      return (int)$valeur;
+
+    case 'bool':
+      // Conversion en booléen en fonction de certaines valeurs acceptées
+      $true_bool_values = ["oui", "yes", "1", "vrai", "true"];
+      if (in_array(strtolower($valeur), $true_bool_values, true)) {
+        return true;
+      }
+      $false_bool_values = ["non", "no", "0", "faux", "false"];
+      if (in_array(strtolower($valeur), $false_bool_values, true)) {
+        return false;
+      }
+      error("valide_parametre: la valeur '$valeur' n'est pas de type '$type'");
+      return null;
+
+    case 'flag':
+      // Pour le type 'flag', la valeur est toujours vraie
+      return true;
+
+    case 'array':
+      // Vérification si la valeur est un tableau
+      if (!is_array($valeur)) {
+        error("valide_parametre: la valeur n'est pas de type '$type'");
+        return null;
+      }
+      return $valeur;
+
+    default:
+      // Par précaution, retourne la valeur telle quelle si le type n'est pas reconnu
+      return $valeur;
+  }
 }
 
 // vérifie s'il y a des paramètres inconnus sur la ligne de commande
@@ -495,6 +554,7 @@ function est_colonnes($nombre) {
 
 // fonctions de mise en colonnes
 function colonnes_debut() {
+  // $taille_colonnes = get_config("taille-colonnes"); // à implémenter ?
   return "{{colonnes|taille=25|\n";
 }
 function colonnes_fin() {
@@ -504,17 +564,15 @@ function colonnes_contenu($contenu) {
   return colonnes_debut() . $contenu . colonnes_fin();
 }
 
-// compare de façon "souple" deux noms
-function est_similaire($nom1, $nom2) {
-  $v1 = mb_strtolower($nom1);
-  $v2 = mb_strtolower($nom2);
-  $v1 = str_replace("-", " ", $v1);
-  $v2 = str_replace("-", " ", $v2);
-  if ($v1 == $v2) {
-    return true;
-  } else {
-    return false;
-  }
+/**
+ * Évalue la similitude de deux mots après avoir ignoré la casse et enlevé les tirets.
+ * @param string $mot_1, $mot_2 Les noms à comparer
+ * @return bool Retourne true si les noms sont similaires, sinon false.
+ */
+function est_similaire($mot_1, $mot_2) {
+  $mot_1 = mb_strtolower(str_replace("-", " ", $mot_1));
+  $mot_2 = mb_strtolower(str_replace("-", " ", $mot_2));
+  return $mot_1 == $mot_2;
 }
 
 // vérification de la présence, ajout selon besoin

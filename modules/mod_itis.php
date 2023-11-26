@@ -320,7 +320,7 @@ function m_itis_infos(&$struct, $classif) {
             $tmp['auteur'] = $sub['author'];
           }
           if (isset($sub['rankName']) and !empty($sub['rankName'])) {
-            $tmp['rang'] = cherche_rang($sub['rankName'], "ITIS");
+            $tmp['rang'] = itis_cherche_rang($sub['rankName']);
           }
           $liste[] = $tmp;
         }
