@@ -388,6 +388,8 @@ function wrms_etal($nom) {
 // gérer la classification également
 function m_wrms_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
+  $tmp = explode(" ", $taxon);
+  $nb_mots = count($tmp);
 
   // on récupère la page de recherche (cookie)
   $url = "https://www.marinespecies.org/aphia.php?p=search";
@@ -459,6 +461,15 @@ function m_wrms_infos(&$struct, $classif) {
         $nom = preg_replace(",^[<]i[^>]*[>][<]/i[>],", '', $nom);
         $nom = preg_replace(",^[<]i[>],", '', $nom);
         $nom = preg_replace("/[<].*$/", '', $nom);
+        // si le rang est supérieur au genre le nom contient aussi l'auteur
+        if ($nb_mots == 1) {
+          // on tente de soustraire la fin
+          $fin = str_replace("$taxon ", "", $nom);
+          $nnom = str_replace(" $fin", "", $nom);
+          if (!empty(trim($nnom))) {
+            $nom = $nnom;
+          }
+        }
         if ($nom != $taxon) {
           $trouve = false;
           continue;
@@ -529,6 +540,8 @@ function m_wrms_infos(&$struct, $classif) {
 
   // non trouvé
   if ($trouve === false) {
+var_dump($tbl);
+die();
     if ($naccept) {
       logs("WRMS: taxon trouvé mais non accepté");
     } else {
