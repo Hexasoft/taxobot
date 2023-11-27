@@ -353,7 +353,6 @@ function get_logs() {
 
 /// fonctions de gestion des paramètres : regarde la ligne de commande puis les paramètres GET
 
-
 /**
  * Valide voire convertit une valeur en fonction du type spécifié.
  *
@@ -363,7 +362,7 @@ function get_logs() {
  */
 function valide_parametre($valeur, $type) {
   // Vérification si la valeur est définie et non nulle
-  if (!isset($valeur) || $valeur === null) {
+  if (!isset($valeur)) {
     error("valide_parametre: la valeur n'est pas définie ou est null");
     return null;
   }

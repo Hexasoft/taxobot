@@ -184,23 +184,28 @@ function m_itis_infos(&$struct, $classif) {
   $r = $res['return']['scientificNames'];
 
   if (!isset($r) || count($r) == 0) {
-      logs("ITIS: taxon non trouvé");
+    logs("ITIS: taxon non trouvé"); // sortie si le tableau est vide
+    return false;
+  }
+
+  if (isset($r['@attributes']['nil']) && $r['@attributes']['nil'] === "true") {
+      logs("ITIS: taxon non trouvé (2)"); // sortie si nil est renseigné
       return false;
   }
 
   if (count($r) > 1) {
-    // Si scientificNames contient plusieurs éléments, on choisit le taxon renseigné
-    foreach ($r as $sn) {
-      if (isset($sn['combinedName']) && $sn['combinedName'] == $taxon) {
-          $r = $sn;
-          break;
+      // Si scientificNames contient plusieurs éléments, on choisit le taxon renseigné
+      foreach ($r as $sn) {
+          if (isset($sn['combinedName']) && $sn['combinedName'] == $taxon) {
+              $r = $sn;
+              break;
+          }
       }
-    }
   }
-  
+
   if (!isset($r['tsn'])) {
-    logs("ITIS: taxon non trouvé");
-    return false;
+      logs("ITIS: taxon non trouvé (3)"); // sortie si l'identifiant n'a pas été trouvé ou renseigné
+      return false;
   }
 
   // Règne si classif
