@@ -131,6 +131,7 @@ function wrms_extraire($page, $id) {
   $out = [];
   $out['id'] = $id;
   $tbl = explode("\n", $page);
+
   foreach($tbl as $idx => $ligne) {
     $ligne = trim($ligne);
     // nom complet (parfois nécessaire)
@@ -312,65 +313,61 @@ function wrms_extraire($page, $id) {
       }
     }
     // sous-taxons
-    if (strpos($ligne, '>Direct children') !== false) {
-      $i = $idx + 4;
+    if (strpos($ligne, 'id="ChildTaxa"') !== false) {
+      $i = $idx + 1;
       $out['sous-taxons'] = [];
-      while(true) {
-        if (!isset($tbl[$i])) {
-          break;
+
+      while (isset($tbl[$i]) && strpos($tbl[$i], '</ol>') === false) {
+        $ligne_sous_taxon = trim($tbl[$i]);
+    
+        if (strpos($ligne_sous_taxon, '<i>') !== false) {
+            $blob = [];
+            $t = explode('"', $ligne_sous_taxon);
+    
+            if (!isset($t[3])) {
+                logs("WRMS: sous-taxon non identifié. Ignoré");
+                $i++;
+                continue;
+            }
+    
+            $t2 = explode("=", $t[3]);
+    
+            if (!isset($t2[2])) {
+                logs("WRMS: sous-taxon non identifié (2). Ignoré");
+                $i++;
+                continue;
+            }
+    
+            // "Skip" : synonyme (accepted as), uncertain, ...
+            if (strpos($ligne_sous_taxon, " accepted as ") !== false || strpos($ligne_sous_taxon, "nomen dubium") !== false ||
+                strpos($ligne_sous_taxon, "uncertain") !== false) {
+                $i++;
+                continue;
+            }
+    
+            $blob['id'] = $t2[2];
+            $p1 = preg_replace(',<a .*$,', '', $ligne_sous_taxon);
+            $x = trim(strip_tags(trim($p1)));
+            $blob['rang'] = wrms_rang($x);
+            $p2 = preg_replace(',^.*<a ,', '<a ', $ligne_sous_taxon);
+            $x = trim(strip_tags(trim($p2)));
+            $tmp = wrms_nettoie_dagger($x);
+            $blob['nom'] = $tmp['txt'];
+            $blob['eteint'] = $tmp['eteint'];
+            $out['sous-taxons'][] = $blob;
         }
-        $blob = [];
-        $tmp = trim($tbl[$i]);
-        if (strpos($tmp, 'class="aphia_core_line_spacer') !== false) {
-          break;
-        }
-        if (strpos($tmp, 'class="aphia_core_pb-3') === false) {
-          $i++;
-          continue;
-        }
-        $t = explode('"', $tmp);
-        if (!isset($t[3])) {
-          logs("WRMS: sous-taxon non identifié. Ignoré");
-          $i++;
-          continue;
-        }
-        $t2 = explode("=", $t[3]);
-        if (!isset($t2[2])) {
-          logs("WRMS: sous-taxon non identifié (2). Ignoré");
-          $i++;
-          continue;
-        }
-        // cas d'un taxon synonymisé
-        if (strpos($tmp, " accepted as ") !== false) {
-          $i++;
-          continue;
-        }
-        // cas d'un taxon non pleinement valide
-        if ((strpos($tmp, "nomen dubium") !== false) or (strpos($tmp, "nomen nudum") !== false) or
-            (strpos($tmp, "uncertain") !== false) or (strpos($tmp, "unaccepted") !== false)) {
-          $i++;
-          continue;
-        }
-        $blob['id'] = $t2[2];
-        $p1 = preg_replace(',<a .*$,', '', $tmp);
-        $x = trim(strip_tags(trim($p1)));
-        $blob['rang'] = wrms_rang($x);
-        $p2 = preg_replace(',^.*<a ,', '<a ', $tmp);
-        $x = trim(strip_tags(trim($p2)));
-        $tmp = wrms_nettoie_dagger($x);
-        $blob['nom'] = $tmp['txt'];
-        $blob['eteint'] = $tmp['eteint'];
-        $out['sous-taxons'][] = $blob;
         $i++;
       }
     }
   }
+
   if (!isset($out['auteur'])) {
     if (isset($out['nom-complet'])) {
       $tmp = str_replace($out['nom'], "", $out['nom-complet']);
       $out['auteur'] = trim($tmp);
     }
   }
+
   // si le basionyme est identique on l'enlève
   if (isset($out['basionyme']) and ($out['basionyme'] == $id)) {
     unset($out['basionyme']);
