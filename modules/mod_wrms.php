@@ -540,8 +540,6 @@ function m_wrms_infos(&$struct, $classif) {
 
   // non trouvé
   if ($trouve === false) {
-var_dump($tbl);
-die();
     if ($naccept) {
       logs("WRMS: taxon trouvé mais non accepté");
     } else {
