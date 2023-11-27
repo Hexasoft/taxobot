@@ -504,7 +504,7 @@ function rendu_voir_aussi($struct) {
 
   // autres projets
   if (isset($struct['liens']['externe']['commons']) or isset($struct['liens']['externe']['species']) or
-      isset($struct['liens']['externe']['ccommons'])) {
+      isset($struct['liens']['externe']['ccommons']) or isset($struct['liens']['externe']['frwiktionary'])) {
     $tmp = [];
     // page commons, sinon catégorie commons (si présent)
     $cpage = false;
@@ -523,6 +523,9 @@ function rendu_voir_aussi($struct) {
     }
     if (isset($struct['liens']['externe']['species']['page'])) {
       $tmp[] = "species=" . $struct['liens']['externe']['species']['page'];
+    }
+    if (isset($struct['liens']['externe']['frwiktionary']['page'])) {
+      $tmp[] = "wiktionary=" . $struct['liens']['externe']['frwiktionary']['page'];
     }
     $autres = $tmp;
   }

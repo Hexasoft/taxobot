@@ -8,6 +8,52 @@ function m_externe_init() {
   return declare_module("externe", false, false, true);
 }
 
+function wiki_constructor($subdom, $dom, $title, $action = null) {
+  $valid_dom = ['wikimedia', 'wikidata', 'wikipedia', 'wiktionary'];
+  $url = 'https://';
+
+  if (!empty($subdom) && in_array($dom, $valid_dom) && !empty($title)) {
+      $url .= $subdom . '.' . $dom . '.org/w/index.php?title=' . urlencode($title);
+
+      if (isset($action)) {
+          $url .= '&action=' . $action;
+      }
+
+      return $url;
+  } else {
+      error("wiki_constructor: paramètres non valides");
+      return null;
+  }
+}
+
+function has_wiki_pages($title) {
+  $commons_url = wiki_constructor('commons', 'wikimedia', $title, 'info');
+  $cat_commons_url = wiki_constructor('commons', 'wikimedia', 'Category:' . $title, 'info'); 
+  $species_url = wiki_constructor('species', 'wikimedia', $title, 'info');
+  $fr_wiktionary_url = wiki_constructor('fr', 'wiktionary', $title, 'info');
+
+  $commons_exists = page_exists($commons_url);
+  $cat_commons_exists = page_exists($cat_commons_url);
+  $species_exists = page_exists($species_url);
+  $fr_wiktionary_exists = page_exists($fr_wiktionary_url);
+
+  return [$commons_exists, $cat_commons_exists, $species_exists, $fr_wiktionary_exists];
+}
+
+function page_exists($url) {
+  $ret = get_data($url);
+  if (empty($ret)) {
+    logs("Externe: probleme réseau");
+    return false;
+  }
+
+  if (strpos($ret, '<tr id="mw-pageinfo-article-id" style="vertical-align: top;"><td>Page ID</td><td>0</td></tr>') !== false) {
+      return false; // Page does not exist
+  }
+
+  return true; // Page exists
+}
+
 function m_externe_infos(&$struct, $classif) {
   $taxon = $struct['taxon']['nom'];
   /// wikidata
@@ -19,7 +65,6 @@ function m_externe_infos(&$struct, $classif) {
   $ret = get_data($url);
   if ($ret === false) {
     logs("Externe/WD: echec de récupération réseau");
-    goto catcommons;
   }
 
   // on tente d'extraire le résultat
@@ -35,66 +80,19 @@ function m_externe_infos(&$struct, $classif) {
     break;
   }
 
-  if (!$ok) {
+  if (!$ok OR empty($id)) {
     logs("Externe/WD: taxon non trouvé");
-    goto catcommons;
-  }
-  if (empty($id)) {
-    logs("Externe/WD: taxon non trouvé (2)");
-    goto catcommons;
-  }
-
+  } else {
   $struct['liens']['externe']['wikidata']['id'] = $id;
+  }
+  
+  list($commons_exists, $cat_commons_exists, $species_exists, $fr_wiktionary_exists) = has_wiki_pages($taxon);
+  $struct['liens']['externe']['ccommons']['page'] = $commons_exists ? $taxon : null;
+  $struct['liens']['externe']['commons']['page'] = $cat_commons_exists ? 'Category:' . $taxon : null;
+  $struct['liens']['externe']['species']['page'] = $species_exists ? $taxon : null;
+  $struct['liens']['externe']['frwiktionary']['page'] = $species_exists ? $taxon : null;
 
-  /// catégorie commons
-catcommons:
-  $url = "https://commons.wikimedia.org/w/index.php?title=Category:" .
-         urlencode($taxon) .  "&action=raw";
-  $ret = get_data($url);
-  if (($ret == false) or empty($ret)) {
-    logs("Externe/CatCommons: probleme réseau");
-    goto commons;
-  }
-  $tbl = explode("\n", $ret);
-  foreach($tbl as $l) {
-    if (strpos($l, "<h1>Error</h1>") !== false) {
-      logs("Externe/CatCommons: taxon non trouvé");
-      goto commons;
-    }
-  }
-  $struct['liens']['externe']['ccommons']['page'] = $taxon;
-
-  /// commons (page)
-commons:
-  $url = "https://commons.wikimedia.org/w/index.php?title=" .
-         urlencode($taxon) .  "&action=raw";
-  $ret = get_data($url);
-  if (($ret == false) or empty($ret)) {
-    logs("Externe/PageCommons: probleme réseau");
-    goto species;
-  }
-  $tbl = explode("\n", $ret);
-  foreach($tbl as $l) {
-    if (strpos($l, "<h1>Error</h1>") !== false) {
-      logs("Externe/PageCommons: taxon non trouvé");
-      goto species;
-    }
-  }
-  $struct['liens']['externe']['commons']['page'] = $taxon;
-
-  /// species
-species:
-  $url = "https://species.wikimedia.org/w/index.php?title=" .
-         urlencode($taxon) .  "&action=raw";
-  $ret = get_data($url);
-  if (($ret == false) or empty($ret)) {
-    logs("Externe/Species: probleme réseau");
-    goto suite;
-  }
-  $struct['liens']['externe']['species']['page'] = $taxon;
-
-suite:
-  // si pas plus loin, retour
+   // si pas plus loin, retour
   if (!$classif) {
     return true;
   }
@@ -125,6 +123,11 @@ function m_externe_liens($struct) {
     $out[] = "<a href='https://commons.wikimedia.org/wiki/" .
              $struct['liens']['externe']['ccommons']['page'] . "'>Commons (cat)</a>";
   }
+  if (isset($struct['liens']['externe']['frwiktionary']['page'])) {
+    $out[] = "<a href='https://commons.wikimedia.org/wiki/" .
+             $struct['liens']['externe']['frwiktionary']['page'] . "'>Wiktionnaire</a>";
+  }
+
   if (!empty($out)) {
     return $out;
   } else {
