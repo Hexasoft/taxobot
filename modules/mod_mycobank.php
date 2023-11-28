@@ -454,30 +454,7 @@ function m_mycobank_get_pub($id) {
   $xtype = m_mycobank_pub_field(14682616000001450, $res);
   $xedition = m_mycobank_pub_field(14682616000001452, $res);
   $xdoi = m_mycobank_pub_field(14682616000001440, $res);
-  echo("----------\n");
-  echo("Données reçues : \n");
-  echo("Titre : ");
-  var_dump($xtitre);
-  echo("Auteurs : ");
-  var_dump($xauteurs);
-  echo("Année : ");
-  var_dump($xyear);
-  echo("Volume : ");
-  var_dump($xvolume);
-  echo("Journal : ");
-  var_dump($xjournal);
-  echo("Première page : ");
-  var_dump($xfirst);
-  echo("Dernière page : ");
-  var_dump($xlast);
-  echo("Type : ");
-  var_dump($xtype);
-  echo("Édition : ");
-  var_dump($xedition);
-  echo("DOI : ");
-  var_dump($xdoi);
-  echo("----------\n");
-  die();  
+
   if (!$xtype or empty($xtype)) {
     logs("MycoBank: pas de type pour la publication originale");
     return false;
@@ -513,7 +490,6 @@ function m_mycobank_get_pub($id) {
     $out .= "|périodique=$xjournal\n";
     $out = "{{Article\n$out}}";
   }
-
   return $out;
 }
 
@@ -680,9 +656,7 @@ function m_mycobank_analyse_taxon($res, $full=true) {
   }
 
     // $struct['rangs']
-
     // mycobank_cherche_regne($nom_regne)
-
   return $out;
 }
 
