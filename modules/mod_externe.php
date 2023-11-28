@@ -47,10 +47,9 @@ function page_exists($url) {
     return false;
   }
 
-  if (strpos($ret, '<tr id="mw-pageinfo-article-id" style="vertical-align: top;"><td>Page ID</td><td>0</td></tr>') !== false) {
-      return false; // Page does not exist
+  if (strpos($ret, '"wgArticleId":0') == true) {
+    return false; // Page does not exist
   }
-
   return true; // Page exists
 }
 
@@ -85,14 +84,15 @@ function m_externe_infos(&$struct, $classif) {
   } else {
   $struct['liens']['externe']['wikidata']['id'] = $id;
   }
-  
+
   list($commons_exists, $cat_commons_exists, $species_exists, $fr_wiktionary_exists) = has_wiki_pages($taxon);
+
   $struct['liens']['externe']['ccommons']['page'] = $commons_exists ? $taxon : null;
   $struct['liens']['externe']['commons']['page'] = $cat_commons_exists ? 'Category:' . $taxon : null;
   $struct['liens']['externe']['species']['page'] = $species_exists ? $taxon : null;
-  $struct['liens']['externe']['frwiktionary']['page'] = $species_exists ? $taxon : null;
+  $struct['liens']['externe']['frwiktionary']['page'] = $fr_wiktionary_exists ? $taxon : null;
 
-   // si pas plus loin, retour
+  // si pas plus loin, retour
   if (!$classif) {
     return true;
   }
