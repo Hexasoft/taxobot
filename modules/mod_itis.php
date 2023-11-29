@@ -181,7 +181,7 @@ function m_itis_infos(&$struct, $classif) {
   }
 
   $res = json_decode(json_encode($_res), true);
-  $r = $res['return']['scientificNames'];
+  $r = isset($res['return']['scientificNames']) ? $res['return']['scientificNames'] : null;
 
   if (!isset($r) || count($r) == 0) {
     logs("ITIS: taxon non trouvé"); // sortie si le tableau est vide
