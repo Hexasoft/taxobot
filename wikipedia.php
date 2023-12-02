@@ -336,6 +336,242 @@ function wp_eteint_rang($rang) {
   return $rangs[$rang]['ex'];
 }
 
+// uppercase la première lettre d'une string => outils.php ?
+function mb_ucfirst($string, $encoding = 'UTF-8') {
+  return mb_strtoupper(mb_substr($string, 0, 1, $encoding), $encoding) . mb_substr($string, 1, null, $encoding);
+}
+
+function wp_article_mot($mot, $genre = "", &$tableau = null) {
+  if (!empty($mot)) {
+    if (is_null($tableau)) {
+      global $rangs;
+      $tableau = $rangs;
+      if (!wp_rang_valide($mot)) {
+        echo "$mot : NOTFOUND:rang_invalide_art1";
+        return "NOTFOUND";
+      }
+    }
+
+    // bas de casse
+    $mot = strtolower($mot);
+
+    // Obtenir les articles du mot en fonction du genre
+    $articles = [
+      'm' => ['le', 'un'],
+      'f' => ['la', 'une'],
+      'n' => ['', '']
+    ];
+    if (!empty($genre)) {
+      $genre_mot = $genre;
+    } else {
+      $genre_mot = wp_genre_mot($mot);
+    }
+
+    // vérifie la première lettre pour l'élision
+    $premiere_lettre = mb_substr($mot, 0, 1);
+    $article0 = (in_array($premiere_lettre, ["a", "e", "i", "o", "u", "é"])) ? "l'" : $articles[$genre_mot][0];
+    $article1 = (in_array($premiere_lettre, ["a", "e", "i", "o", "u", "é"])) ? "l'" : $articles[$genre_mot][1];
+    
+    $result['article'] = [$article0, $article1];
+    return $result;
+    } else {
+      error("wp_article_rang() ! Le paramètre 'mot' est obligatoire.");
+      return "";
+    }
+}
+
+// retourne l'article défini ('le', 'la') du rang
+function wp_article_défini($mot) {
+  if (is_null($tableau)) {
+    global $rangs;
+    $tableau = $rangs;
+  }
+  $article = wp_article_mot($mot);
+  if (isset($article['article']) && count($article['article']) >= 2) {
+    return $article['article'][0];
+  } else {
+    error("$mot : NOTFOUND:art0");
+    return "NOTFOUND";
+  }
+}
+
+// retourne l'article indéfini ('un', 'une') du rang
+function wp_article_indéfini($mot, $tableau = null) {
+  if (is_null($tableau)) {
+    global $rangs;
+    $tableau = $rangs;
+  }
+  $article = wp_article_mot($mot);
+  if (isset($article['article']) && count($article['article']) >= 2) {
+    return $article['article'][1];
+  } else {
+    error("$mot : NOTFOUND:art1");
+    return "NOTFOUND";
+  }
+}
+
+// Génère un lien wiki à partir d'une page et d'un texte optionnel
+function wp_wikilien($page, $texte, $maj = false, $plur = false, $article = false, $adjectif = "", &$tableau = null) {
+/**
+ * Génère un lien wiki à partir d'une page et d'un texte optionnel.
+ * @param string $page Le nom de la page ou la clé d'un tableau (obligatoire).
+ * @param string $texte Le texte à afficher pour le lien (facultatif).
+ * @param bool $maj Mettre en majuscule le libellé et/ou le nom de la page (facultatif, par défaut à false).
+ * @param bool $plur Indique si le lien doit être généré au pluriel. Si true, le libellé sera traité comme étant au pluriel.
+ * @param bool $article Renseigne l'article défini ou indéfini qui sera placé avant le titre de la page.
+ * @param string $adjectif Renseigne un adjectif placé après le wikilien (tente de s'accorder en genre et nombre sur le titre de la page).
+ * @param array $tableau Le tableau à vérifier (facultatif, par défaut à null pour utiliser $rangs global).
+ *
+ * @return string Le lien wiki généré.
+ */
+
+  // Utiliser le tableau passé en paramètre s'il est spécifié, sinon utiliser le tableau global $rang
+  if (is_null($tableau)) {
+    global $rangs;
+    $tableau = $rangs;
+  }
+
+  // Convertir le nom de la page en minuscules pour s'assurer que cela correspond à la clé du tableau
+  $page = strtolower($page);
+
+  $tpage = '';
+  $libellé = '';
+
+  if (!empty($page)) {
+    // Vérifier si la page existe dans le tableau
+    if (isset($tableau[$page])) {
+      // Vérifier si une page interne est spécifiée, sinon utiliser la page telle quelle
+      if (!empty($tableau[$page]["lien interne"]["page"])) {
+        $tpage = $tableau[$page]["lien interne"]["page"];
+      } else {
+        $tpage = $tableau[$page];
+      }
+    } else {
+      // Si la page n'existe pas dans le tableau, utiliser la page telle quelle
+      $tpage = $page;
+    }
+  } else {
+  
+   error("wp_wikilien : un mot (nom de page) est obligatoire.");
+  return "NOTFOUND:wikilien_nom_page_manquant";
+  }
+
+  if (empty($texte)) {
+    // Vérifier si un libellé est spécifié, sinon utiliser le texte fourni
+    if (isset($tableau[$page]["lien interne"]["texte"])) {
+      $libellé = $tableau[$page]["lien interne"]["texte"];
+    } else {
+      $libellé = $texte;
+    }
+  }
+
+  if ($plur) {
+    // Si le pluriel est renseigné dans le tableau, on l'utilise.
+    if (isset($tableau[$page]["lien interne"]["pluriel"])) {
+        $libellé = $tableau[$page]["lien interne"]["pluriel"];
+    } else { 
+        if (!empty($libellé)) {
+            // Si le libellé est déjà défini (non vide), ajoute un "s" pour le pluriel.
+            $libellé .= "s";
+        } else {
+            // Si le libellé n'est pas encore défini, génère un libellé au pluriel
+            if (!empty($tpage)) {
+                $libellé = $tpage . "s";
+            } else { 
+                $libellé = $page . "s";
+            }
+        }
+    }
+  }
+
+  if ($maj && !empty($libellé)) {
+    // Si la majuscule est activée et un libellé est spécifié, mettre en majuscule le libellé
+    $libellé = mb_ucfirst($libellé);
+  } else {
+    // Sinon, mettre en majuscule la page
+    $tpage = mb_ucfirst($tpage);
+  }
+
+  if ($article) {
+  $art = wp_article_mot($page);
+  $art .= " "; // espace
+  } else { $art = ""; }
+
+  // Construire le lien wiki
+  $wikilien = $art;
+  $wikilien .= "[[$tpage";
+
+  if (empty($libellé)) {
+    // Si aucun libellé est spécifié, fermer le lien
+    $wikilien .= "]]";
+  } else {
+    // Sinon, ajouter le libellé et fermer le lien
+    $wikilien .= "|$libellé]]";
+  }
+
+  if (!empty($adjectif)) {
+    if ($plur) {
+      $adj = wp_adjectif_mot($page, $adjectif, $plur);
+    } else { $adj = wp_adjectif_mot($page, $adjectif); }
+    $wikilien .= " "; // espace
+    $wikilien .= $adj;
+  }
+
+  // Retourner le lien wiki généré
+  return $wikilien;
+}
+
+function est_genre_valide($genre) {
+  $genres_valides = ['m', 'msg', 'mpl', 'f', 'fsg', 'fpl', 'n', 'nsg', 'npl'];
+  return in_array($genre, $genres_valides);
+}
+
+function wp_genre_mot($mot, $genre = "", $tableau = null) {
+  if (!empty($mot)) {
+    if (is_null($tableau)) {
+      global $rangs;
+      $tableau = $rangs;
+    }
+    
+    // Bas de casse
+    $mot = strtolower($mot);
+
+    if (empty($genre)) {
+      $genre_mot = isset($tableau[$mot]["genre"]) ? $tableau[$mot]["genre"] : "m"; // Masculin par défaut
+    } else { 
+      $genre_mot = est_genre_valide($genre) ? $genre : "NOTFOUND: genre de $mot invalide (valeurs acceptées : 'm', 'msg', 'mpl', 'f', 'fsg', 'fpl', 'n', 'nsg', 'npl').";
+    }
+    return $genre_mot;
+  }
+}
+
+function wp_adjectif_mot($page, $adjectif, $genre, $plur = false, &$tableau = null) {
+  // Utiliser le tableau passé en paramètre s'il est spécifié, sinon utiliser le tableau global $adjectifs
+  if (is_null($tableau)) {
+    global $adjectifs;
+    $tableau = $adjectifs;
+  }
+  if (est_genre_valide($genre)) {
+    $genre_mot = $genre;
+  } else {
+    $genre_mot = wp_genre_mot($page, "", $tableau);
+    if ($genre_mot === "NOTFOUND") { // Ajout d'une vérification pour la gestion d'erreur
+      echo "Erreur : wp_adjectif_mot ! Le genre du mot '$page' n'a pas été trouvé.";
+      return $adjectif;
+    } else { // Si on trouve, on détermine le nombre
+      if ($plur) {
+        $genre_mot .= "pl";
+      } else {
+        $genre_mot .= "sg";
+      }
+    }
+  }
+
+  // On tente l'affectation sinon on retourne l'adjectif sans accord.
+  $adj = (isset($tableau[$adjectif][$genre_mot])) ? $tableau[$adjectif][$genre_mot] : $adjectif;
+  return $adj;
+}
+
 // retourne le "un" du rang
 function wp_un_rang($rang) {
   global $rangs;
