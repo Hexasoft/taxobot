@@ -158,7 +158,7 @@ $gbif_regnes = [
   'Viruses' => 'virus',
   'Incertae sedis' => 'neutre',
   'Protozoa' => 'protiste',
-  'Chromista' => 'algue',
+  'Chromista' => 'protiste', // ancien. algue
 ];
 
 /**

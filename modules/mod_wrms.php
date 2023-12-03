@@ -101,7 +101,7 @@ $wrms_regnes = [
   'Viruses' => 'virus',
   'Incertae sedis' => 'neutre',
   'Protozoa' => 'protiste',
-  'Chromista' => 'algue',
+  'Chromista' => 'protiste', // ancien. algue
 ];
 function wrms_charte($nom) {
   global $wrms_regnes;
