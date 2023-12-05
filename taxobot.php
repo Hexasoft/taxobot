@@ -64,6 +64,8 @@ function sortie_resultat($article, $liens, $taxon) {
   $juste_article = get_config('article');
   if ($web) {
     html_head("Résultats pour $taxon − Taxobot v$version");
+    echo "<link rel='stylesheet' type='text/css' href='web/css/style.css'>";
+    echo "<script type='text/javascript' src='web/js/copy.js'></script>";
     echo "<table width='99%'>\n";
     echo "<tr><td width='80%' style='vertical-align: top;'>\n";
     echo "<i>Informations sur la requête : </i>";
@@ -195,11 +197,6 @@ if (get_config('liste')) {
 }
 
 // on applique les éventuels éléments de configuration autre
-$tmp = get_config('off');
-if (is_string($tmp) && !empty($tmp)) {
-  desactive_modules($tmp);
-}
-
 // User Agent
 $ua = get_config('ua');
 if ($ua) {
@@ -227,6 +224,18 @@ if (empty($taxon)) {
   sortie_erreur("Taxon manquant.");
   fini_outils();
   die(1);
+}
+
+// Désactivation des modules
+$tmp = get_config('off');
+if (is_string($tmp) && !empty($tmp)) {
+  // Retrait de la classification de la liste des modules désactivés (-off) : l'utilisateur doit changer de classification
+  if (strpos($tmp, $classification) !== false) {
+    $tmp = str_replace($classification, '', $tmp);
+    $tmp = trim($tmp, ',');
+    logs("Module '$classification' ne peut pas être désactivé par -off : c'est la classification choisie.");
+  }
+  desactive_modules($tmp);
 }
 
 // on récupère les modules, et on les initialise
@@ -316,6 +325,9 @@ if (!$justext) { // si juste-ext → rien coté classification
   logs("Temps d'exécution du module (classification) $classification : " . number_format($elaps2-$elaps1, 2) . "s");
 
   if (!$ret) {
+    if ($web) {
+      echo "<link rel='stylesheet' type='text/css' href='web/css/style.css'>";
+    }
     logs("Taxon non récupéré pour la classification");
     sortie_erreur("Taxon non récupéré pour la classification.");
     fini_outils();
@@ -354,10 +366,15 @@ if (!$justext) { // si juste-ext → rien coté classification
   }
 }
 
+$pcntl = extension_loaded('pcntl');
 $timeout = get_config('timeout');
 $timed = false;
 
-if ($timeout > 0) {
+if ($pcntl == false && $timeout > 0) {
+  logs("Timeout inactif : l'extension 'pcntl' n'est pas installée.");
+}
+
+if ($timeout > 0 && $pcntl) {
   debug("Initialisation 'timer' ($timeout)");
   pcntl_async_signals(true);
   pcntl_signal(SIGALRM, function($signal) use (&$timed) {
@@ -379,14 +396,14 @@ foreach($possibles as $id) {
   get_clear();
   $elaps1 = microtime(true);
   $timed = false;
-  if ($timeout > 0) {
+  if ($timeout > 0 && $pcntl) {
     // si demandé on fixe le timeout
     debug("Armement timer [$timeout]");
     pcntl_alarm($timeout);
   }
   $ret = $f($struct, false); // en mode données (pas classification)
   $elaps2 = microtime(true);
-  if (($timeout > 0) and (!$timed)) {
+  if (($timeout > 0) && (!$timed) && ($pcntl)) {
     // on coupe le timeout s'il n'a pas servi
     pcntl_alarm(0);
   }

@@ -1,0 +1,203 @@
+/* Style de l'en-tête */
+header {
+  background-color: #8f6b5c;
+  color: #000;
+  padding: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Style du logo */
+.logo img {
+  width: 300px;
+  height: auto;
+  margin-right: 10px; 
+}
+
+/* Style des menus de navigation */
+.menu {
+  display: flex;
+  align-items: center;
+}
+
+.menu-left ul, .menu-right ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+}
+
+.menu-left li, .menu-right li {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.menu a {
+  text-decoration: none; /* Supprime les soulignements par défaut sur les liens */
+  color: #000; /* Couleur du texte des liens */
+}
+
+.menu a:hover {
+  text-decoration: underline; /* Soulignement au survol des liens */
+}
+
+
+/* Global */
+* {
+  box-sizing: border-box;
+}
+
+/* Body */
+body {
+  margin: 5px;
+  padding: 0;
+  background: #d89b8c;
+  font: 400 85% Helvetica, Arial, Tahoma, Sans-Serif;
+}
+
+.container {
+  width: 80%;
+  margin: 0 auto;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.center {
+  display: auto;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Search */
+
+.search-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.search-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 100%;
+}
+
+#classification,
+#domaine {
+  width: auto;
+  border: none;
+  margin-right: 10px;
+}
+
+/* Form */
+.form {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+}
+
+.form-input {
+  display: flex;
+  flex-direction: row;
+justify-content: space-between;
+  align-items: center;
+}
+
+.form-input > * {
+  flex: 1; 
+  margin: 5px;
+}
+
+/* menu déroulant */
+input[data-trigger], select[data-trigger] {
+  border: none;
+  margin-right: 10px;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 3px;
+}
+
+#taxon {
+  height: 100%;
+  width: auto;
+  border: 1px solid #ccc;
+  padding: 10px;
+  font-size: 16px;
+  color: #555;
+  border-radius: 3px;
+}
+
+/* boutons */
+#search-button, #options-button  {
+  height: 100%;
+  background-color: #007bff;
+  color: #000;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#search-button:hover {
+  background-color: #0069d9;
+}
+
+/* Options */
+#options {
+  display: none;
+  text-align: left;
+  padding: 5px;
+  margin: 0 auto;
+  border: 1px solid;
+}
+
+.column {
+  float: left;
+  margin-right: 10px;
+}
+
+.column:last-child {
+  margin-right: 0;
+}
+
+#options:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Petits écrans */
+@media screen and (max-width: 1000px) {
+.form-input {
+    flex-direction: column; /* Change la direction pour s'afficher les uns après les autres */
+  }
+
+.form-input > * {
+    flex: none; /* Annulez la flexibilité pour chaque élément pour les empiler les uns sur les autres */
+    margin: 5px; /* Vous pouvez ajuster la marge selon vos besoins */
+  }
+
+@media screen and (max-width: 600px) {
+  .column {
+    width: 100%;
+    margin-right: 0;
+  }
+}
+
+/* Taxobot.php */
+div#wikitexte {
+    white-space: pre-line;
+    background: #e7c3ba;
+}
