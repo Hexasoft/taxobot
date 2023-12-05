@@ -64,6 +64,11 @@ require_once join(DIRECTORY_SEPARATOR, array(dirname(__FILE__), '..', 'rendu.php
                     <option value="" selected>Classification (*)</option>
                     <option value="gbif" selected>GBIF</option>
                     <option value="itis">ITIS</option>
+                    <option value="mycobank">MycoBank</option>
+                    <option value="wrms">WoRMSms</option>
+                    <option value="algaebase">AlgaeBase</option>
+                    <option value="lpsn">LPSN</option>
+
                     <!-- Autres classifications -->
                 </select>
 
