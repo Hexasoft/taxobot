@@ -44,8 +44,7 @@ function m_grin_cherche($nom) {
 
     $res = post_date($url, $post, $header, false);
     if (!$res === false) {
-      var_dump($res);
-      die();
+      return false;
     }
   }
 
