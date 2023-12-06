@@ -285,7 +285,7 @@ $ebauches = [
 function est_inf_espece($rang) {
   $inf_espece = [
     'sous-forme', 'forme', 'variété', 'pathovar', 'cultivar', 'sous-espèce',
-    'espèce', 'sous-série', 'série', 'sous-section', 'section',
+    'sous-série', 'série', 'sous-section', 'section',
   ];
   if (in_array($rang, $inf_espece)) {
     return true;

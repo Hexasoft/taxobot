@@ -218,7 +218,12 @@ function rendu_inf($struct) {
     } else {
       $auteur = "";
     }
-    $cible = wp_met_italiques($l['nom'], $x, $struct['regne'], true);
+    // on met un wikilien par défaut uniquement sur les taxons >= espèce
+    if (est_inf_espece($x)) {
+      $cible = wp_met_italiques($l['nom'], $x, $struct['regne'], false);
+    } else {
+      $cible = wp_met_italiques($l['nom'], $x, $struct['regne'], true);
+    }
     if (isset($l['eteint']) and $l['eteint']) {
       $cible = "† " . $cible;
     }
