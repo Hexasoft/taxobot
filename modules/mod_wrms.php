@@ -586,7 +586,7 @@ function m_wrms_infos(&$struct, $classif) {
     $tmp['eteint'] = $res['eteint'];
   }
   if (isset($res['rang'])) {
-    $tmp['rang'] = $res['nom'];
+    $tmp['rang'] = $res['rang'];
   } else {
     if (isset($struct['taxon']['rang'])) {
       $tmp['rang'] = $struct['taxon']['rang'];
