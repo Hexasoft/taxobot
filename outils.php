@@ -201,11 +201,8 @@ function curl_request($url, $method, $post = null, $header = false, $head = fals
  
   // Erreurs de réponses
   $http_response = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  $parsed_url = parse_url($url); // Cosmétique
   if (curl_errno($ch) || empty($http_response) || $http_response >= 400) {
     curl_close($ch);
-    $domain = isset($parsed_url['host']) ? $parsed_url['host'] : $url; // Cosmétique
-    error("Maintenance ou erreur réseau pour '$domain'. Taxobot continue..."); // rien ? logs ? Un peu répétitif avec les vérifications "$ret === false"
     return FALSE;
 }
 
