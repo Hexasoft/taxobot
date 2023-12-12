@@ -217,7 +217,7 @@ function m_itis_infos(&$struct, $classif) {
   // ID, nom, auteur
   $struct['liens']['itis']['id'] = $r['tsn'];
   $struct['liens']['itis']['nom'] = isset($r['combinedName']) ? $r['combinedName'] : $taxon;
-  if (isset($r['author']) and !empty($r['author'])) { // && r['author'] ? && count(['author']) != 0 ?
+  if (isset($r['author']) && !empty($r['author']) && is_string($r['author'])) {  // && r['author'] ? && count(['author']) != 0 ?
     $struct['liens']['itis']['auteur'] = $r['author'];
   }
 

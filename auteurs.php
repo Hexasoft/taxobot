@@ -398,6 +398,10 @@ function aut_vers_texte($arbre) {
 // traitement de la liste des auteurs ($auteurs) : retourne le texte à intégrer dans {{taxobox taxon}}
 function new_auteurs_traite(&$struct, $auteurs) {
   // précaution
+  if (!is_string($auteurs)) {
+    return null;
+  }
+
   $auteurs = trim($auteurs);
   if ($auteurs == "") {
     return $auteurs;
