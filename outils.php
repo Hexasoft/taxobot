@@ -242,10 +242,12 @@ function post_data_header($url, $post = null, $header = false, $head = false, $f
  * @return bool Retourne true si le XML est valide, sinon false.
  */
 function est_xml_valide($xml) {
-  $reader = new XMLReader();
-  $reader->xml($xml, null, LIBXML_NOERROR | LIBXML_NOWARNING);
-  $reader->setParserProperty(XMLReader::VALIDATE, true);
-  return $reader->isValid();
+  if (!empty($xml)) {
+    $reader = new XMLReader();
+    $reader->xml($xml, null, LIBXML_NOERROR | LIBXML_NOWARNING);
+    $reader->setParserProperty(XMLReader::VALIDATE, true);
+    return $reader->isValid();
+    } else { return False; }
 }
 
 /**
@@ -257,7 +259,6 @@ function est_xml_valide($xml) {
 function get_xml($xml) {
   // Validation
   if (!est_xml_valide($xml)) {
-      error('get_xml: XML non valide');
       return null;
   }
 
