@@ -8,11 +8,26 @@ header {
   align-items: center;
 }
 
+@media screen and (max-width: 600px) { /* Ajustement de la navigation */
+  header {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
 /* Style du logo */
 .logo img {
-  width: 300px;
+  max-width: 200px;
+  max-width: 300px;
+  width: 100%;
   height: auto;
   margin-right: 10px; 
+}
+
+@media screen and (max-width: 320px) { /* Masque le conteneur du logo pour les écrans très étroits */
+  .logo {
+    display: none; 
+  }
 }
 
 /* Style des menus de navigation */
