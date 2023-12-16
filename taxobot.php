@@ -75,7 +75,7 @@ function sortie_resultat($article, $liens, $taxon) {
     }
     echo "</br>\n";
     echo "<br/><hr><button id='copybutton' onclick='copyFunction()'>Copier le wikitexte</button><div id='wikitexte' width='99%'>";
-    echo $article;
+    echo nl2br($article);
     echo "</div>";
     echo "</td><td style='vertical-align: top;'>Liens externes :<ul>";
     foreach($liens as $lien) {
