@@ -203,6 +203,7 @@ input[data-trigger], select[data-trigger] {
     flex: none; /* Annulez la flexibilité pour chaque élément pour les empiler les uns sur les autres */
     margin: 5px; /* Vous pouvez ajuster la marge selon vos besoins */
   }
+}
 
 @media screen and (max-width: 600px) {
   .column {
