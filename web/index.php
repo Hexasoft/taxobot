@@ -110,12 +110,6 @@ require_once join(DIRECTORY_SEPARATOR, array(dirname(__FILE__), '..', 'rendu.php
                                     <input type="checkbox" name="inclure-invalides" id="inclure-invalides" value="false">
                                     <label for="inclure-invalides">Inclure les biorefs additionnels</label>
                                     <br/>
-                                    <input type="checkbox" name="debug" id="debug" value="false">
-                                    <label for="debug">Activer le mode debug</label>
-                                    <br/>
-                                    <input type="checkbox" name="debugc" id="debugc" value="false">
-                                    <label for="debugc">Activer le mode debug pour le module de classification</label>
-                                    <br/>
                                     <input type="checkbox" name="liste" id="liste" value="false">
                                     <label for="liste">Afficher la liste des modules</label>
                                     <br/>
