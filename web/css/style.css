@@ -193,6 +193,22 @@ input[data-trigger], select[data-trigger] {
   clear: both;
 }
 
+/* Footer */
+footer {
+  background-color: #8f6b5c;
+  padding: 10px 0;
+  text-align: center;
+  color: #000;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+footer a {
+  text-decoration: none;
+  color: #000;
+}
+
 /* Petits écrans */
 @media screen and (max-width: 1000px) {
 .form-input {
