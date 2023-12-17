@@ -43,9 +43,12 @@ require_once join(DIRECTORY_SEPARATOR, array(dirname(__FILE__), '..', 'rendu.php
   </header>
     <body>
     <main>
+        <div id="processing-message" style="display:none;">
+        <p>La requête est en cours de traitement dans un nouvel onglet. Le traitement peut prendre quelques minutes...</p>
+        </div>
         <!-- Formulaire -->
         <div class="form">
-            <form id="search-form" action="../taxobot.php" method="GET" onsubmit="updateOffField()">
+            <form id="search-form" action="../taxobot.php" method="GET" onsubmit="updateOffField(); showProcessingMessage();" target="_blank">
                 <div class="form-input">
                     <!-- Menu : domaine -->
                     <select data-trigger name="domaine">
@@ -73,7 +76,7 @@ require_once join(DIRECTORY_SEPARATOR, array(dirname(__FILE__), '..', 'rendu.php
                     </select>
 
                     <!-- Champ de texte -->
-                    <input type="text" name="taxon" id="taxon" placeholder="Saisir le nom du taxon" required>
+                    <input type="text" name="taxon" id="taxon" placeholder="Saisir le nom du taxon" required onblur="trimInput(this)">
 
                     <!-- Bouton "Rechercher" -->
                     <button type="submit" id="search-button">Rechercher</button>
@@ -110,6 +113,9 @@ require_once join(DIRECTORY_SEPARATOR, array(dirname(__FILE__), '..', 'rendu.php
                                         <input type="checkbox" name="inclure-invalides" id="inclure-invalides" value="false">
                                         <label for="inclure-invalides">Inclure les biorefs additionnels</label>
                                         <br/>
+                                        <input type="checkbox" name="liste" id="liste" value="false">
+                                        <label for="liste">Afficher la liste des modules</label>
+                                        <br/>
                                         <input type="checkbox" name="article" id="article" value="false">
                                         <label for="article">Générer uniquement la sortie de l'article et rien d'autre</label>
                                     </div>
@@ -143,13 +149,13 @@ require_once join(DIRECTORY_SEPARATOR, array(dirname(__FILE__), '..', 'rendu.php
                                         <input type="number" name="limite-listes" id="limite-listes" min="0" value="0">
                                         <br/>
                                         <label for="timeout">Durée d'exécution des modules :</label><br/>
-                                        <input type="number" name="timeout" id="timeout" min="10" value="10">
+                                        <input type="number" name="timeout" id="timeout" min="0" value="10">
                                         <br/>
                                         <label for="force-regne">Indiquer le règne (charte) : </label><br/>
-                                        <input type="text" name="force-regne" id="force-regne" value="">
+                                        <input type="text" name="force-regne" id="force-regne" value="" onblur="trimInput(this)">
                                         <br/>
                                         <label for="force-rang">Indiquer le rang : </label><br/>
-                                        <input type="text" name="force-rang" id="force-rang" value="">                    
+                                        <input type="text" name="force-rang" id="force-rang" value="" onblur="trimInput(this)">                    
                                     </div>
                 </div>
             </form>
@@ -159,6 +165,7 @@ require_once join(DIRECTORY_SEPARATOR, array(dirname(__FILE__), '..', 'rendu.php
     <footer id="footer">
         <p><a href="https://fr.wikipedia.org/wiki/Projet:Biologie/Taxobot" target="_blank">Taxobot</a> 2023 - Hébergé sur Toolforge par <a href="https://wikitech.wikimedia.org/wiki/Help:Cloud_Services_introduction" target="_blank">Wikimedia Cloud Services</a></p>
     </footer>
+
                 <!-- JS -->
         <script src="js/options.js"></script>
         <script src="js/copy.js"></script>
@@ -170,6 +177,11 @@ require_once join(DIRECTORY_SEPARATOR, array(dirname(__FILE__), '..', 'rendu.php
         </script>
         <!-- Script visant à transformer off[] (array) en off (string: list) -->
         <script>
+            function trimInput(inputElement) {
+                var inputValue = inputElement.value;
+                var trimmedValue = inputValue.trim();
+                inputElement.value = trimmedValue;
+             }
             function updateOffField() {
                 // Récupère off[]
                 var offSelect = document.getElementById("modules_off");
@@ -184,6 +196,10 @@ require_once join(DIRECTORY_SEPARATOR, array(dirname(__FILE__), '..', 'rendu.php
                 }
                 // Supprime off[]
                 offSelect.value = "";
+            }
+            function showProcessingMessage() {
+                var processingMessage = document.getElementById('processing-message');
+                processingMessage.style.display = 'block';
             }
         </script>
     </body>
