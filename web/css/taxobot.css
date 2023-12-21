@@ -1,0 +1,66 @@
+/* Taxobot.php */
+body {
+  margin: 0;
+  padding: 0;
+  background: #d89b8c;
+  font: 400 85% Helvetica, Arial, Tahoma, Sans-Serif;
+  font-size: 12px !important;	
+}
+
+ul, ol {
+    margin: 10px;
+}
+
+li {
+}
+
+.taxobot-main-container {
+    margin: 0;
+}
+
+.taxobot-content-wrap {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.taxobot-main-content {
+    flex: 2;
+    min-width: 200px;
+    margin: 10px;
+}
+
+.taxobot-infos {
+}
+
+.taxobot-results {
+    background: #e7c3ba;
+}
+
+div#wikitexte {
+      margin: 10px;
+}
+
+.taxobot-logs {
+    white-space: pre-line;
+}
+
+
+.taxobot-right-sidebar {
+    min-width: 200px;
+}
+
+.taxobot-center-button {
+    text-align: center;
+}
+
+/* Petits écrans */
+@media (max-width: 1000px) {
+    .taxobot-content-wrap {
+        flex-direction: column; 
+    }
+
+    .taxobot-main-content, .taxobot-right-sidebar {
+        flex: 1;
+        min-width: auto;
+    }
+}

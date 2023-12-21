@@ -63,40 +63,59 @@ function sortie_resultat($article, $liens, $taxon) {
   global $web, $version;
   $juste_article = get_config('article');
   if ($web) {
+    echo "<!DOCTYPE html><html lang=\"fr\">";
     html_head("Résultats pour $taxon − Taxobot v$version");
-    echo "<link rel='stylesheet' type='text/css' href='web/css/style.css'>";
+    echo "<link rel='stylesheet' type='text/css' href='web/css/taxobot.css'>";
     echo "<script type='text/javascript' src='web/js/copy.js'></script>";
-    echo "<table width='99%'>\n";
-    echo "<tr><td width='80%' style='vertical-align: top;'>\n";
-    echo "<i>Informations sur la requête : </i>";
+    echo "<body>";
+    echo "<div class=\"taxobot-main-container\">";
+    echo "<div class=\"taxobot-content-wrap\">";
+    echo "<main class=\"taxobot-main-content\">";
+    echo '<h1>Résultats pour « ' . $taxon . ' »</h1>';
+    echo "<div class=\"taxobot-infos\">";
+    echo "<h2>Informations sur la requête</h2>";
     $tmp = print_config();
     foreach($tmp as $t) {
       echo "$t ; ";
     }
-    echo "</br>\n";
-    echo "<br/><hr><button id='copybutton' onclick='copyFunction()'>Copier le wikitexte</button><div id='wikitexte' width='99%'>";
+    echo "</div>";
+
+    echo "<div><h2>Ébauche générée</h2>";
+    echo "<div class=\"taxobot-center-button\">";
+    echo "<button id=\"copybutton\" onclick=\"copyFunction()\">Copier le wikitexte</button><br /><br />";
+    echo "</div></div>";
+
+    echo "<div class=\"taxobot-results\">";
+    echo "<div id='wikitext'>";
     echo nl2br($article);
     echo "</div>";
-    echo "</td><td style='vertical-align: top;'>Liens externes :<ul>";
+    echo "</div>";
+
+    echo "<div class=\"taxobot-logs\">";
+    echo "<h2>Infos et logs des traitements</h2>";
+    echo get_logs();
+    echo "</div>";
+
+    echo "</main>";
+    echo "<aside class=\"taxobot-right-sidebar\">";
+    echo "<h2>Liens externes</h2><ul>";
     foreach($liens as $lien) {
       if (empty($lien)) {
         continue;
       }
       if (is_array($lien)) {
         foreach($lien as $l) {
-          echo "<li>$l</li>\n";
+          echo "<li>$l</li>";
         }
       } else {
-        echo "<li>$lien</li>\n";
+        echo "<li>$lien</li>";
       }
     }
-    echo "</ul></td></tr>\n";
-    echo "</table>\n";
-    echo "<hr>";
-    echo "Infos et logs des traitements :<br/>\n";
-    echo "<pre>\n";
-    echo get_logs();
-    echo "</pre>\n";
+    echo "</aside>";
+    echo "</div>";
+    echo "</div>";
+    echo "</body>";
+    echo "</html>";
     html_end();
   } else {
     echo "$article";
