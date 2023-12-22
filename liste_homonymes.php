@@ -154,7 +154,8 @@ $homonymes = [
   
   // C
   'Cancer' => [ '*' => 'Cancer (crustacé)' ],
-
+  'Columba' => [ '*' => 'Columba (oiseau)' ],
+  
   // P
   'Pilumnus' => [ '*' => 'Pilumnus (crabe)' ],
 
