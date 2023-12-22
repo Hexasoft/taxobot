@@ -511,24 +511,25 @@ function rendu_voir_aussi($struct) {
   if (isset($struct['liens']['externe']['commons']) or isset($struct['liens']['externe']['species']) or
       isset($struct['liens']['externe']['ccommons']) or isset($struct['liens']['externe']['frwiktionary'])) {
     $tmp = [];
-    // page commons, sinon catégorie commons (si présent)
-    $cpage = false;
-    if (isset($struct['liens']['externe']['commons']['page'])) {
-      $tmp[] = "commons=" . $struct['liens']['externe']['commons']['page'];
-      $cpage = true;
+    // Commons
+    $commons_page = isset($struct['liens']['externe']['commons']['page']) ? $struct['liens']['externe']['commons']['page'] : null;
+    $category_commons_page = isset($struct['liens']['externe']['ccommons']['page']) ? $struct['liens']['externe']['ccommons']['page'] : null;
+    if (!empty($commons_page) && empty($category_commons_page)) {
+      $tmp[] = "commons=" . $commons_page;
+    } elseif (!empty($commons_page) && !empty($category_commons_page)) {
+      $tmp[] = "commons=" . $commons_page;
+      $tmp[] = "commons2=Category:" . $category_commons_page;
+      $tmp[] = "commons titre2=Catégorie " . $category_commons_page;
     }
-    if (isset($struct['liens']['externe']['ccommons']['page'])) {
-      if ($cpage) {
-        $tmp[] = "commons2=Category:" . $struct['liens']['externe']['ccommons']['page'];
-        $tmp[] = "commons titre2=Catégorie " . $struct['liens']['externe']['ccommons']['page'];
-      } else {
-        $tmp[] = "commons=Category:" . $struct['liens']['externe']['ccommons']['page'];
-        $tmp[] = "commons titre=Catégorie " . $struct['liens']['externe']['ccommons']['page'];
-      }
+    elseif (empty($commons_page) && !empty($category_commons_page)) {
+      $tmp[] = "commons=Category:" . $category_commons_page;
+      $tmp[] = "commons titre=Catégorie " . $category_commons_page;
     }
+    // Species
     if (isset($struct['liens']['externe']['species']['page'])) {
       $tmp[] = "species=" . $struct['liens']['externe']['species']['page'];
     }
+    // Wiktionary
     if (isset($struct['liens']['externe']['frwiktionary']['page'])) {
       $tmp[] = "wiktionary=" . $struct['liens']['externe']['frwiktionary']['page'];
     }

@@ -87,8 +87,8 @@ function m_externe_infos(&$struct, $classif) {
 
   list($commons_exists, $cat_commons_exists, $species_exists, $fr_wiktionary_exists) = has_wiki_pages($taxon);
 
-  $struct['liens']['externe']['ccommons']['page'] = $commons_exists ? $taxon : null;
-  $struct['liens']['externe']['commons']['page'] = $cat_commons_exists ? 'Category:' . $taxon : null;
+  $struct['liens']['externe']['commons']['page'] = $commons_exists ? $taxon : null;
+  $struct['liens']['externe']['ccommons']['page'] = $cat_commons_exists ? 'Category:' . $taxon : null;
   $struct['liens']['externe']['species']['page'] = $species_exists ? $taxon : null;
   $struct['liens']['externe']['frwiktionary']['page'] = $fr_wiktionary_exists ? $taxon : null;
 
