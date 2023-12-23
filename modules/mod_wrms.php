@@ -45,6 +45,7 @@ $wrms_rangs = [
   'Family' => 'famille',
   'null2' => 'épifamille',
   'Superfamily' => 'super-famille',
+  'Parvorder' => 'parv-ordre',
   'Microorder' => 'micro-ordre',
   'Infraorder' => 'infra-ordre',
   'Suborder' => 'sous-ordre',
