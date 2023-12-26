@@ -513,17 +513,16 @@ function rendu_voir_aussi($struct) {
     $tmp = [];
     // Commons
     $commons_page = isset($struct['liens']['externe']['commons']['page']) ? $struct['liens']['externe']['commons']['page'] : null;
-    $category_commons_page = isset($struct['liens']['externe']['ccommons']['page']) ? $struct['liens']['externe']['ccommons']['page'] : null;
-    if (!empty($commons_page) && empty($category_commons_page)) {
+    $commons_category_page = isset($struct['liens']['externe']['ccommons']['page']) ? $struct['liens']['externe']['ccommons']['page'] : null;
+    if (!empty($commons_page) && empty($commons_category_page)) {
       $tmp[] = "commons=" . $commons_page;
-    } elseif (!empty($commons_page) && !empty($category_commons_page)) {
+    } elseif (!empty($commons_page) && !empty($commons_category_page)) {
       $tmp[] = "commons=" . $commons_page;
-      $tmp[] = "commons2=Category:" . $category_commons_page;
-      $tmp[] = "commons titre2=Catégorie " . $category_commons_page;
-    }
-    elseif (empty($commons_page) && !empty($category_commons_page)) {
-      $tmp[] = "commons=Category:" . $category_commons_page;
-      $tmp[] = "commons titre=Catégorie " . $category_commons_page;
+      $tmp[] = "commons2=Category:" . $commons_category_page;
+      $tmp[] = "commons titre2=Catégorie " . $commons_category_page;
+    } elseif (empty($commons_page) && !empty($commons_category_page)) {
+      $tmp[] = "commons=Category:" . $commons_category_page;
+      $tmp[] = "commons titre=Catégorie " . $commons_category_page;
     }
     // Species
     if (isset($struct['liens']['externe']['species']['page'])) {
@@ -563,7 +562,7 @@ function rendu_voir_aussi($struct) {
   if (!empty($ext) or !empty($ref) or ! empty($autres)) {
     $resu .= "== Liens externes ==\n";
     if (!empty($autres)) {
-      sort($autres);
+      sort($autres); // est-ce pertinent ?
       $resu .= "{{Autres projets\n";
       foreach($autres as $a) {
         $resu .= "| $a\n";
