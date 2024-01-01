@@ -518,11 +518,7 @@ function dates_calcule() {
   $ddd = date("j n Y");
   $bck = explode(" ", $ddd);
   $cdate = "";
-  if ($bck[0] == "1") {
-    $cdate .= "{{1er}} ";
-  } else {
-    $cdate .= $bck[0] . " ";
-  }
+  $cdate .= $bck[0] . " ";
   $cdate .= $mois[$bck[1]] . " ";
   $cdate .= $bck[2];
 }
