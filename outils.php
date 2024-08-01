@@ -552,7 +552,7 @@ function est_colonnes($nombre) {
 // fonctions de mise en colonnes
 function colonnes_debut() {
   // $taille_colonnes = get_config("taille-colonnes"); // à implémenter ?
-  return "{{colonnes|taille=25|\n";
+  return "{{colonnes|taille=25|1=\n";
 }
 function colonnes_fin() {
   return "}}\n";
