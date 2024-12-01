@@ -55,6 +55,7 @@ require_once join(DIRECTORY_SEPARATOR, array(dirname(__FILE__), '..', 'rendu.php
                             <option value="wrms">WoRMS</option>
                             <option value="algaebase">AlgaeBase</option>
                             <option value="lpsn">LPSN</option>
+                            <option value="irmng">IRMNG</option>
 
                             <!-- Autres classifications -->
                         </select>

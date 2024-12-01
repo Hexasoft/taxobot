@@ -1,8 +1,15 @@
 <?php
 
-/*
-  Module pour wrms (non classification)
-*/
+/**
+ * Module - World Register of Marine Species (WoRMS)
+ *
+ * Ce module permet de récupérer des informations sur un taxon à partir du site marinespecies.org.
+ * Il génère :
+ * - une classification ('WoRMS')
+ * - des liens externes (bioref)
+ * - des liens internes
+ *
+ */
 
 // retourne le nom du modèle Bioref associé à GBIF (théoriquement peut dépendre du rang)
 function wrms_bioref($rang=null) {
@@ -560,7 +567,8 @@ function m_wrms_infos(&$struct, $classif) {
     // erreur, mais on met quand même l'identifiant
     $blob['nom'] = $taxon;
     $blob['rang'] = $struct['taxon']['rang'];
-    $blob['auteur'] = wrms_etal($struct['taxon']['auteur']);
+    $blob['auteur'] = isset($struct['taxon']['auteur']) ? wrms_etal($struct['taxon']['auteur']) : '';
+
     $struct['liens']['wrms'] = $blob;
     return false;
   }
@@ -620,7 +628,7 @@ function m_wrms_infos(&$struct, $classif) {
 
   // partie taxon
   $struct['taxon']['nom'] = $res['nom'];
-  $struct['taxon']['auteur'] = wrms_etal($res['auteur']);
+  $struct['taxon']['auteur'] = isset($res['auteur']) ? wrms_etal($res['auteur']) : '';
   $struct['taxon']['rang'] = $res['rang'];
   if (isset($res['eteint'])) {
     $struct['taxon']['eteint'] = $res['eteint'];
@@ -728,7 +736,7 @@ function m_wrms_infos(&$struct, $classif) {
         } else {
           $x = [];
           $x['nom'] = $tmp['nom'];
-          $x['auteur'] = wrms_etal($tmp['auteur']);
+          $x['auteur'] = isset($tmp['auteur']) ? wrms_etal($tmp['auteur']) : '';
           $x['rang'] = $tmp['rang'];
           if (isset($tmp['eteint'])) {
             $x['eteint'] = $tmp['eteint'];
