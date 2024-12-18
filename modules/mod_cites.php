@@ -93,7 +93,8 @@ function m_cites_ext($struct) {
 
   if (isset($struct['liens']['cites']['lien'])) {
     $data = $struct['liens']['cites'];
-    $cible = wp_met_italiques($data['nom'], isset($data['rang'])?$data['rang']:$struct['taxon']['rang'], $struct['regne']);
+    $cible = wp_met_italiques($data['nom'], 
+    isset($data['rang']) ? $data['rang'] : $struct['taxon']['rang'], $struct['regne']);
     if (isset($data['auteur'])) {
       $auteur = $data['auteur'];
     } else {
