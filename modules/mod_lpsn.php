@@ -465,6 +465,17 @@ function m_lpsn_infos(&$struct, $classif) {
   // on détermine le "règne"
   $struct['regne'] = m_lpsn_regne($struct['rangs']);
 
+  // éviter le doublon règne/domaine
+  if ($struct['regne'] == "bactérie") {
+    foreach ($struct['rangs'] as $key => $value) {
+      if ((isset($value['lpsn-lien']) && $value['lpsn-lien'] == 'bacteria') || 
+          (isset($value['rang']) && $value['rang'] == 'domain')) {
+          unset($struct['rangs'][$key]);
+      }
+    }
+  $struct['rangs'] = array_values($struct['rangs']);
+  }
+
   // taxons inférieurs
   if (isset($ret['sous-taxons']) and !empty($ret['sous-taxons'])) {
     $struct['sous-taxons']['liste'] = $ret['sous-taxons'];
