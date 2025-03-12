@@ -54,6 +54,7 @@ function m_inpn_infos(&$struct, $classif) {
     logs("INPN: pas de réponse pour cette recherche");
     return false;
   }
+
   // requête complète
   $url = "https://odata-inpn.mnhn.fr/taxa/names?nameFragment=" .
          str_replace(" ", "+", $taxon) . "&embed=VALID_NAME&size=" .
@@ -76,7 +77,7 @@ function m_inpn_infos(&$struct, $classif) {
     if (!$r->valid) {
       continue;
     }
-    if ($r->binomialName != "$taxon") {
+    if ($r->binomialName != $taxon) {
       continue;
     }
     $blob['nom'] = $taxon;
@@ -86,40 +87,32 @@ function m_inpn_infos(&$struct, $classif) {
     $ok = true;
     break;
   }
+
+  // Vernaculaire
+  foreach ($res->_embedded->taxonNames as $r2) {
+    // Vérifier si des noms vernaculaires existent
+    if (isset($r2->vernacularNames) && !empty($r2->vernacularNames)) {
+        if (isset($r2->vernacularNames->fr) && !empty($r2->vernacularNames->fr)) {
+            $ver = [];
+            foreach ($r2->vernacularNames->fr as $vernacular) {
+              $ver[] = $vernacular;
+            }
+            if (!empty($ver)) {
+              $struct["vernaculaire"]['INPN'] = $ver;
+            }
+            break;
+        }
+    }
+  }
+
   if (!$ok) {
     logs("INPN: taxon non trouvé");
     return false;
   }
 
-  // recherche noms vernaculaires
-  $url = "https://taxref.mnhn.fr/api/taxa/$id/vernacularNames";
-  $ret = get_data($url);
-  if ($ret === false) {
-    goto suite;
-  }
-  $res = json_decode($ret);
-  if ($res === null) {
-    goto suite;
-  }
-  $ver = [];
-  if (isset($res->_embedded->vernacularNames)) {
-    foreach($res->_embedded->vernacularNames as $r) {
-      if ($r->langageId == "fra") {
-        $tmp = explode(", ", $r->name);
-        foreach($tmp as $t) {
-          $ver[] = $t;
-        }
-      }
-    }
-  }
-  if (!empty($ver)) {
-    $struct["vernaculaire"]['INPN'] = $ver;
-  }
-
   // on l'ajoute
   $struct['liens']['inpn'] = $blob;
 
-suite:
   // si pas plus loin, retour
   if (!$classif) {
     return true;
