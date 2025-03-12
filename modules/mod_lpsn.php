@@ -3,7 +3,7 @@
 // traduction des rangs LPSN (pour WP et pour le modèle externe)
 $lpsn_rangs = [
   "species" => "espèce", "genus" => "genre", "family" => "famille",
-  "order" => "ordre", "class" => "classe", "phylum" => "phylum", "domain" => "domaine" ];
+  "order" => "ordre", "class" => "classe", "phylum" => "phylum", "domain" => "domaine", "kingdom" => "kingdom" ];
 
 // déclaration du module
 function m_lpsn_init() {
