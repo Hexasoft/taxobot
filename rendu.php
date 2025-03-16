@@ -298,12 +298,21 @@ function rendu_supp($struct) {
         $cible .= " " . $tmp['auteur'];
       }
       // début de phrase
-      $txt = wp_le_rang($tmp['rang']) . $tmp['rang'];
+      $txt = wp_le_rang($tmp['rang']) . $tmp['rang']; // article + rang
       $a = mb_substr($txt, 0, 1, 'UTF-8');
       $b = mb_substr($txt, 1, null, 'UTF-8');
       $txt = mb_strtoupper($a, 'UTF-8') . $b;
-      $ret .= $txt . " [[Type (biologie)|type]] est : " . $cible .
-              "{{Bioref|" . $tmp['source'] . "|$cdate|ref}}.\n\n";
+      switch ($tmp['rang']) {
+        case 'espèce':
+            $rangtype = "[[espèce type]]";
+            break;
+        case 'genre':
+            $rangtype = "[[genre type]]";
+            break;
+        default:
+            $rangtype = $txt . " [[Type (biologie)|type]]";
+      }
+      $ret .= $rangtype. " est ". $cible . "{{Bioref|" . $tmp['source'] . "|$cdate|ref}}.\n\n";    
     }
 
     if (isset($struct['vernaculaire'])) {
