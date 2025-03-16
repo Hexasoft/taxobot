@@ -3,7 +3,7 @@
 // traduction des rangs LPSN (pour WP et pour le modèle externe)
 $lpsn_rangs = [
   "species" => "espèce", "genus" => "genre", "family" => "famille",
-  "order" => "ordre", "class" => "classe", "phylum" => "phylum", "domain" => "domaine", "kingdom" => "kingdom" ];
+  "order" => "ordre", "class" => "classe", "phylum" => "phylum", "domain" => "domaine", "kingdom" => "règne" ];
 
 // déclaration du module
 function m_lpsn_init() {
@@ -466,13 +466,14 @@ function m_lpsn_infos(&$struct, $classif) {
   $struct['regne'] = m_lpsn_regne($struct['rangs']);
 
   // éviter le doublon règne/domaine
-  if ($struct['regne'] == "bactérie") {
+  if (isset($struct['regne']) && in_array($struct['regne'], ['bactérie', 'archea'])) {
     foreach ($struct['rangs'] as $key => $value) {
-      if ((isset($value['lpsn-lien']) && $value['lpsn-lien'] == 'bacteria') || 
-          (isset($value['rang']) && $value['rang'] == 'domain')) {
-          unset($struct['rangs'][$key]);
-      }
+        if ((isset($value['lpsn-lien']) && in_array($value['lpsn-lien'], ['bacteria', 'archea'])) || 
+            (isset($value['rang']) && $value['rang'] == 'domain')) {
+            unset($struct['rangs'][$key]);
+        }
     }
+  }
   $struct['rangs'] = array_values($struct['rangs']);
   }
 
