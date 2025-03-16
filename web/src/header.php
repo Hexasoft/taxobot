@@ -1,3 +1,6 @@
+<?php
+header('Content-Type: text/html; charset=UTF-8');
+?>
 <header>
     <nav class="menu menu-left">
         <ul>
