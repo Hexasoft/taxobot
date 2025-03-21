@@ -473,7 +473,6 @@ function m_lpsn_infos(&$struct, $classif) {
             unset($struct['rangs'][$key]);
         }
     }
-  }
   $struct['rangs'] = array_values($struct['rangs']);
   }
 
